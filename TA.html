@@ -78,7 +78,7 @@
             </div>
         </div>
 
-        <!-- 數據統計 -->
+        <!-- 數據統計 (搜尋結果) -->
         <div id="statsArea" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8 hidden">
             <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500">
                 <p class="text-xs text-gray-400 font-bold uppercase">總推薦人數</p>
@@ -110,10 +110,10 @@
                             <tr>
                                 <th class="px-6 py-4 text-sm font-bold uppercase">被介紹人 (N)</th>
                                 <th class="px-6 py-4 text-sm font-bold uppercase text-center">日期資訊 (B+C+D)</th>
-                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">RJ / NJ (M)</th>
-                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">Status (W)</th>
-                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">ON BOARD DATE (T+U+V)</th>
-                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">最終標記 (Z)</th>
+                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">RJ / NJ</th>
+                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">Status</th>
+                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">ON BOARD DATE</th>
+                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">最終標記</th>
                             </tr>
                         </thead>
                         <tbody id="resultTableBody" class="divide-y divide-gray-200"></tbody>
@@ -129,19 +129,39 @@
             </h2>
             <div class="glass-morphism overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs md:text-sm">
+                    <table class="w-full text-left border-collapse text-xs md:text-sm text-center">
                         <thead class="bg-indigo-50 text-indigo-900 border-b font-bold uppercase">
                             <tr>
-                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[120px]">Floor</th>
-                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[150px]">Name</th>
-                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[100px]">Offered</th>
-                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[120px]">On board RJ</th>
-                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[150px]">Should on Board RJ</th>
-                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[130px]">RJ Offer Gap</th>
-                                <th class="px-4 py-3 text-center min-w-[150px]">New joiner Offer</th>
+                                <th class="px-4 py-3 border-r border-indigo-100 min-w-[150px]">Name</th>
+                                <th class="px-4 py-3 border-r border-indigo-100 min-w-[150px]">Should on Board RJ</th>
+                                <th class="px-4 py-3 border-r border-indigo-100 min-w-[150px]">On board RJ</th>
+                                <th class="px-4 py-3 min-w-[150px]">RJ Offer Gap</th>
                             </tr>
                         </thead>
                         <tbody id="sheet2TableBody" class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Brand Summary 區塊 -->
+        <div id="brandSummaryArea" class="hidden mb-20">
+            <h2 class="text-xl font-bold text-gray-700 mb-6 px-2 flex items-center border-l-4 border-emerald-600 pl-3">
+                Brand Summary
+            </h2>
+            <div class="glass-morphism overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-emerald-50 text-emerald-900 border-b font-bold uppercase text-center text-sm">
+                            <tr>
+                                <th class="px-6 py-4 text-left">Brand</th>
+                                <th class="px-6 py-4">Total Offer</th>
+                                <th class="px-6 py-4">Total should on board</th>
+                                <th class="px-6 py-4">Total On board</th>
+                                <th class="px-6 py-4">Total Gap</th>
+                            </tr>
+                        </thead>
+                        <tbody id="brandSummaryBody" class="divide-y divide-gray-200"></tbody>
                     </table>
                 </div>
             </div>
@@ -167,7 +187,6 @@
     </div>
 
     <script>
-        // --- 核心配置 ---
         const SHEET1_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQI5NkFNnXAqi78qHKhg6CRZ4ZTVwu1Tevpo2PXdQn85pZWh6GeAhK29Ih4U7B9QKzqucIDomXJh94L/pub?gid=0&single=true&output=csv';
         const SHEET2_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQI5NkFNnXAqi78qHKhg6CRZ4ZTVwu1Tevpo2PXdQn85pZWh6GeAhK29Ih4U7B9QKzqucIDomXJh94L/pub?gid=906179987&single=true&output=csv';
         const DATE_LIMIT = new Date('2025-12-15');
@@ -207,6 +226,7 @@
                         dataS2 = results.data;
                         headersS2 = results.meta.fields;
                         populateBrandFilter();
+                        calculateBrandSummary();
                     }
                 });
 
@@ -216,13 +236,60 @@
             }
         }
 
-        // --- 篩選器功能 ---
+        // --- Brand Summary 計算邏輯 ---
+        function calculateBrandSummary() {
+            if (!dataS2.length) return;
+            const summaryBody = document.getElementById('brandSummaryBody');
+            summaryBody.innerHTML = '';
+            
+            // 按照順序排列: Dermes, Elyze, Reenex
+            const targetBrands = ['DERMES', 'ELYZE', 'REENEX'];
+            const brandKey = headersS2[0]; // A
+            const nameKey = headersS2[5];  // F
+            const colNKey = headersS2[13]; // N -> Total Offer
+            const colPKey = headersS2[15]; // P -> Total should on board
+            const colOKey = headersS2[14]; // O -> Total On board
+            const colRKey = headersS2[17]; // R -> Total Gap
+
+            targetBrands.forEach(brandName => {
+                // 過濾該品牌的記錄
+                const filtered = dataS2.filter(item => (item[brandKey] || "").toString().trim().toUpperCase() === brandName);
+                
+                let sumOffer = 0, sumShould = 0, sumOnBoard = 0, sumGap = 0;
+
+                filtered.forEach(item => {
+                    // 排除試算表中原本就有的 "Total" 或匯總行，避免重複加總
+                    const nameVal = (item[nameKey] || "").toString().toUpperCase();
+                    if (nameVal.includes("TOTAL") || nameVal.trim() === "") return;
+
+                    sumOffer += parseFloat(item[colNKey]) || 0;
+                    sumShould += parseFloat(item[colPKey]) || 0;
+                    sumOnBoard += parseFloat(item[colOKey]) || 0;
+                    sumGap += parseFloat(item[colRKey]) || 0;
+                });
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition text-center";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 text-left font-bold text-gray-800">${brandName}</td>
+                    <td class="px-6 py-4 text-gray-600 font-medium">${sumOffer.toLocaleString()}</td>
+                    <td class="px-6 py-4 text-gray-600 font-medium">${sumShould.toLocaleString()}</td>
+                    <td class="px-6 py-4 text-gray-700 font-bold">${sumOnBoard.toLocaleString()}</td>
+                    <td class="px-6 py-4 ${sumGap < 0 ? 'text-red-600 font-bold' : 'text-gray-700'} font-medium">${sumGap.toLocaleString()}</td>
+                `;
+                summaryBody.appendChild(tr);
+            });
+            
+            document.getElementById('brandSummaryArea').classList.remove('hidden');
+        }
+
+        // --- 篩選器與查詢功能 ---
         function populateBrandFilter() {
             const brandSelect = document.getElementById('filterBrand');
             const brands = [...new Set(dataS2.map(item => {
                 const val = item[headersS2[0]];
                 return val ? val.toString().trim().toUpperCase() : "";
-            }).filter(v => v))].sort();
+            }).filter(v => v && !v.includes("TOTAL")))].sort();
             
             brands.forEach(b => {
                 const opt = document.createElement('option');
@@ -236,26 +303,14 @@
             const brand = document.getElementById('filterBrand').value;
             const floorSelect = document.getElementById('filterFloor');
             const nameSelect = document.getElementById('filterName');
-            
             floorSelect.innerHTML = '<option value="">請選擇 Floor</option>';
             nameSelect.innerHTML = '<option value="">請選擇姓名</option>';
             nameSelect.disabled = true;
-
-            if (!brand) {
-                floorSelect.disabled = true;
-                return;
-            }
-
-            const floors = [...new Set(dataS2.filter(i => {
-                const val = i[headersS2[0]];
-                return val && val.toString().trim().toUpperCase() === brand.toUpperCase();
-            }).map(i => i[headersS2[1]]).filter(v => v))].sort();
-            
+            if (!brand) { floorSelect.disabled = true; return; }
+            const floors = [...new Set(dataS2.filter(i => (i[headersS2[0]] || "").toString().trim().toUpperCase() === brand).map(i => i[headersS2[1]]).filter(v => v))].sort();
             floors.forEach(f => {
                 const opt = document.createElement('option');
-                opt.value = f;
-                opt.innerText = f;
-                floorSelect.appendChild(opt);
+                opt.value = f; opt.innerText = f; floorSelect.appendChild(opt);
             });
             floorSelect.disabled = false;
         }
@@ -264,25 +319,12 @@
             const brand = document.getElementById('filterBrand').value;
             const floor = document.getElementById('filterFloor').value;
             const nameSelect = document.getElementById('filterName');
-            
             nameSelect.innerHTML = '<option value="">請選擇姓名</option>';
-            if (!floor) {
-                nameSelect.disabled = true;
-                return;
-            }
-
-            const list = dataS2.filter(i => {
-                const bVal = i[headersS2[0]];
-                const fVal = i[headersS2[1]];
-                return bVal && bVal.toString().trim().toUpperCase() === brand.toUpperCase() && 
-                       fVal && fVal.toString().trim() === floor;
-            });
-            
+            if (!floor) { nameSelect.disabled = true; return; }
+            const list = dataS2.filter(i => (i[headersS2[0]] || "").toString().trim().toUpperCase() === brand && (i[headersS2[1]] || "").toString().trim() === floor);
             list.forEach(i => {
                 const opt = document.createElement('option');
-                opt.value = i[headersS2[5]];
-                opt.innerText = i[headersS2[5]];
-                nameSelect.appendChild(opt);
+                opt.value = i[headersS2[5]]; opt.innerText = i[headersS2[5]]; nameSelect.appendChild(opt);
             });
             nameSelect.disabled = false;
         }
@@ -292,16 +334,7 @@
             const floor = document.getElementById('filterFloor').value;
             const name = document.getElementById('filterName').value;
             if (!name) return;
-
-            const staff = dataS2.find(i => {
-                const bVal = i[headersS2[0]];
-                const fVal = i[headersS2[1]];
-                const nVal = i[headersS2[5]];
-                return bVal && bVal.toString().trim().toUpperCase() === brand.toUpperCase() && 
-                       fVal && fVal.toString().trim() === floor && 
-                       nVal && nVal.toString().trim() === name;
-            });
-            
+            const staff = dataS2.find(i => (i[headersS2[0]] || "").toString().trim().toUpperCase() === brand && (i[headersS2[1]] || "").toString().trim() === floor && (i[headersS2[5]] || "").toString().trim() === name);
             if (staff) {
                 const id = (staff[headersS2[4]] || "").toString().trim();
                 document.getElementById('staffId').value = id;
@@ -316,37 +349,27 @@
 
         function executeSearch(staffId) {
             document.getElementById('initialPrompt').classList.add('hidden');
-
-            const staffIdKeyS1 = headersS1[9]; // J 欄
+            const staffIdKeyS1 = headersS1[9]; // J
             const filterS1 = dataS1.filter(item => {
                 const id = (item[staffIdKeyS1] || "").toString().trim();
                 if (id !== staffId) return false;
-
                 const dB = parseDate(item[headersS1[1]]);
                 const dC = parseDate(item[headersS1[2]]);
                 const dD = parseDate(item[headersS1[3]]);
                 return (dB && dB > DATE_LIMIT) || (dC && dC > DATE_LIMIT) || (dD && dD > DATE_LIMIT);
             });
-
-            const staffIdKeyS2 = headersS2[4]; // Sheet 2 基於 E 欄 (Staff ID)
-            const filterS2 = dataS2.filter(item => {
-                const id = (item[staffIdKeyS2] || "").toString().trim();
-                return id === staffId;
-            });
-
+            const staffIdKeyS2 = headersS2[4]; // Staff ID (E)
+            const filterS2 = dataS2.filter(item => (item[staffIdKeyS2] || "").toString().trim() === staffId);
             if (filterS1.length > 0 || filterS2.length > 0) {
                 renderS1(filterS1);
                 renderS2(filterS2);
                 document.getElementById('noResult').classList.add('hidden');
-            } else {
-                showNone();
-            }
+            } else { showNone(); }
         }
 
         function parseDate(d) {
             if (!d || d === '-') return null;
-            let ts = Date.parse(d);
-            if (!isNaN(ts)) return new Date(ts);
+            let ts = Date.parse(d); if (!isNaN(ts)) return new Date(ts);
             const parts = d.split(/[\/\-\s]+/);
             if (parts.length === 3) {
                 let day = parseInt(parts[0]);
@@ -362,12 +385,8 @@
 
         function getZColumnClass(val) {
             const s = (val || "PENDING").toString().toUpperCase().trim();
-            if (s.includes('WITHDRAW') || s.includes('NOSHOW') || s.includes('NO SHOW')) {
-                return "bg-red-100 text-red-700 border border-red-200 font-bold";
-            }
-            if (s.includes('ONBOARD') || s.includes('ON BOARD')) {
-                return "bg-green-100 text-green-700 border border-green-200 font-bold";
-            }
+            if (s.includes('WITHDRAW') || s.includes('NOSHOW') || s.includes('NO SHOW')) return "bg-red-100 text-red-700 border border-red-200 font-bold";
+            if (s.includes('ONBOARD') || s.includes('ON BOARD')) return "bg-green-100 text-green-700 border border-green-200 font-bold";
             return "bg-yellow-100 text-yellow-700 border border-yellow-200 font-bold";
         }
 
@@ -378,55 +397,31 @@
 
             list.forEach(item => {
                 cTotal++;
-                
-                const rawName = item[headersS1[13]] || "未知"; // N 欄
-                const bVal = (item[headersS1[1]] || "").trim(); // B 欄
-                const cVal = (item[headersS1[2]] || "").trim(); // C 欄
-                const dVal = (item[headersS1[3]] || "").trim(); // D 欄
-                
-                // 智慧組合 B+C+D 並去重 (防止出現 Dec 2025 Dec 2025)
-                const dateParts = [bVal, cVal, dVal].filter(v => v && v !== '-');
+                const rawName = item[headersS1[13]] || "未知"; 
+                const dateParts = [(item[headersS1[1]] || "").trim(), (item[headersS1[2]] || "").trim(), (item[headersS1[3]] || "").trim()].filter(v => v && v !== '-');
                 const uniqueParts = [];
-                dateParts.forEach(p => {
-                    // 如果當前部分已經包含在已有的內容中，或者已有內容包含當前部分，則跳過
-                    if (!uniqueParts.some(existing => existing.includes(p) || p.includes(existing))) {
-                        uniqueParts.push(p);
-                    }
-                });
+                dateParts.forEach(p => { if (!uniqueParts.some(existing => existing.includes(p) || p.includes(existing))) uniqueParts.push(p); });
                 const extraInfo = uniqueParts.join(' ');
-                
                 const rjnj = item[headersS1[12]] || "-"; 
                 const statusW = (item[headersS1[22]] || "-").toString(); 
                 const zVal = (item[headersS1[25]] || "").toString(); 
                 const obDateStr = [item[headersS1[19]], item[headersS1[20]], item[headersS1[21]]].filter(v => v && v !== '-').join(' ');
 
-                const statusUpper = statusW.toUpperCase();
-                const zUpper = zVal.toUpperCase();
-
-                if (zUpper.includes('ONBOARD') || zUpper.includes('ON BOARD')) {
-                    cJoined++;
-                } else if (
-                    statusUpper.includes('WITHDRAW') || statusUpper.includes('NO SHOW') || statusUpper.includes('NOSHOW') ||
-                    zUpper.includes('WITHDRAW') || zUpper.includes('NO SHOW') || zUpper.includes('NOSHOW')
-                ) {
-                    cWithdraw++;
-                } else {
-                    cPending++;
-                }
+                if (zVal.toUpperCase().includes('ONBOARD') || zVal.toUpperCase().includes('ON BOARD')) cJoined++;
+                else if (statusW.toUpperCase().includes('WITHDRAW') || statusW.toUpperCase().includes('NO SHOW') || zVal.toUpperCase().includes('WITHDRAW') || zVal.toUpperCase().includes('NO SHOW')) cWithdraw++;
+                else cPending++;
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 transition";
                 const displayZ = zVal || 'PENDING';
-                const markClass = getZColumnClass(displayZ);
-
                 tr.innerHTML = `
                     <td class="px-6 py-4 font-medium text-gray-900 leading-tight">${rawName}</td>
                     <td class="px-6 py-4 text-center text-[11px] text-gray-500 font-normal bg-gray-50/50">${extraInfo || '-'}</td>
-                    <td class="px-6 py-4 text-gray-600 font-bold text-center">${rjnj}</td>
-                    <td class="px-6 py-4 text-gray-700 font-medium text-center text-sm">${statusW}</td>
-                    <td class="px-6 py-4 text-gray-500 text-sm text-center">${obDateStr || '-'}</td>
+                    <td class="px-6 py-4 text-gray-600 font-bold text-center text-xs sm:text-sm">${rjnj}</td>
+                    <td class="px-6 py-4 text-gray-700 font-medium text-center text-xs sm:text-sm">${statusW}</td>
+                    <td class="px-6 py-4 text-gray-500 text-xs sm:text-sm text-center">${obDateStr || '-'}</td>
                     <td class="px-6 py-4 text-center">
-                        <span class="px-3 py-1 rounded-full text-xs ${markClass}">${displayZ}</span>
+                        <span class="px-3 py-1 rounded-full text-xs ${getZColumnClass(displayZ)}">${displayZ}</span>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -444,22 +439,18 @@
             const tbody = document.getElementById('sheet2TableBody');
             tbody.innerHTML = '';
             list.forEach(item => {
-                const indices = [1, 5, 12, 14, 15, 17, 21];
+                // Name(5), P(15), O(14), R(17)
+                const indices = [5, 15, 14, 17];
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 transition";
-                
+                tr.className = "hover:bg-gray-50 transition text-center text-xs sm:text-sm";
                 indices.forEach(idx => {
                     const td = document.createElement('td');
                     const value = item[headersS2[idx]] || "-";
-                    td.className = "px-4 py-3 text-gray-600 border-r border-gray-100 last:border-0 text-center";
-                    
+                    td.className = "px-4 py-3 text-gray-600 border-r border-gray-100 last:border-0";
                     if (idx === 17) {
                         const num = parseFloat(value);
-                        if (!isNaN(num) && num < 0) {
-                            td.className += " bg-red-100 text-red-700 font-bold";
-                        }
+                        if (!isNaN(num) && num < 0) td.className += " bg-red-100 text-red-700 font-bold";
                     }
-                    
                     td.innerText = value;
                     tr.appendChild(td);
                 });
