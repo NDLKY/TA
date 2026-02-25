@@ -134,6 +134,10 @@
                         <thead class="bg-indigo-50 text-indigo-900 border-b font-bold uppercase">
                             <tr>
                                 <th class="px-4 py-3 border-r border-indigo-100 min-w-[150px]">Name</th>
+                                <th class="px-4 py-3 border-r border-indigo-100 min-w-[100px] leading-tight text-xs uppercase">
+                                    Total Offer<br>
+                                    <span class="text-[10px] font-normal block mt-1">(已減沒有返工的Offer)</span>
+                                </th>
                                 <th class="px-4 py-3 border-r border-indigo-100 min-w-[150px]">Should on Board RJ</th>
                                 <th class="px-4 py-3 border-r border-indigo-100 min-w-[150px]">On board RJ</th>
                                 <th class="px-4 py-3 min-w-[150px]">RJ Offer Gap</th>
@@ -158,7 +162,7 @@
                                 <th class="px-6 py-4 text-left text-xs">Brand</th>
                                 <th class="px-6 py-4 text-xs leading-tight">
                                     Total Offer<br>
-                                    <span class="text-[10px] font-normal lowercase block mt-1">(已減沒有返工的Offer)</span>
+                                    <span class="text-[10px] font-normal block mt-1">(已減沒有返工的Offer)</span>
                                 </th>
                                 <th class="px-6 py-4 text-xs">Total should on board</th>
                                 <th class="px-6 py-4 text-xs">Total On board</th>
@@ -403,7 +407,6 @@
                 const cVal = (item[headersS1[2]] || "").trim();
                 const dVal = (item[headersS1[3]] || "").trim();
                 
-                // 改進的日期資訊去重邏輯
                 const dateParts = [bVal, cVal, dVal].filter(v => v && v !== '-');
                 const uniqueParts = [];
                 dateParts.forEach(p => {
@@ -427,13 +430,13 @@
                 tr.className = "hover:bg-gray-50 transition";
                 const displayZ = zVal || 'PENDING';
                 tr.innerHTML = `
-                    <td class="px-6 py-4 font-medium text-gray-900 leading-tight">${rawName}</td>
-                    <td class="px-6 py-4 text-center text-[11px] text-gray-500 font-normal bg-gray-50/50">${extraInfo || '-'}</td>
+                    <td class="px-6 py-4 font-medium text-gray-900 leading-tight text-xs sm:text-sm">${rawName}</td>
+                    <td class="px-6 py-4 text-center text-[10px] text-gray-500 font-normal bg-gray-50/50">${extraInfo || '-'}</td>
                     <td class="px-6 py-4 text-gray-600 font-bold text-center text-xs sm:text-sm">${rjnj}</td>
                     <td class="px-6 py-4 text-gray-700 font-medium text-center text-xs sm:text-sm">${statusW}</td>
-                    <td class="px-6 py-4 text-gray-500 text-xs sm:text-sm text-center">${obDateStr || '-'}</td>
+                    <td class="px-6 py-4 text-gray-500 text-[11px] text-center">${obDateStr || '-'}</td>
                     <td class="px-6 py-4 text-center">
-                        <span class="px-3 py-1 rounded-full text-xs ${getZColumnClass(displayZ)}">${displayZ}</span>
+                        <span class="px-3 py-1 rounded-full text-[10px] ${getZColumnClass(displayZ)}">${displayZ}</span>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -451,7 +454,8 @@
             const tbody = document.getElementById('sheet2TableBody');
             tbody.innerHTML = '';
             list.forEach(item => {
-                const indices = [5, 15, 14, 17];
+                // Name(5), Offered(13), Should(15), Onboard(14), Gap(17)
+                const indices = [5, 13, 15, 14, 17];
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 transition text-center text-xs sm:text-sm";
                 indices.forEach(idx => {
