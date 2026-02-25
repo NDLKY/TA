@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>員工推薦進度查詢系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; }
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+        }
+        select:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body class="min-h-screen py-10 px-4">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- 頂部標題與日期 -->
+        <div class="flex flex-col md:flex-row justify-between items-center md:items-start mb-10 gap-4">
+            <div class="text-center md:text-left">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">推薦進度查詢系統 (Dashboard)</h1>
+                <p class="text-gray-600">數據範圍：2025年12月15日 後之記錄</p>
+            </div>
+            <div class="glass-morphism px-6 py-3 border border-white text-blue-700 font-bold shadow-sm text-sm" id="lastUpdateDisplay">
+                試算表更新時間：同步中...
+            </div>
+        </div>
+
+        <!-- 查詢區域 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- 手動輸入 ID -->
+            <div class="lg:col-span-1 glass-morphism p-6 border border-white shadow-sm">
+                <h3 class="text-blue-700 font-bold mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    手動輸入查詢
+                </h3>
+                <label for="staffId" class="block text-xs font-medium text-gray-500 mb-1 uppercase">員工編號 (J 欄)</label>
+                <input type="text" id="staffId" placeholder="輸入 Staff ID (如: 11852)" 
+                       class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition mb-4 text-gray-800">
+                <button onclick="manualSearch()" 
+                        class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition shadow-md active:scale-95">
+                    執行查詢
+                </button>
+            </div>
+
+            <!-- 下拉篩選 -->
+            <div class="lg:col-span-2 glass-morphism p-6 border border-white shadow-sm text-indigo-700">
+                <h3 class="font-bold mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                    根據員工資訊篩選 (忽略大小寫)
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1 uppercase">Brand (A)</label>
+                        <select id="filterBrand" onchange="updateFloorFilter()" class="w-full px-3 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none text-gray-800 font-normal">
+                            <option value="">請選擇 Brand</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1 uppercase">Floor (B)</label>
+                        <select id="filterFloor" onchange="updateNameFilter()" disabled class="w-full px-3 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none text-gray-800 font-normal">
+                            <option value="">請選擇 Floor</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1 uppercase">Name (F)</label>
+                        <select id="filterName" onchange="searchByFilter()" disabled class="w-full px-3 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none text-gray-800 font-normal">
+                            <option value="">請選擇姓名</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 數據統計 -->
+        <div id="statsArea" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8 hidden">
+            <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500">
+                <p class="text-xs text-gray-400 font-bold uppercase">總推薦人數</p>
+                <p id="totalCount" class="text-3xl font-bold text-gray-800 mt-1">0</p>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-green-500">
+                <p class="text-xs text-gray-400 font-bold uppercase">已入職 (ON BOARD)</p>
+                <p id="joinedCount" class="text-3xl font-bold text-gray-800 mt-1">0</p>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-red-500">
+                <p class="text-xs text-gray-400 font-bold uppercase">WITHDRAW / NO SHOW</p>
+                <p id="withdrawCount" class="text-3xl font-bold text-red-600 mt-1">0</p>
+            </div>
+            <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-yellow-500">
+                <p class="text-xs text-gray-400 font-bold uppercase">處理中 / 其它</p>
+                <p id="pendingCount" class="text-3xl font-bold text-gray-800 mt-1">0</p>
+            </div>
+        </div>
+
+        <!-- 推薦明細表格 -->
+        <div id="resultArea" class="hidden mb-12">
+            <h2 class="text-xl font-bold text-gray-700 mb-4 px-2 flex items-center border-l-4 border-blue-600 pl-3">
+                推薦明細
+            </h2>
+            <div class="glass-morphism overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50 border-b text-gray-700">
+                            <tr>
+                                <th class="px-6 py-4 text-sm font-bold uppercase">被介紹人 (N)</th>
+                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">RJ / NJ (M)</th>
+                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">Status (W)</th>
+                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">ON BOARD DATE (T+U+V)</th>
+                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">最終標記 (Z)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultTableBody" class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 相關資訊表格 -->
+        <div id="resultAreaSheet2" class="hidden mb-12">
+            <h2 class="text-xl font-bold text-gray-700 mb-4 px-2 flex items-center border-l-4 border-indigo-600 pl-3">
+                相關資訊
+            </h2>
+            <div class="glass-morphism overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs md:text-sm">
+                        <thead class="bg-indigo-50 text-indigo-900 border-b font-bold uppercase">
+                            <tr>
+                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[120px]">Floor (B)</th>
+                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[150px]">Name (F)</th>
+                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[100px]">Offered (M)</th>
+                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[120px]">On board RJ (O)</th>
+                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[150px]">Should on Board RJ (P)</th>
+                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[130px]">RJ Offer Gap (R)</th>
+                                <th class="px-4 py-3 text-center min-w-[150px]">New joiner Offer (V)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sheet2TableBody" class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 狀態顯示區 -->
+        <div id="loadingStatus" class="text-center py-4 text-blue-600 font-medium flex items-center justify-center gap-2">
+            <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            同步數據中...
+        </div>
+
+        <div id="noResult" class="hidden text-center py-20 glass-morphism">
+            <p class="text-gray-500 text-lg font-bold">找不到相應數據</p>
+            <p class="text-gray-400 text-sm mt-2">請確認輸入編號正確，且數據發生於 2025/12/15 之後。</p>
+        </div>
+
+        <div id="initialPrompt" class="text-center py-32 opacity-30">
+            <p class="text-gray-500 italic font-medium">請輸入 Staff ID 或使用上方選單開始查詢</p>
+        </div>
+    </div>
+
+    <script>
+        // --- 核心配置 ---
+        const SHEET1_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQI5NkFNnXAqi78qHKhg6CRZ4ZTVwu1Tevpo2PXdQn85pZWh6GeAhK29Ih4U7B9QKzqucIDomXJh94L/pub?gid=0&single=true&output=csv';
+        const SHEET2_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQI5NkFNnXAqi78qHKhg6CRZ4ZTVwu1Tevpo2PXdQn85pZWh6GeAhK29Ih4U7B9QKzqucIDomXJh94L/pub?gid=906179987&single=true&output=csv';
+        const DATE_LIMIT = new Date('2025-12-15');
+
+        let dataS1 = [];
+        let headersS1 = [];
+        let dataS2 = [];
+        let headersS2 = [];
+
+        async function init() {
+            const loading = document.getElementById('loadingStatus');
+            const updateDisplay = document.getElementById('lastUpdateDisplay');
+
+            try {
+                const response1 = await fetch(SHEET1_URL);
+                const lastMod = response1.headers.get('Last-Modified');
+                if (lastMod) {
+                    const date = new Date(lastMod);
+                    updateDisplay.innerText = `試算表更新時間：${date.toLocaleString('zh-HK', { hour12: false })}`;
+                }
+
+                const text1 = await response1.text();
+                const response2 = await fetch(SHEET2_URL);
+                const text2 = await response2.text();
+
+                Papa.parse(text1, {
+                    header: true, skipEmptyLines: true,
+                    complete: (results) => {
+                        dataS1 = results.data;
+                        headersS1 = results.meta.fields;
+                    }
+                });
+
+                Papa.parse(text2, {
+                    header: true, skipEmptyLines: true,
+                    complete: (results) => {
+                        dataS2 = results.data;
+                        headersS2 = results.meta.fields;
+                        populateBrandFilter();
+                    }
+                });
+
+                loading.classList.add('hidden');
+            } catch (e) {
+                loading.innerText = "數據同步出錯。";
+            }
+        }
+
+        // --- 篩選器功能 ---
+        function populateBrandFilter() {
+            const brandSelect = document.getElementById('filterBrand');
+            const brands = [...new Set(dataS2.map(item => {
+                const val = item[headersS2[0]];
+                return val ? val.toString().trim().toUpperCase() : "";
+            }).filter(v => v))].sort();
+            
+            brands.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b;
+                opt.innerText = b;
+                brandSelect.appendChild(opt);
+            });
+        }
+
+        function updateFloorFilter() {
+            const brand = document.getElementById('filterBrand').value;
+            const floorSelect = document.getElementById('filterFloor');
+            const nameSelect = document.getElementById('filterName');
+            
+            floorSelect.innerHTML = '<option value="">請選擇 Floor</option>';
+            nameSelect.innerHTML = '<option value="">請選擇姓名</option>';
+            nameSelect.disabled = true;
+
+            if (!brand) {
+                floorSelect.disabled = true;
+                return;
+            }
+
+            const floors = [...new Set(dataS2.filter(i => {
+                const val = i[headersS2[0]];
+                return val && val.toString().trim().toUpperCase() === brand.toUpperCase();
+            }).map(i => i[headersS2[1]]).filter(v => v))].sort();
+            
+            floors.forEach(f => {
+                const opt = document.createElement('option');
+                opt.value = f;
+                opt.innerText = f;
+                floorSelect.appendChild(opt);
+            });
+            floorSelect.disabled = false;
+        }
+
+        function updateNameFilter() {
+            const brand = document.getElementById('filterBrand').value;
+            const floor = document.getElementById('filterFloor').value;
+            const nameSelect = document.getElementById('filterName');
+            
+            nameSelect.innerHTML = '<option value="">請選擇姓名</option>';
+            if (!floor) {
+                nameSelect.disabled = true;
+                return;
+            }
+
+            const list = dataS2.filter(i => {
+                const bVal = i[headersS2[0]];
+                const fVal = i[headersS2[1]];
+                return bVal && bVal.toString().trim().toUpperCase() === brand.toUpperCase() && 
+                       fVal && fVal.toString().trim() === floor;
+            });
+            
+            list.forEach(i => {
+                const opt = document.createElement('option');
+                opt.value = i[headersS2[5]];
+                opt.innerText = i[headersS2[5]];
+                nameSelect.appendChild(opt);
+            });
+            nameSelect.disabled = false;
+        }
+
+        function searchByFilter() {
+            const brand = document.getElementById('filterBrand').value;
+            const floor = document.getElementById('filterFloor').value;
+            const name = document.getElementById('filterName').value;
+            if (!name) return;
+
+            const staff = dataS2.find(i => {
+                const bVal = i[headersS2[0]];
+                const fVal = i[headersS2[1]];
+                const nVal = i[headersS2[5]];
+                return bVal && bVal.toString().trim().toUpperCase() === brand.toUpperCase() && 
+                       fVal && fVal.toString().trim() === floor && 
+                       nVal && nVal.toString().trim() === name;
+            });
+            
+            if (staff) {
+                const id = (staff[headersS2[4]] || "").toString().trim();
+                document.getElementById('staffId').value = id;
+                executeSearch(id);
+            }
+        }
+
+        function manualSearch() {
+            const id = document.getElementById('staffId').value.trim();
+            if (id) executeSearch(id);
+        }
+
+        function executeSearch(staffId) {
+            document.getElementById('initialPrompt').classList.add('hidden');
+
+            const staffIdKeyS1 = headersS1[9]; // J 欄
+            const filterS1 = dataS1.filter(item => {
+                const id = (item[staffIdKeyS1] || "").toString().trim();
+                if (id !== staffId) return false;
+
+                const dB = parseDate(item[headersS1[1]]);
+                const dC = parseDate(item[headersS1[2]]);
+                const dD = parseDate(item[headersS1[3]]);
+                return (dB && dB > DATE_LIMIT) || (dC && dC > DATE_LIMIT) || (dD && dD > DATE_LIMIT);
+            });
+
+            const staffIdKeyS2 = headersS2[4]; // Sheet 2 基於 E 欄 (Staff ID)
+            const filterS2 = dataS2.filter(item => {
+                const id = (item[staffIdKeyS2] || "").toString().trim();
+                return id === staffId;
+            });
+
+            if (filterS1.length > 0 || filterS2.length > 0) {
+                renderS1(filterS1);
+                renderS2(filterS2);
+                document.getElementById('noResult').classList.add('hidden');
+            } else {
+                showNone();
+            }
+        }
+
+        function parseDate(d) {
+            if (!d || d === '-') return null;
+            let ts = Date.parse(d);
+            if (!isNaN(ts)) return new Date(ts);
+            const parts = d.split(/[\/\-\s]+/);
+            if (parts.length === 3) {
+                let day = parseInt(parts[0]);
+                let monthStr = parts[1];
+                let year = parseInt(parts[2]);
+                let month = parseInt(monthStr) - 1;
+                const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+                if (isNaN(month)) month = months.indexOf(monthStr.toLowerCase().substring(0, 3));
+                if (day && !isNaN(month) && year) return new Date(year, month, day);
+            }
+            return null;
+        }
+
+        function getZColumnClass(val) {
+            const s = (val || "PENDING").toString().toUpperCase().trim();
+            if (s.includes('WITHDRAW') || s.includes('NOSHOW') || s.includes('NO SHOW')) {
+                return "bg-red-100 text-red-700 border border-red-200 font-bold";
+            }
+            if (s.includes('ONBOARD') || s.includes('ON BOARD')) {
+                return "bg-green-100 text-green-700 border border-green-200 font-bold";
+            }
+            return "bg-yellow-100 text-yellow-700 border border-yellow-200 font-bold";
+        }
+
+        function renderS1(list) {
+            const tbody = document.getElementById('resultTableBody');
+            tbody.innerHTML = '';
+            let cTotal = 0, cJoined = 0, cWithdraw = 0, cPending = 0;
+
+            list.forEach(item => {
+                cTotal++;
+                const name = item[headersS1[13]] || "未知"; 
+                const rjnj = item[headersS1[12]] || "-"; 
+                const statusW = (item[headersS1[22]] || "-").toString(); 
+                const zVal = (item[headersS1[25]] || "").toString(); 
+                const obDateStr = [item[headersS1[19]], item[headersS1[20]], item[headersS1[21]]].filter(v => v && v !== '-').join(' ');
+
+                const statusUpper = statusW.toUpperCase();
+                const zUpper = zVal.toUpperCase();
+
+                if (zUpper.includes('ONBOARD') || zUpper.includes('ON BOARD')) {
+                    cJoined++;
+                } else if (
+                    statusUpper.includes('WITHDRAW') || statusUpper.includes('NO SHOW') || statusUpper.includes('NOSHOW') ||
+                    zUpper.includes('WITHDRAW') || zUpper.includes('NO SHOW') || zUpper.includes('NOSHOW')
+                ) {
+                    cWithdraw++;
+                } else {
+                    cPending++;
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                const displayZ = zVal || 'PENDING';
+                const markClass = getZColumnClass(displayZ);
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-medium text-gray-900">${name}</td>
+                    <td class="px-6 py-4 text-gray-600 font-bold text-center">${rjnj}</td>
+                    <td class="px-6 py-4 text-gray-700 font-medium text-center">${statusW}</td>
+                    <td class="px-6 py-4 text-gray-500 text-sm text-center">${obDateStr || '-'}</td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="px-3 py-1 rounded-full text-xs ${markClass}">${displayZ}</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('totalCount').innerText = cTotal;
+            document.getElementById('joinedCount').innerText = cJoined;
+            document.getElementById('withdrawCount').innerText = cWithdraw;
+            document.getElementById('pendingCount').innerText = cPending;
+            document.getElementById('statsArea').classList.remove('hidden');
+            document.getElementById('resultArea').classList.remove('hidden');
+        }
+
+        function renderS2(list) {
+            const tbody = document.getElementById('sheet2TableBody');
+            tbody.innerHTML = '';
+            list.forEach(item => {
+                // 對應欄位：B(1), F(5), M(12), O(14), P(15), R(17), V(21)
+                const indices = [1, 5, 12, 14, 15, 17, 21];
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition";
+                
+                indices.forEach(idx => {
+                    const td = document.createElement('td');
+                    const value = item[headersS2[idx]] || "-";
+                    td.className = "px-4 py-3 text-gray-600 border-r border-gray-100 last:border-0 text-center";
+                    
+                    // 針對 RJ Offer Gap (R 欄，索引 17) 進行負數判定
+                    if (idx === 17) {
+                        const num = parseFloat(value);
+                        if (!isNaN(num) && num < 0) {
+                            td.className += " bg-red-100 text-red-700 font-bold";
+                        }
+                    }
+                    
+                    td.innerText = value;
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            document.getElementById('resultAreaSheet2').classList.remove('hidden');
+        }
+
+        function showNone() {
+            document.getElementById('statsArea').classList.add('hidden');
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('resultAreaSheet2').classList.add('hidden');
+            document.getElementById('noResult').classList.remove('hidden');
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
