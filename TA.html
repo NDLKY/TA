@@ -16,6 +16,7 @@
             box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
         }
         select:disabled { opacity: 0.5; cursor: not-allowed; }
+        .table-fixed-header th { position: sticky; top: 0; background: #f9fafb; z-index: 10; }
     </style>
 </head>
 <body class="min-h-screen py-10 px-4">
@@ -40,8 +41,8 @@
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                     手動輸入查詢
                 </h3>
-                <label for="staffId" class="block text-xs font-medium text-gray-500 mb-1 uppercase">員工編號</label>
-                <input type="text" id="staffId" placeholder="輸入 Staff ID (如: 11852)" 
+                <label for="staffId" class="block text-xs font-medium text-gray-500 mb-1 uppercase text-[10px]">Staff ID</label>
+                <input type="text" id="staffId" placeholder="例如: 11852" 
                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition mb-4 text-gray-800">
                 <button onclick="manualSearch()" 
                         class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition shadow-md active:scale-95">
@@ -53,23 +54,23 @@
             <div class="lg:col-span-2 glass-morphism p-6 border border-white shadow-sm text-indigo-700">
                 <h3 class="font-bold mb-4 flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
-                    根據員工資訊篩選 (忽略大小寫)
+                    快速篩選
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1 uppercase">Brand</label>
+                        <label class="block text-xs font-medium text-gray-500 mb-1 uppercase text-[10px]">Brand</label>
                         <select id="filterBrand" onchange="updateFloorFilter()" class="w-full px-3 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none text-gray-800 font-normal">
                             <option value="">請選擇 Brand</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1 uppercase">Floor</label>
+                        <label class="block text-xs font-medium text-gray-500 mb-1 uppercase text-[10px]">Floor</label>
                         <select id="filterFloor" onchange="updateNameFilter()" disabled class="w-full px-3 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none text-gray-800 font-normal">
                             <option value="">請選擇 Floor</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1 uppercase">Name</label>
+                        <label class="block text-xs font-medium text-gray-500 mb-1 uppercase text-[10px]">Name</label>
                         <select id="filterName" onchange="searchByFilter()" disabled class="w-full px-3 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none text-gray-800 font-normal">
                             <option value="">請選擇姓名</option>
                         </select>
@@ -108,12 +109,12 @@
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-gray-50 border-b text-gray-700">
                             <tr>
-                                <th class="px-6 py-4 text-sm font-bold uppercase">被介紹人 (N)</th>
-                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">日期資訊 (B+C+D)</th>
-                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">RJ / NJ</th>
-                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">Status</th>
-                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">ON BOARD DATE</th>
-                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">最終標記</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase">被介紹人 (N)</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-center">日期資訊 (B+C+D)</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-center">RJ / NJ</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-center">Status</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-center">ON BOARD DATE</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-center">最終標記</th>
                             </tr>
                         </thead>
                         <tbody id="resultTableBody" class="divide-y divide-gray-200"></tbody>
@@ -152,13 +153,16 @@
             <div class="glass-morphism overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
-                        <thead class="bg-emerald-50 text-emerald-900 border-b font-bold uppercase text-center text-sm">
+                        <thead class="bg-emerald-50 text-emerald-900 border-b font-bold uppercase text-center">
                             <tr>
-                                <th class="px-6 py-4 text-left">Brand</th>
-                                <th class="px-6 py-4">Total Offer</th>
-                                <th class="px-6 py-4">Total should on board</th>
-                                <th class="px-6 py-4">Total On board</th>
-                                <th class="px-6 py-4">Total Gap</th>
+                                <th class="px-6 py-4 text-left text-xs">Brand</th>
+                                <th class="px-6 py-4 text-xs leading-tight">
+                                    Total Offer<br>
+                                    <span class="text-[10px] font-normal lowercase block mt-1">(已減沒有返工的Offer)</span>
+                                </th>
+                                <th class="px-6 py-4 text-xs">Total should on board</th>
+                                <th class="px-6 py-4 text-xs">Total On board</th>
+                                <th class="px-6 py-4 text-xs">Total Gap</th>
                             </tr>
                         </thead>
                         <tbody id="brandSummaryBody" class="divide-y divide-gray-200"></tbody>
@@ -242,7 +246,6 @@
             const summaryBody = document.getElementById('brandSummaryBody');
             summaryBody.innerHTML = '';
             
-            // 按照順序排列: Dermes, Elyze, Reenex
             const targetBrands = ['DERMES', 'ELYZE', 'REENEX'];
             const brandKey = headersS2[0]; // A
             const nameKey = headersS2[5];  // F
@@ -252,13 +255,11 @@
             const colRKey = headersS2[17]; // R -> Total Gap
 
             targetBrands.forEach(brandName => {
-                // 過濾該品牌的記錄
                 const filtered = dataS2.filter(item => (item[brandKey] || "").toString().trim().toUpperCase() === brandName);
                 
                 let sumOffer = 0, sumShould = 0, sumOnBoard = 0, sumGap = 0;
 
                 filtered.forEach(item => {
-                    // 排除試算表中原本就有的 "Total" 或匯總行，避免重複加總
                     const nameVal = (item[nameKey] || "").toString().toUpperCase();
                     if (nameVal.includes("TOTAL") || nameVal.trim() === "") return;
 
@@ -398,10 +399,21 @@
             list.forEach(item => {
                 cTotal++;
                 const rawName = item[headersS1[13]] || "未知"; 
-                const dateParts = [(item[headersS1[1]] || "").trim(), (item[headersS1[2]] || "").trim(), (item[headersS1[3]] || "").trim()].filter(v => v && v !== '-');
+                const bVal = (item[headersS1[1]] || "").trim();
+                const cVal = (item[headersS1[2]] || "").trim();
+                const dVal = (item[headersS1[3]] || "").trim();
+                
+                // 改進的日期資訊去重邏輯
+                const dateParts = [bVal, cVal, dVal].filter(v => v && v !== '-');
                 const uniqueParts = [];
-                dateParts.forEach(p => { if (!uniqueParts.some(existing => existing.includes(p) || p.includes(existing))) uniqueParts.push(p); });
+                dateParts.forEach(p => {
+                    const normalized = p.toLowerCase().trim();
+                    if (!uniqueParts.some(existing => existing.toLowerCase().includes(normalized) || normalized.includes(existing.toLowerCase()))) {
+                        uniqueParts.push(p);
+                    }
+                });
                 const extraInfo = uniqueParts.join(' ');
+                
                 const rjnj = item[headersS1[12]] || "-"; 
                 const statusW = (item[headersS1[22]] || "-").toString(); 
                 const zVal = (item[headersS1[25]] || "").toString(); 
@@ -439,7 +451,6 @@
             const tbody = document.getElementById('sheet2TableBody');
             tbody.innerHTML = '';
             list.forEach(item => {
-                // Name(5), P(15), O(14), R(17)
                 const indices = [5, 15, 14, 17];
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 transition text-center text-xs sm:text-sm";
