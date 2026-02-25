@@ -40,7 +40,7 @@
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                     手動輸入查詢
                 </h3>
-                <label for="staffId" class="block text-xs font-medium text-gray-500 mb-1 uppercase">員工編號 (J 欄)</label>
+                <label for="staffId" class="block text-xs font-medium text-gray-500 mb-1 uppercase">員工編號</label>
                 <input type="text" id="staffId" placeholder="輸入 Staff ID (如: 11852)" 
                        class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition mb-4 text-gray-800">
                 <button onclick="manualSearch()" 
@@ -57,19 +57,19 @@
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1 uppercase">Brand (A)</label>
+                        <label class="block text-xs font-medium text-gray-500 mb-1 uppercase">Brand</label>
                         <select id="filterBrand" onchange="updateFloorFilter()" class="w-full px-3 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none text-gray-800 font-normal">
                             <option value="">請選擇 Brand</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1 uppercase">Floor (B)</label>
+                        <label class="block text-xs font-medium text-gray-500 mb-1 uppercase">Floor</label>
                         <select id="filterFloor" onchange="updateNameFilter()" disabled class="w-full px-3 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none text-gray-800 font-normal">
                             <option value="">請選擇 Floor</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1 uppercase">Name (F)</label>
+                        <label class="block text-xs font-medium text-gray-500 mb-1 uppercase">Name</label>
                         <select id="filterName" onchange="searchByFilter()" disabled class="w-full px-3 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none text-gray-800 font-normal">
                             <option value="">請選擇姓名</option>
                         </select>
@@ -109,6 +109,7 @@
                         <thead class="bg-gray-50 border-b text-gray-700">
                             <tr>
                                 <th class="px-6 py-4 text-sm font-bold uppercase">被介紹人 (N)</th>
+                                <th class="px-6 py-4 text-sm font-bold uppercase text-center">日期資訊 (B+C+D)</th>
                                 <th class="px-6 py-4 text-sm font-bold uppercase text-center">RJ / NJ (M)</th>
                                 <th class="px-6 py-4 text-sm font-bold uppercase text-center">Status (W)</th>
                                 <th class="px-6 py-4 text-sm font-bold uppercase text-center">ON BOARD DATE (T+U+V)</th>
@@ -131,13 +132,13 @@
                     <table class="w-full text-left border-collapse text-xs md:text-sm">
                         <thead class="bg-indigo-50 text-indigo-900 border-b font-bold uppercase">
                             <tr>
-                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[120px]">Floor (B)</th>
-                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[150px]">Name (F)</th>
-                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[100px]">Offered (M)</th>
-                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[120px]">On board RJ (O)</th>
-                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[150px]">Should on Board RJ (P)</th>
-                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[130px]">RJ Offer Gap (R)</th>
-                                <th class="px-4 py-3 text-center min-w-[150px]">New joiner Offer (V)</th>
+                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[120px]">Floor</th>
+                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[150px]">Name</th>
+                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[100px]">Offered</th>
+                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[120px]">On board RJ</th>
+                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[150px]">Should on Board RJ</th>
+                                <th class="px-4 py-3 text-center border-r border-indigo-100 min-w-[130px]">RJ Offer Gap</th>
+                                <th class="px-4 py-3 text-center min-w-[150px]">New joiner Offer</th>
                             </tr>
                         </thead>
                         <tbody id="sheet2TableBody" class="divide-y divide-gray-200"></tbody>
@@ -377,7 +378,23 @@
 
             list.forEach(item => {
                 cTotal++;
-                const name = item[headersS1[13]] || "未知"; 
+                
+                const rawName = item[headersS1[13]] || "未知"; // N 欄
+                const bVal = (item[headersS1[1]] || "").trim(); // B 欄
+                const cVal = (item[headersS1[2]] || "").trim(); // C 欄
+                const dVal = (item[headersS1[3]] || "").trim(); // D 欄
+                
+                // 智慧組合 B+C+D 並去重 (防止出現 Dec 2025 Dec 2025)
+                const dateParts = [bVal, cVal, dVal].filter(v => v && v !== '-');
+                const uniqueParts = [];
+                dateParts.forEach(p => {
+                    // 如果當前部分已經包含在已有的內容中，或者已有內容包含當前部分，則跳過
+                    if (!uniqueParts.some(existing => existing.includes(p) || p.includes(existing))) {
+                        uniqueParts.push(p);
+                    }
+                });
+                const extraInfo = uniqueParts.join(' ');
+                
                 const rjnj = item[headersS1[12]] || "-"; 
                 const statusW = (item[headersS1[22]] || "-").toString(); 
                 const zVal = (item[headersS1[25]] || "").toString(); 
@@ -403,9 +420,10 @@
                 const markClass = getZColumnClass(displayZ);
 
                 tr.innerHTML = `
-                    <td class="px-6 py-4 font-medium text-gray-900">${name}</td>
+                    <td class="px-6 py-4 font-medium text-gray-900 leading-tight">${rawName}</td>
+                    <td class="px-6 py-4 text-center text-[11px] text-gray-500 font-normal bg-gray-50/50">${extraInfo || '-'}</td>
                     <td class="px-6 py-4 text-gray-600 font-bold text-center">${rjnj}</td>
-                    <td class="px-6 py-4 text-gray-700 font-medium text-center">${statusW}</td>
+                    <td class="px-6 py-4 text-gray-700 font-medium text-center text-sm">${statusW}</td>
                     <td class="px-6 py-4 text-gray-500 text-sm text-center">${obDateStr || '-'}</td>
                     <td class="px-6 py-4 text-center">
                         <span class="px-3 py-1 rounded-full text-xs ${markClass}">${displayZ}</span>
@@ -426,7 +444,6 @@
             const tbody = document.getElementById('sheet2TableBody');
             tbody.innerHTML = '';
             list.forEach(item => {
-                // 對應欄位：B(1), F(5), M(12), O(14), P(15), R(17), V(21)
                 const indices = [1, 5, 12, 14, 15, 17, 21];
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 transition";
@@ -436,7 +453,6 @@
                     const value = item[headersS2[idx]] || "-";
                     td.className = "px-4 py-3 text-gray-600 border-r border-gray-100 last:border-0 text-center";
                     
-                    // 針對 RJ Offer Gap (R 欄，索引 17) 進行負數判定
                     if (idx === 17) {
                         const num = parseFloat(value);
                         if (!isNaN(num) && num < 0) {
