@@ -2,12 +2,12 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>員工推薦進度查詢系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Orbitron:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Orbitron:wght@400;700&display=swap');
         
         body { 
             font-family: 'Noto Sans TC', sans-serif; 
@@ -16,6 +16,7 @@
             min-height: 100vh;
             position: relative;
             color: #1e293b;
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* Cyber Grid Background Effect */
@@ -30,97 +31,107 @@
         }
 
         .cyber-card {
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.6);
             box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.15);
-            border-radius: 1.5rem;
+            border-radius: 1.25rem;
             transition: all 0.3s ease;
         }
 
-        .cyber-card:hover {
-            box-shadow: 0 20px 50px -10px rgba(99, 102, 241, 0.2);
-            border: 1px solid rgba(167, 139, 250, 0.6);
+        @media (min-width: 768px) {
+            .cyber-card { border-radius: 1.5rem; }
         }
-
-        select:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .header-glow {
-            text-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+            text-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
         }
 
+        /* 數字專用清晰設定 */
+        .readable-nums {
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.01em;
+        }
+
+        /* iOS Input Fix - 防止 16px 以下自動縮放 */
+        input, select {
+            font-size: 16px !important;
+        }
+
+        /* 表格樣式調整 */
+        th { white-space: nowrap; }
+
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 10px; height: 10px; }
-        ::-webkit-scrollbar-track { background: #f8fafc; }
-        ::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 10px; border: 2px solid #f8fafc; }
-        ::-webkit-scrollbar-thumb:hover { background: #818cf8; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 10px; }
 
         .font-cyber { font-family: 'Orbitron', sans-serif; }
     </style>
 </head>
-<body class="py-12 px-4">
+<body class="py-6 md:py-12 px-3 md:px-6">
 
     <div class="max-w-7xl mx-auto">
         <!-- 頂部標題與日期 -->
-        <div class="flex flex-col md:flex-row justify-between items-center md:items-start mb-12 gap-8">
-            <div class="text-center md:text-left">
-                <h1 class="text-4xl md:text-5xl font-bold text-slate-900 mb-3 tracking-tight header-glow">
-                    推薦進度查詢系統 <span class="text-indigo-600 font-cyber text-3xl ml-2">DASHBOARD</span>
+        <div class="flex flex-col md:flex-row justify-between items-center md:items-start mb-8 md:mb-12 gap-6">
+            <div class="text-center md:text-left w-full md:w-auto">
+                <h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-2 md:mb-3 tracking-tight header-glow">
+                    推薦進度查詢 <span class="text-indigo-600 font-cyber text-2xl md:text-3xl block md:inline uppercase">Dashboard</span>
                 </h1>
-                <p class="text-slate-600 font-bold text-lg flex items-center justify-center md:justify-start bg-white/40 px-4 py-1 rounded-full w-fit">
-                    <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    數據範圍：2025年12月15日 後之記錄
+                <p class="text-slate-700 font-bold text-sm md:text-lg flex items-center justify-center md:justify-start bg-white/50 px-4 py-2 rounded-full w-fit mx-auto md:mx-0 shadow-sm border border-white/60">
+                    <svg class="w-4 h-4 md:w-5 md:h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    範圍：2025/12/15 之後記錄
                 </p>
             </div>
-            <div class="cyber-card px-8 py-5 border-l-8 border-indigo-500 text-indigo-800 font-extrabold text-base shadow-md" id="lastUpdateDisplay">
+            <div class="cyber-card px-6 py-4 border-l-4 md:border-l-8 border-indigo-500 text-indigo-900 font-black text-sm md:text-base shadow-md w-full md:w-auto text-center md:text-left" id="lastUpdateDisplay">
                 試算表狀態：連線中...
             </div>
         </div>
 
         <!-- 查詢區域 -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 md:mb-12">
             <!-- 手動輸入 ID -->
-            <div class="lg:col-span-1 cyber-card p-8">
-                <h3 class="text-indigo-800 font-black mb-6 flex items-center uppercase tracking-widest text-base">
-                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                    手動查詢 <span class="ml-auto opacity-20 font-cyber text-xl">01</span>
+            <div class="lg:col-span-1 cyber-card p-6 md:p-8">
+                <h3 class="text-indigo-900 font-black mb-5 md:mb-6 flex items-center uppercase tracking-widest text-sm">
+                    <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    手動查詢 <span class="ml-auto opacity-20 font-cyber text-lg">01</span>
                 </h3>
-                <div class="space-y-6">
+                <div class="space-y-4 md:space-y-6">
                     <div>
-                        <label for="staffId" class="block text-xs font-black text-slate-500 mb-2 uppercase tracking-widest">Employee Staff ID</label>
+                        <label for="staffId" class="block text-[10px] md:text-xs font-black text-slate-500 mb-1 md:mb-2 uppercase tracking-widest">Employee Staff ID</label>
                         <input type="text" id="staffId" placeholder="例如: 11852" 
-                               class="w-full px-5 py-4 rounded-2xl border-2 border-indigo-50 bg-white/70 focus:ring-4 focus:ring-indigo-200 focus:border-indigo-400 outline-none transition-all text-slate-900 font-bold text-lg">
+                               class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-indigo-50 bg-white focus:ring-4 focus:ring-indigo-200 focus:border-indigo-400 outline-none transition-all text-slate-900 font-bold text-base md:text-lg">
                     </div>
                     <button onclick="manualSearch()" 
-                            class="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-black text-lg rounded-2xl transition shadow-xl shadow-indigo-200 active:scale-95 uppercase tracking-widest">
+                            class="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 active:from-indigo-700 active:to-violet-700 text-white font-black text-base md:text-lg rounded-xl transition shadow-xl shadow-indigo-100 active:scale-[0.98] uppercase tracking-widest">
                         執行查詢
                     </button>
                 </div>
             </div>
 
             <!-- 下拉篩選 -->
-            <div class="lg:col-span-2 cyber-card p-8">
-                <h3 class="text-violet-800 font-black mb-6 flex items-center uppercase tracking-widest text-base">
-                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
-                    快速篩選 <span class="ml-auto opacity-20 font-cyber text-xl">02</span>
+            <div class="lg:col-span-2 cyber-card p-6 md:p-8">
+                <h3 class="text-violet-900 font-black mb-5 md:mb-6 flex items-center uppercase tracking-widest text-sm">
+                    <svg class="w-5 h-5 mr-2 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                    快速篩選 <span class="ml-auto opacity-20 font-cyber text-lg">02</span>
                 </h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                     <div>
-                        <label class="block text-xs font-black text-slate-500 mb-2 uppercase tracking-widest">Brand</label>
-                        <select id="filterBrand" onchange="updateFloorFilter()" class="w-full px-4 py-4 rounded-2xl border-2 border-violet-50 bg-white/70 focus:ring-4 focus:ring-violet-200 outline-none text-slate-900 font-bold text-base appearance-none cursor-pointer">
+                        <label class="block text-[10px] md:text-xs font-black text-slate-500 mb-1 md:mb-2 uppercase tracking-widest">Brand</label>
+                        <select id="filterBrand" onchange="updateFloorFilter()" class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-violet-50 bg-white focus:ring-4 focus:ring-violet-200 outline-none text-slate-900 font-bold text-sm md:text-base appearance-none cursor-pointer">
                             <option value="">請選擇 Brand</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-black text-slate-500 mb-2 uppercase tracking-widest">Floor</label>
-                        <select id="filterFloor" onchange="updateNameFilter()" disabled class="w-full px-4 py-4 rounded-2xl border-2 border-violet-50 bg-white/70 focus:ring-4 focus:ring-violet-200 outline-none text-slate-900 font-bold text-base appearance-none cursor-pointer">
+                        <label class="block text-[10px] md:text-xs font-black text-slate-500 mb-1 md:mb-2 uppercase tracking-widest">Floor</label>
+                        <select id="filterFloor" onchange="updateNameFilter()" disabled class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-violet-50 bg-white focus:ring-4 focus:ring-violet-200 outline-none text-slate-900 font-bold text-sm md:text-base appearance-none cursor-pointer">
                             <option value="">請選擇 Floor</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-black text-slate-500 mb-2 uppercase tracking-widest">Name</label>
-                        <select id="filterName" onchange="searchByFilter()" disabled class="w-full px-4 py-4 rounded-2xl border-2 border-violet-50 bg-white/70 focus:ring-4 focus:ring-violet-200 outline-none text-slate-900 font-bold text-base appearance-none cursor-pointer">
+                        <label class="block text-[10px] md:text-xs font-black text-slate-500 mb-1 md:mb-2 uppercase tracking-widest">Name</label>
+                        <select id="filterName" onchange="searchByFilter()" disabled class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-violet-50 bg-white focus:ring-4 focus:ring-violet-200 outline-none text-slate-900 font-bold text-sm md:text-base appearance-none cursor-pointer">
                             <option value="">請選擇姓名</option>
                         </select>
                     </div>
@@ -129,46 +140,42 @@
         </div>
 
         <!-- 數據統計 -->
-        <div id="statsArea" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-12 hidden">
-            <div class="cyber-card p-8 border-l-8 border-blue-500 relative overflow-hidden group">
-                <div class="absolute top-0 right-0 p-3 opacity-[0.03] font-cyber text-6xl group-hover:scale-110 transition">TOTAL</div>
-                <p class="text-sm text-slate-500 font-black uppercase tracking-widest mb-2">總推薦人數</p>
-                <p id="totalCount" class="text-5xl font-black text-slate-900 font-cyber">0</p>
+        <div id="statsArea" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-10 md:mb-12 hidden">
+            <div class="cyber-card p-4 md:p-8 border-l-4 md:border-l-8 border-blue-500 relative overflow-hidden group">
+                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1 md:mb-2">總推薦</p>
+                <p id="totalCount" class="text-2xl md:text-5xl font-black text-slate-900 readable-nums">0</p>
             </div>
-            <div class="cyber-card p-8 border-l-8 border-emerald-500 relative overflow-hidden group">
-                <div class="absolute top-0 right-0 p-3 opacity-[0.03] font-cyber text-6xl group-hover:scale-110 transition">JOINED</div>
-                <p class="text-sm text-slate-500 font-black uppercase tracking-widest mb-2">已入職</p>
-                <p id="joinedCount" class="text-5xl font-black text-emerald-600 font-cyber">0</p>
+            <div class="cyber-card p-4 md:p-8 border-l-4 md:border-l-8 border-emerald-500 relative overflow-hidden group">
+                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1 md:mb-2">已入職</p>
+                <p id="joinedCount" class="text-2xl md:text-5xl font-black text-emerald-600 readable-nums">0</p>
             </div>
-            <div class="cyber-card p-8 border-l-8 border-rose-500 relative overflow-hidden group">
-                <div class="absolute top-0 right-0 p-3 opacity-[0.03] font-cyber text-6xl group-hover:scale-110 transition">DROP</div>
-                <p class="text-sm text-slate-500 font-black uppercase tracking-widest mb-2">WITHDRAW / NO SHOW</p>
-                <p id="withdrawCount" class="text-5xl font-black text-rose-600 font-cyber">0</p>
+            <div class="cyber-card p-4 md:p-8 border-l-4 md:border-l-8 border-rose-500 relative overflow-hidden group">
+                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1 md:mb-2">Drop</p>
+                <p id="withdrawCount" class="text-2xl md:text-5xl font-black text-rose-600 readable-nums">0</p>
             </div>
-            <div class="cyber-card p-8 border-l-8 border-amber-500 relative overflow-hidden group">
-                <div class="absolute top-0 right-0 p-3 opacity-[0.03] font-cyber text-6xl group-hover:scale-110 transition">PENDING</div>
-                <p class="text-sm text-slate-500 font-black uppercase tracking-widest mb-2">處理中 / 其它</p>
-                <p id="pendingCount" class="text-5xl font-black text-amber-600 font-cyber">0</p>
+            <div class="cyber-card p-4 md:p-8 border-l-4 md:border-l-8 border-amber-500 relative overflow-hidden group">
+                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1 md:mb-2">處理中</p>
+                <p id="pendingCount" class="text-2xl md:text-5xl font-black text-amber-600 readable-nums">0</p>
             </div>
         </div>
 
         <!-- 推薦明細區塊 -->
-        <div id="resultArea" class="hidden space-y-16 mb-16">
+        <div id="resultArea" class="hidden space-y-12 mb-16">
             <!-- RJ Section -->
             <div id="sectionRJ">
-                <h2 class="text-2xl font-black text-slate-800 mb-6 px-2 flex items-center border-l-8 border-indigo-600 pl-6 tracking-wider uppercase">
-                    RJ 推薦明細 <span class="ml-4 px-3 py-1.5 bg-indigo-100 text-indigo-700 text-sm rounded-lg uppercase font-cyber font-bold">Referral Join</span>
+                <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 md:mb-6 px-2 flex items-center border-l-6 md:border-l-8 border-indigo-600 pl-4 md:pl-6 tracking-wider uppercase">
+                    RJ 推薦明細 <span class="ml-auto md:ml-4 px-2 md:px-3 py-1 bg-indigo-100 text-indigo-700 text-[10px] md:text-sm rounded uppercase font-cyber font-bold">RJ</span>
                 </h2>
                 <div class="cyber-card overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
-                            <thead class="bg-indigo-50 border-b-2 border-indigo-100 text-indigo-900">
+                            <thead class="bg-indigo-50 border-b-2 border-indigo-100 text-indigo-950">
                                 <tr>
-                                    <th class="px-8 py-5 text-sm font-black uppercase tracking-widest">被介紹人 (N)</th>
-                                    <th class="px-8 py-5 text-sm font-black uppercase tracking-widest text-center">日期資訊 (B+C+D)</th>
-                                    <th class="px-8 py-5 text-sm font-black uppercase tracking-widest text-center">Status</th>
-                                    <th class="px-8 py-5 text-sm font-black uppercase tracking-widest text-center">ON BOARD DATE</th>
-                                    <th class="px-8 py-5 text-sm font-black uppercase tracking-widest text-center">最終標記</th>
+                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">被介紹人</th>
+                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">日期資訊</th>
+                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">Status</th>
+                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">On Board Date</th>
+                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">最終標記</th>
                                 </tr>
                             </thead>
                             <tbody id="resultTableBodyRJ" class="divide-y divide-slate-200"></tbody>
@@ -179,19 +186,19 @@
 
             <!-- NJ Section -->
             <div id="sectionNJ">
-                <h2 class="text-2xl font-black text-slate-800 mb-6 px-2 flex items-center border-l-8 border-violet-600 pl-6 tracking-wider uppercase">
-                    NJ 推薦明細 <span class="ml-4 px-3 py-1.5 bg-violet-100 text-violet-700 text-sm rounded-lg uppercase font-cyber font-bold">New Joiner</span>
+                <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 md:mb-6 px-2 flex items-center border-l-6 md:border-l-8 border-violet-600 pl-4 md:pl-6 tracking-wider uppercase">
+                    NJ 推薦明細 <span class="ml-auto md:ml-4 px-2 md:px-3 py-1 bg-violet-100 text-violet-700 text-[10px] md:text-sm rounded uppercase font-cyber font-bold">NJ</span>
                 </h2>
                 <div class="cyber-card overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
-                            <thead class="bg-violet-50 border-b-2 border-violet-100 text-violet-900">
+                            <thead class="bg-violet-50 border-b-2 border-violet-100 text-violet-950">
                                 <tr>
-                                    <th class="px-8 py-5 text-sm font-black uppercase tracking-widest">被介紹人 (N)</th>
-                                    <th class="px-8 py-5 text-sm font-black uppercase tracking-widest text-center">日期資訊 (B+C+D)</th>
-                                    <th class="px-8 py-5 text-sm font-black uppercase tracking-widest text-center">Status</th>
-                                    <th class="px-8 py-5 text-sm font-black uppercase tracking-widest text-center">ON BOARD DATE</th>
-                                    <th class="px-8 py-5 text-sm font-black uppercase tracking-widest text-center">最終標記</th>
+                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">被介紹人</th>
+                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">日期資訊</th>
+                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">Status</th>
+                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">On Board Date</th>
+                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">最終標記</th>
                                 </tr>
                             </thead>
                             <tbody id="resultTableBodyNJ" class="divide-y divide-slate-200"></tbody>
@@ -202,54 +209,54 @@
         </div>
 
         <!-- 相關資訊表格 -->
-        <div id="resultAreaSheet2" class="hidden mb-20">
-            <h2 class="text-2xl font-black text-slate-800 mb-6 px-2 flex items-center border-l-8 border-sky-600 pl-6 tracking-wider uppercase">
-                相關資訊 <span class="ml-4 px-3 py-1.5 bg-sky-100 text-sky-700 text-sm rounded-lg uppercase font-cyber font-bold">Reference Info</span>
+        <div id="resultAreaSheet2" class="hidden mb-16 md:20">
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 md:mb-6 px-2 flex items-center border-l-6 md:border-l-8 border-sky-600 pl-4 md:pl-6 tracking-wider uppercase">
+                相關資訊 <span class="ml-auto md:ml-4 px-2 md:px-3 py-1 bg-sky-100 text-sky-700 text-[10px] md:text-sm rounded uppercase font-cyber font-bold">Ref</span>
             </h2>
             <div class="cyber-card overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-base text-center">
+                    <table class="w-full text-left border-collapse text-base">
                         <thead class="bg-sky-50 text-sky-950 border-b-2 border-sky-100 font-black uppercase">
                             <tr>
-                                <th class="px-6 py-6 border-r border-sky-100 min-w-[180px]">Name</th>
-                                <th class="px-6 py-6 border-r border-sky-100 min-w-[180px]">1月+2月RESIGN NO</th>
-                                <th class="px-6 py-6 border-r border-sky-100 min-w-[200px] leading-tight text-sm">
+                                <th class="px-4 md:px-8 py-5 md:py-6 border-r border-sky-100 min-w-[140px]">Name</th>
+                                <th class="px-4 md:px-8 py-5 md:py-6 border-r border-sky-100 min-w-[140px]">Resign No</th>
+                                <th class="px-4 md:px-8 py-5 md:py-6 border-r border-sky-100 min-w-[180px] leading-tight text-xs md:text-sm">
                                     Total Offer<br>
-                                    <span class="text-xs font-bold block mt-2 opacity-70">(已減沒有返工的Offer)</span>
+                                    <span class="text-[10px] font-bold block mt-1 opacity-70">(已減無返工Offer)</span>
                                 </th>
-                                <th class="px-6 py-6 border-r border-sky-100 min-w-[180px]">Should on Board RJ</th>
-                                <th class="px-6 py-6 border-r border-sky-100 min-w-[180px]">On board RJ</th>
-                                <th class="px-6 py-6 min-w-[180px]">RJ Offer Gap</th>
+                                <th class="px-4 md:px-8 py-5 md:py-6 border-r border-sky-100 min-w-[160px]">Should on Board</th>
+                                <th class="px-4 md:px-8 py-5 md:py-6 border-r border-sky-100 min-w-[140px]">On board</th>
+                                <th class="px-4 md:px-8 py-5 md:py-6 min-w-[140px]">Gap</th>
                             </tr>
                         </thead>
-                        <tbody id="sheet2TableBody" class="divide-y divide-slate-200 text-lg"></tbody>
+                        <tbody id="sheet2TableBody" class="divide-y divide-slate-200 text-base md:text-lg"></tbody>
                     </table>
                 </div>
             </div>
             <!-- 動態邏輯說明行區塊 -->
-            <div class="mt-6 px-8 py-6 bg-white/60 rounded-3xl border-2 border-white/80 shadow-inner">
-                <p id="dynamicLogicFormula" class="text-lg text-slate-800 font-black italic mb-2"></p>
-                <p class="text-sm text-slate-500 italic font-bold uppercase tracking-widest">
-                    * Formula: Target (2) + Resign No. - Total Offer = RJ Offer Gap
+            <div class="mt-4 md:mt-6 px-4 md:px-8 py-4 md:py-6 bg-white/70 rounded-2xl md:rounded-3xl border-2 border-white shadow-inner">
+                <p id="dynamicLogicFormula" class="text-base md:text-xl text-slate-900 font-black italic mb-2 readable-nums leading-relaxed"></p>
+                <p class="text-[10px] md:text-sm text-slate-500 italic font-bold uppercase tracking-widest">
+                    * Formula: Target (2) + Resign No. - Total Offer = Gap
                 </p>
             </div>
         </div>
 
         <!-- Brand Summary 區塊 -->
-        <div id="brandSummaryArea" class="hidden mb-24">
-            <h2 class="text-2xl font-black text-slate-800 mb-8 px-2 flex items-center border-l-8 border-emerald-600 pl-6 tracking-wider uppercase">
-                Brand Summary <span class="ml-4 px-3 py-1.5 bg-emerald-100 text-emerald-700 text-sm rounded-lg uppercase font-cyber font-bold">Global Data</span>
+        <div id="brandSummaryArea" class="hidden mb-20">
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 flex items-center border-l-6 md:border-l-8 border-emerald-600 pl-4 md:pl-6 tracking-wider uppercase">
+                Brand Summary <span class="ml-auto md:ml-4 px-2 md:px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] md:text-sm rounded uppercase font-cyber font-bold">Global</span>
             </h2>
-            <div class="cyber-card overflow-hidden shadow-2xl">
+            <div class="cyber-card overflow-hidden shadow-xl">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-lg">
-                        <thead class="bg-emerald-50 text-emerald-950 border-b-2 border-emerald-100 font-black uppercase text-center">
+                    <table class="w-full text-left border-collapse text-base">
+                        <thead class="bg-emerald-50 text-emerald-950 border-b-2 border-emerald-100 font-black uppercase">
                             <tr>
-                                <th class="px-8 py-7 text-left font-cyber tracking-tighter">Brand Name</th>
-                                <th class="px-8 py-7">Total Offer</th>
-                                <th class="px-8 py-7">Total should on board</th>
-                                <th class="px-8 py-7">Total On board</th>
-                                <th class="px-8 py-7">Total Gap</th>
+                                <th class="px-4 md:px-10 py-5 md:py-7 font-black tracking-tight">Brand Name</th>
+                                <th class="px-4 md:px-10 py-5 md:py-7 text-center">Total Offer</th>
+                                <th class="px-4 md:px-10 py-5 md:py-7 text-center">Should on Board</th>
+                                <th class="px-4 md:px-10 py-5 md:py-7 text-center text-emerald-900">On board</th>
+                                <th class="px-4 md:px-10 py-5 md:py-7 text-center">Total Gap</th>
                             </tr>
                         </thead>
                         <tbody id="brandSummaryBody" class="divide-y divide-slate-200"></tbody>
@@ -259,26 +266,25 @@
         </div>
 
         <!-- 狀態顯示區 -->
-        <div id="loadingStatus" class="text-center py-10 text-indigo-700 font-black flex items-center justify-center gap-4">
+        <div id="loadingStatus" class="text-center py-10 text-indigo-700 font-black flex flex-col items-center justify-center gap-4">
             <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <span class="tracking-[0.3em] uppercase text-lg font-cyber">Accessing Database Core...</span>
+            <span class="tracking-[0.2em] md:tracking-[0.3em] uppercase text-sm md:text-lg font-cyber">Synchronizing...</span>
         </div>
 
-        <div id="noResult" class="hidden text-center py-32 cyber-card">
-            <p class="text-slate-500 text-3xl font-black uppercase tracking-[0.2em] font-cyber">NO RECORD DETECTED</p>
-            <p class="text-slate-400 text-lg mt-5 font-bold">請檢查員工編號或日期範圍 (2025/12/15+)</p>
+        <div id="noResult" class="hidden text-center py-20 md:py-32 cyber-card mx-2">
+            <p class="text-slate-500 text-xl md:text-3xl font-black uppercase tracking-[0.1em] md:tracking-[0.2em] font-cyber">NO RECORD FOUND</p>
+            <p class="text-slate-500 text-base md:text-xl mt-4 font-bold px-4">請檢查編號或日期範圍 (2025/12/15+)</p>
         </div>
 
-        <div id="initialPrompt" class="text-center py-48 opacity-20 transition-all duration-500 hover:opacity-50">
-            <p class="text-indigo-950 font-black text-4xl tracking-tighter font-cyber">INITIATE SEARCH_</p>
+        <div id="initialPrompt" class="text-center py-32 md:py-48 opacity-20">
+            <p class="text-indigo-950 font-black text-2xl md:text-4xl tracking-tighter font-cyber uppercase">Initiate Search_</p>
         </div>
     </div>
 
     <script>
-        // 加入時間戳記避免快取，並嘗試獲取最後修改時間
         const SHEET1_BASE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQI5NkFNnXAqi78qHKhg6CRZ4ZTVwu1Tevpo2PXdQn85pZWh6GeAhK29Ih4U7B9QKzqucIDomXJh94L/pub?gid=0&single=true&output=csv';
         const SHEET2_BASE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQI5NkFNnXAqi78qHKhg6CRZ4ZTVwu1Tevpo2PXdQn85pZWh6GeAhK29Ih4U7B9QKzqucIDomXJh94L/pub?gid=906179987&single=true&output=csv';
         const DATE_LIMIT = new Date('2025-12-15');
@@ -294,7 +300,6 @@
             const cacheBuster = `&t=${Date.now()}`;
 
             try {
-                // Fetch Sheet 1
                 const response1 = await fetch(SHEET1_BASE_URL + cacheBuster);
                 const lastMod = response1.headers.get('Last-Modified');
                 if (lastMod) {
@@ -306,8 +311,6 @@
                 }
 
                 const text1 = await response1.text();
-                
-                // Fetch Sheet 2
                 const response2 = await fetch(SHEET2_BASE_URL + cacheBuster);
                 const text2 = await response2.text();
 
@@ -331,12 +334,11 @@
 
                 loading.classList.add('hidden');
             } catch (e) {
-                loading.innerText = "數據同步失敗，請檢查網路連線。";
+                loading.innerText = "連線失敗，請檢查網路。";
                 console.error(e);
             }
         }
 
-        // --- Brand Summary ---
         function calculateBrandSummary() {
             if (!dataS2.length) return;
             const summaryBody = document.getElementById('brandSummaryBody');
@@ -364,20 +366,19 @@
                 });
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-emerald-50/70 transition text-center font-bold";
+                tr.className = "hover:bg-emerald-50/70 transition duration-300 font-bold readable-nums text-sm md:text-lg";
                 tr.innerHTML = `
-                    <td class="px-8 py-7 text-left font-black text-slate-900 font-cyber text-xl tracking-tighter">${brandName}</td>
-                    <td class="px-8 py-7 text-slate-700">${sumOffer.toLocaleString()}</td>
-                    <td class="px-8 py-7 text-slate-700">${sumShould.toLocaleString()}</td>
-                    <td class="px-8 py-7 text-emerald-800 font-black text-2xl font-cyber">${sumOnBoard.toLocaleString()}</td>
-                    <td class="px-8 py-7 ${sumGap < 0 ? 'text-rose-700 font-black' : 'text-slate-800'}">${sumGap.toLocaleString()}</td>
+                    <td class="px-4 md:px-10 py-5 md:py-7 font-black text-slate-900 tracking-tight">${brandName}</td>
+                    <td class="px-4 md:px-10 py-5 md:py-7 text-center text-slate-700">${sumOffer.toLocaleString()}</td>
+                    <td class="px-4 md:px-10 py-5 md:py-7 text-center text-slate-700">${sumShould.toLocaleString()}</td>
+                    <td class="px-4 md:px-10 py-5 md:py-7 text-center text-emerald-800 font-black text-lg md:text-2xl">${sumOnBoard.toLocaleString()}</td>
+                    <td class="px-4 md:px-10 py-5 md:py-7 text-center ${sumGap < 0 ? 'text-rose-700 font-black' : 'text-slate-800'}">${sumGap.toLocaleString()}</td>
                 `;
                 summaryBody.appendChild(tr);
             });
             document.getElementById('brandSummaryArea').classList.remove('hidden');
         }
 
-        // --- 篩選 ---
         function populateBrandFilter() {
             const brandSelect = document.getElementById('filterBrand');
             const brands = [...new Set(dataS2.map(item => {
@@ -421,10 +422,10 @@
         }
 
         function searchByFilter() {
-            const brand = document.getElementById('filterBrand').value;
-            const floor = document.getElementById('filterFloor').value;
             const name = document.getElementById('filterName').value;
             if (!name) return;
+            const brand = document.getElementById('filterBrand').value;
+            const floor = document.getElementById('filterFloor').value;
             const staff = dataS2.find(i => (i[headersS2[0]] || "").toString().trim().toUpperCase() === brand && (i[headersS2[1]] || "").toString().trim() === floor && (i[headersS2[5]] || "").toString().trim() === name);
             if (staff) {
                 const id = (staff[headersS2[4]] || "").toString().trim();
@@ -473,9 +474,9 @@
 
         function getZColumnClass(val) {
             const s = (val || "PENDING").toString().toUpperCase().trim();
-            if (s.includes('WITHDRAW') || s.includes('NOSHOW') || s.includes('NO SHOW')) return "bg-rose-100 text-rose-700 border-2 border-rose-200 font-black";
-            if (s.includes('ONBOARD') || s.includes('ON BOARD')) return "bg-emerald-100 text-emerald-800 border-2 border-emerald-200 font-black";
-            return "bg-amber-100 text-amber-800 border-2 border-amber-200 font-black";
+            if (s.includes('WITHDRAW') || s.includes('NOSHOW') || s.includes('NO SHOW')) return "bg-rose-100 text-rose-800 border-2 border-rose-200 font-black";
+            if (s.includes('ONBOARD') || s.includes('ON BOARD')) return "bg-emerald-100 text-emerald-900 border-2 border-emerald-200 font-black";
+            return "bg-amber-100 text-amber-900 border-2 border-amber-200 font-black";
         }
 
         function renderS1(list) {
@@ -505,23 +506,23 @@
                 else cPending++;
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-indigo-50/50 transition duration-300";
+                tr.className = "hover:bg-indigo-50/70 transition duration-300 font-bold";
                 const displayZ = zVal || 'PENDING';
                 tr.innerHTML = `
-                    <td class="px-8 py-6 font-black text-slate-900 leading-tight text-lg">${rawName}</td>
-                    <td class="px-8 py-6 text-center text-xs text-slate-600 font-black font-cyber bg-slate-50/50 tracking-tighter uppercase">${extraInfo || '-'}</td>
-                    <td class="px-8 py-6 text-slate-700 font-bold text-center text-base">${statusW}</td>
-                    <td class="px-8 py-6 text-slate-500 text-sm font-cyber font-bold text-center">${obDateStr || '-'}</td>
-                    <td class="px-8 py-6 text-center">
-                        <span class="px-4 py-2 rounded-xl text-xs shadow-sm uppercase tracking-widest ${getZColumnClass(displayZ)}">${displayZ}</span>
+                    <td class="px-4 md:px-8 py-5 md:py-6 font-black text-slate-950 leading-tight text-base md:text-xl">${rawName}</td>
+                    <td class="px-4 md:px-8 py-5 md:py-6 text-slate-800 text-[10px] md:text-sm font-black readable-nums tracking-tighter bg-slate-50/50 uppercase">${extraInfo || '-'}</td>
+                    <td class="px-4 md:px-8 py-5 md:py-6 text-slate-800 text-sm md:text-lg">${statusW}</td>
+                    <td class="px-4 md:px-8 py-5 md:py-6 text-slate-600 text-xs md:text-base readable-nums">${obDateStr || '-'}</td>
+                    <td class="px-4 md:px-8 py-5 md:py-6 min-w-[120px]">
+                        <span class="px-3 md:px-5 py-1.5 md:py-2.5 rounded-xl text-[10px] shadow-sm uppercase tracking-widest ${getZColumnClass(displayZ)}">${displayZ}</span>
                     </td>
                 `;
                 if (rjnj.toUpperCase().includes('RJ')) tbodyRJ.appendChild(tr);
                 else tbodyNJ.appendChild(tr);
             });
 
-            if (tbodyRJ.innerHTML === '') tbodyRJ.innerHTML = '<tr><td colspan="5" class="px-8 py-16 text-center text-slate-400 italic text-base uppercase font-cyber tracking-widest bg-slate-50/30">_DATABASE_EMPTY_</td></tr>';
-            if (tbodyNJ.innerHTML === '') tbodyNJ.innerHTML = '<tr><td colspan="5" class="px-8 py-16 text-center text-slate-400 italic text-base uppercase font-cyber tracking-widest bg-slate-50/30">_DATABASE_EMPTY_</td></tr>';
+            if (tbodyRJ.innerHTML === '') tbodyRJ.innerHTML = '<tr><td colspan="5" class="px-8 py-16 text-center text-slate-400 italic text-base md:text-xl uppercase tracking-widest bg-slate-50/40">_DATABASE_EMPTY_</td></tr>';
+            if (tbodyNJ.innerHTML === '') tbodyNJ.innerHTML = '<tr><td colspan="5" class="px-8 py-16 text-center text-slate-400 italic text-base md:text-xl uppercase tracking-widest bg-slate-50/40">_DATABASE_EMPTY_</td></tr>';
 
             document.getElementById('totalCount').innerText = cTotal;
             document.getElementById('joinedCount').innerText = cJoined;
@@ -538,17 +539,17 @@
             
             list.forEach(item => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-sky-50 transition duration-300 text-center font-bold";
+                tr.className = "hover:bg-sky-50 transition duration-300 font-bold readable-nums";
                 
                 // 1. Name
                 const tdName = document.createElement('td');
-                tdName.className = "px-6 py-6 text-slate-900 font-black border-r border-sky-100 text-lg";
+                tdName.className = "px-4 md:px-8 py-6 md:py-7 text-slate-950 font-black border-r border-sky-100 text-base md:text-xl";
                 tdName.innerText = item[headersS2[5]] || "-";
                 tr.appendChild(tdName);
 
-                // 2. 1月+2月RESIGN NO
+                // 2. Resign No
                 const tdResign = document.createElement('td');
-                tdResign.className = "px-6 py-6 text-slate-700 border-r border-sky-100 bg-sky-50/30 font-black font-cyber text-xl";
+                tdResign.className = "px-4 md:px-8 py-6 md:py-7 text-slate-800 border-r border-sky-100 bg-sky-50/50 font-black text-lg md:text-2xl text-center";
                 const dValRaw = (item[headersS2[3]] || "").toString().trim().toUpperCase();
                 const isTarget = dValRaw === 'AS' || dValRaw === 'S' || dValRaw.includes('AS');
                 
@@ -558,7 +559,7 @@
                     const valK = parseFloat((item[headersS2[10]] || "0").toString().replace(/,/g, '')) || 0;
                     resignVal = valJ + valK;
                     tdResign.innerText = resignVal.toLocaleString();
-                    tdResign.className += " text-sky-800";
+                    tdResign.className += " text-sky-900";
                 } else {
                     tdResign.innerText = "-";
                     tdResign.className += " text-slate-400";
@@ -568,34 +569,34 @@
                 // 3. Total Offer
                 const offerVal = parseFloat((item[headersS2[13]] || "0").toString().replace(/,/g, '')) || 0;
                 const tdOffer = document.createElement('td');
-                tdOffer.className = "px-6 py-6 text-slate-700 border-r border-sky-100 font-cyber text-xl";
+                tdOffer.className = "px-4 md:px-8 py-6 md:py-7 text-slate-800 border-r border-sky-100 text-lg md:text-2xl text-center";
                 tdOffer.innerText = offerVal.toLocaleString();
                 tr.appendChild(tdOffer);
 
                 // 4. Should
                 const tdShould = document.createElement('td');
-                tdShould.className = "px-6 py-6 text-slate-700 border-r border-sky-100 font-cyber text-xl";
+                tdShould.className = "px-4 md:px-8 py-6 md:py-7 text-slate-800 border-r border-sky-100 text-lg md:text-2xl text-center";
                 tdShould.innerText = item[headersS2[15]] || "-";
                 tr.appendChild(tdShould);
 
                 // 5. Onboard
                 const tdOnboard = document.createElement('td');
-                tdOnboard.className = "px-6 py-6 text-slate-700 border-r border-sky-100 font-cyber text-xl";
+                tdOnboard.className = "px-4 md:px-8 py-6 md:py-7 text-slate-800 border-r border-sky-100 text-lg md:text-2xl text-center";
                 tdOnboard.innerText = item[headersS2[14]] || "-";
                 tr.appendChild(tdOnboard);
 
                 // 6. Gap
                 const gapVal = parseFloat((item[headersS2[17]] || "0").toString().replace(/,/g, '')) || 0;
                 const tdGap = document.createElement('td');
-                tdGap.className = "px-6 py-6 last:border-0 font-cyber text-2xl font-black";
-                if (gapVal < 0) tdGap.className += " bg-rose-100 text-rose-800 shadow-inner";
+                tdGap.className = "px-4 md:px-8 py-6 md:py-7 text-center text-xl md:text-3xl font-black";
+                if (gapVal < 0) tdGap.className += " bg-rose-100 text-rose-900";
                 tdGap.innerText = gapVal.toLocaleString();
                 tr.appendChild(tdGap);
 
                 tbody.appendChild(tr);
 
                 // 更新動態公式說明文字
-                formulaText.innerHTML = `Formula Trace: Target (2) + Resign (<span class="text-sky-700 font-black underline decoration-2">${resignVal}</span>) - Offer (<span class="text-slate-950 font-black underline decoration-2">${offerVal}</span>) = Gap (<span class="${gapVal < 0 ? 'text-rose-700 font-black underline decoration-double' : 'text-slate-900 font-black underline'} font-cyber">${gapVal}</span>)`;
+                formulaText.innerHTML = `Formula Trace: Target (2) + Resign (<span class="text-sky-900 font-black underline decoration-2">${resignVal}</span>) - Offer (<span class="text-slate-950 font-black underline decoration-2">${offerVal}</span>) = Gap (<span class="${gapVal < 0 ? 'text-rose-800 font-black underline decoration-double' : 'text-slate-950 font-black underline'}">${gapVal}</span>)`;
             });
             document.getElementById('resultAreaSheet2').classList.remove('hidden');
         }
