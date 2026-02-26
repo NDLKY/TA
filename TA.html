@@ -19,7 +19,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Cyber Grid 背景 */
+        /* Cyber Grid 背景效果 */
         body::before {
             content: "";
             position: fixed;
@@ -44,7 +44,7 @@
             text-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
         }
 
-        /* 數字清晰化處理 */
+        /* 數字清晰化處理與中心對齊 */
         .readable-nums {
             font-variant-numeric: tabular-nums;
             letter-spacing: 0;
@@ -56,7 +56,7 @@
             font-size: 16px !important;
         }
 
-        /* 表格對齊設定 */
+        /* 表格排版基礎設定 */
         th, td {
             white-space: nowrap;
             padding: 1.25rem 1rem !important;
@@ -93,12 +93,12 @@
         <!-- 查詢區域 -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 md:mb-12">
             <div class="lg:col-span-1 cyber-card p-6 md:p-8">
-                <h3 class="text-indigo-950 font-black mb-5 md:mb-6 flex items-center uppercase tracking-widest text-sm">
-                    手動查詢 <span class="ml-auto opacity-20 font-cyber text-lg text-right">01</span>
+                <h3 class="text-indigo-950 font-black mb-5 md:mb-6 flex items-center uppercase tracking-widest text-sm text-left">
+                    手動查詢 <span class="ml-auto opacity-20 font-cyber text-lg">01</span>
                 </h3>
                 <div class="space-y-4 md:space-y-6">
                     <div>
-                        <label for="staffId" class="block text-[10px] md:text-xs font-black text-slate-600 mb-1 md:mb-2 uppercase tracking-widest">Staff ID</label>
+                        <label for="staffId" class="block text-[10px] md:text-xs font-black text-slate-600 mb-1 md:mb-2 uppercase tracking-widest text-left">Staff ID</label>
                         <input type="text" id="staffId" placeholder="例如: 11852" 
                                class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-indigo-100 bg-white focus:ring-4 focus:ring-indigo-200 outline-none transition-all text-slate-900 font-bold">
                     </div>
@@ -110,8 +110,8 @@
             </div>
 
             <div class="lg:col-span-2 cyber-card p-6 md:p-8">
-                <h3 class="text-violet-950 font-black mb-5 md:mb-6 flex items-center uppercase tracking-widest text-sm">
-                    快速篩選 <span class="ml-auto opacity-20 font-cyber text-lg text-right">02</span>
+                <h3 class="text-violet-950 font-black mb-5 md:mb-6 flex items-center uppercase tracking-widest text-sm text-left">
+                    快速篩選 <span class="ml-auto opacity-20 font-cyber text-lg">02</span>
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-left">
                     <div>
@@ -159,8 +159,8 @@
         <!-- 推薦明細區塊 -->
         <div id="resultArea" class="hidden space-y-12 mb-16">
             <div id="sectionRJ">
-                <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-indigo-600 pl-4 tracking-wider uppercase">
-                    RJ 推薦明細 <span class="font-cyber text-indigo-500 ml-2">REFERRAL JOIN</span>
+                <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-indigo-600 pl-4 tracking-wider uppercase text-left">
+                    RJ 推薦明細 <span class="font-cyber text-indigo-500 ml-2">Referral Join</span>
                 </h2>
                 <div class="cyber-card overflow-hidden">
                     <div class="overflow-x-auto custom-scrollbar">
@@ -170,7 +170,7 @@
                                     <th class="text-left">被介紹人 (N)</th>
                                     <th class="text-center">日期資訊 (B+C+D)</th>
                                     <th class="text-center">Status</th>
-                                    <th class="text-center">On Board</th>
+                                    <th class="text-center">On Board Date</th>
                                     <th class="text-center">最終標記</th>
                                 </tr>
                             </thead>
@@ -181,8 +181,8 @@
             </div>
 
             <div id="sectionNJ">
-                <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-violet-600 pl-4 tracking-wider uppercase">
-                    NJ 推薦明細 <span class="font-cyber text-violet-500 ml-2">NEW JOINER</span>
+                <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-violet-600 pl-4 tracking-wider uppercase text-left">
+                    NJ 推薦明細 <span class="font-cyber text-violet-500 ml-2">New Joiner</span>
                 </h2>
                 <div class="cyber-card overflow-hidden">
                     <div class="overflow-x-auto custom-scrollbar">
@@ -192,7 +192,7 @@
                                     <th class="text-left">被介紹人 (N)</th>
                                     <th class="text-center">日期資訊 (B+C+D)</th>
                                     <th class="text-center">Status</th>
-                                    <th class="text-center">On Board</th>
+                                    <th class="text-center">On Board Date</th>
                                     <th class="text-center">最終標記</th>
                                 </tr>
                             </thead>
@@ -205,7 +205,7 @@
 
         <!-- 相關資訊 -->
         <div id="resultAreaSheet2" class="hidden mb-16">
-            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-sky-600 pl-4 tracking-wider uppercase">
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-sky-600 pl-4 tracking-wider uppercase text-left">
                 相關資訊 <span class="font-cyber text-sky-500 ml-2">REFERENCE INFO</span>
             </h2>
             <div class="cyber-card overflow-hidden">
@@ -225,9 +225,9 @@
                     </table>
                 </div>
             </div>
-            <div class="mt-4 p-4 md:p-6 bg-white/70 rounded-2xl border-2 border-white shadow-inner">
-                <p id="dynamicLogicFormula" class="text-base md:text-xl text-slate-900 font-black italic mb-2 readable-nums leading-relaxed text-left"></p>
-                <p class="text-[10px] md:text-sm text-slate-500 italic font-bold text-left uppercase">
+            <div class="mt-4 p-4 md:p-6 bg-white/70 rounded-2xl border-2 border-white shadow-inner text-left">
+                <p id="dynamicLogicFormula" class="text-base md:text-xl text-slate-900 font-black italic mb-2 readable-nums leading-relaxed"></p>
+                <p class="text-[10px] md:text-sm text-slate-500 italic font-bold uppercase tracking-widest">
                     * Formula: Target (2) + Resign No. - Total Offer = Gap
                 </p>
             </div>
@@ -235,7 +235,7 @@
 
         <!-- Brand Summary -->
         <div id="brandSummaryArea" class="hidden mb-16">
-            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-emerald-600 pl-4 tracking-wider uppercase">
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-emerald-600 pl-4 tracking-wider uppercase text-left">
                 Brand Summary <span class="font-cyber text-emerald-500 ml-2">GLOBAL DATA</span>
             </h2>
             <div class="cyber-card overflow-hidden">
@@ -258,7 +258,7 @@
 
         <!-- PIC Summary -->
         <div id="picSummaryArea" class="hidden mb-24">
-            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-blue-600 pl-4 tracking-wider uppercase">
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-blue-600 pl-4 tracking-wider uppercase text-left">
                 PIC Summary <span class="font-cyber text-blue-500 ml-2">BY PERSON</span>
             </h2>
             <div class="cyber-card overflow-hidden">
@@ -288,11 +288,12 @@
             <span class="tracking-[0.2em] uppercase font-cyber text-sm">Synchronizing Database...</span>
         </div>
 
-        <div id="noResult" class="hidden text-center py-20 cyber-card">
-            <p class="text-slate-500 text-xl font-black uppercase font-cyber">NO DATA DETECTED</p>
+        <div id="noResult" class="hidden text-center py-20 cyber-card mx-2">
+            <p class="text-slate-500 text-xl font-black uppercase font-cyber">NO RECORD FOUND</p>
+            <p class="text-slate-500 text-lg mt-4 font-bold">請檢查編號或日期範圍 (2025/12/15+)</p>
         </div>
 
-        <div id="initialPrompt" class="text-center py-32 opacity-20 uppercase font-cyber text-2xl">
+        <div id="initialPrompt" class="text-center py-32 md:py-48 opacity-20 uppercase font-cyber text-2xl">
             Enter Staff ID to Start_
         </div>
     </div>
@@ -316,8 +317,8 @@
                 const r2 = await fetch(SHEET2_BASE_URL + cacheBuster);
                 const t2 = await r2.text();
 
-                Papa.parse(t1, { header: true, complete: res => { dataS1 = res.data; headersS1 = res.meta.fields; } });
-                Papa.parse(t2, { header: true, complete: res => { 
+                Papa.parse(t1, { header: true, skipEmptyLines: true, complete: res => { dataS1 = res.data; headersS1 = res.meta.fields; } });
+                Papa.parse(t2, { header: true, skipEmptyLines: true, complete: res => { 
                     dataS2 = res.data; headersS2 = res.meta.fields; 
                     populateFilters(); 
                     calculateSummaries(); 
@@ -361,8 +362,7 @@
                     let ps = { offer: 0, res: 0, should: 0, onBoard: 0, gap: 0 };
                     
                     picRecords.forEach(i => {
-                        const offer = parseFloat((i[headersS2[13]]||"0").replace(/,/g,'')) || 0;
-                        ps.offer += offer;
+                        ps.offer += parseFloat((i[headersS2[13]]||"0").replace(/,/g,'')) || 0;
                         ps.res += (parseFloat(i[headersS2[9]])||0) + (parseFloat(i[headersS2[10]])||0);
                         ps.should += parseFloat((i[headersS2[15]]||"0").replace(/,/g,'')) || 0;
                         ps.onBoard += parseFloat((i[headersS2[14]]||"0").replace(/,/g,'')) || 0;
@@ -457,6 +457,8 @@
             list.forEach(i => {
                 c.total++;
                 const name = i[headersS1[13]], rjnj = (i[headersS1[12]]||"").toUpperCase();
+                
+                // 日期資訊 (B+C+D) 去重優化
                 const bVal = (i[headersS1[1]]||"").trim(), cVal = (i[headersS1[2]]||"").trim(), dVal = (i[headersS1[3]]||"").trim();
                 const dateParts = [bVal, cVal, dVal].filter(v => v && v !== '-');
                 const uniqueParts = [];
@@ -464,7 +466,13 @@
                     if (!uniqueParts.some(ex => ex.includes(p) || p.includes(ex))) uniqueParts.push(p);
                 });
                 const cleanDate = uniqueParts.join(' ');
-                const status = i[headersS1[22]]||"-", ob = i[headersS1[19]]||"-", z = i[headersS1[25]]||"PENDING";
+                
+                // On Board Date (T+U+V) 完整合併修正
+                const tVal = (i[headersS1[19]]||"").trim(), uVal = (i[headersS1[20]]||"").trim(), vVal = (i[headersS1[21]]||"").trim();
+                const obParts = [tVal, uVal, vVal].filter(v => v && v !== '-');
+                const fullObDate = obParts.join(' ') || "-";
+
+                const status = i[headersS1[22]]||"-", z = i[headersS1[25]]||"PENDING";
 
                 if (z.toUpperCase().includes('ONBOARD')) c.joined++;
                 else if (z.toUpperCase().includes('WITHDRAW') || status.toUpperCase().includes('WITHDRAW')) c.drop++;
@@ -472,9 +480,9 @@
 
                 const tr = `<tr>
                     <td class="px-4 md:px-8 py-5 md:py-6 font-black text-slate-950 text-base md:text-xl text-left">${name}</td>
-                    <td class="px-4 md:px-8 py-5 md:py-6 text-slate-800 text-[10px] md:text-sm font-bold bg-slate-50/50 text-center">${cleanDate}</td>
+                    <td class="px-4 md:px-8 py-5 md:py-6 text-slate-800 text-sm font-bold bg-slate-50/50 text-center">${cleanDate}</td>
                     <td class="px-4 md:px-8 py-5 md:py-6 text-slate-800 text-sm md:text-lg text-center">${status}</td>
-                    <td class="px-4 md:px-8 py-5 md:py-6 text-slate-600 text-xs md:text-base readable-nums text-center">${ob}</td>
+                    <td class="px-4 md:px-8 py-5 md:py-6 text-slate-600 text-sm md:text-base readable-nums text-center">${fullObDate}</td>
                     <td class="px-4 md:px-8 py-5 md:py-6 text-center"><span class="px-3 md:px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm ${getZColumnClass(z)}">${z}</span></td>
                 </tr>`;
                 if (rjnj.includes('RJ')) rbRJ.innerHTML += tr; else rbNJ.innerHTML += tr;
@@ -517,7 +525,7 @@
             const v = val.toUpperCase();
             if (v.includes('WITHDRAW') || v.includes('NO SHOW')) return "bg-rose-100 text-rose-800 border-2 border-rose-200";
             if (v.includes('ONBOARD')) return "bg-emerald-100 text-emerald-900 border-2 border-emerald-200";
-            return "bg-amber-100 text-amber-900 border-2 border-amber-200";
+            return "bg-amber-100 text-amber-800 border-2 border-amber-200";
         }
 
         function showNone() {
