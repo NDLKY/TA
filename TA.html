@@ -15,11 +15,11 @@
             background-attachment: fixed;
             min-height: 100vh;
             position: relative;
-            color: #1e293b;
+            color: #0f172a;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Cyber Grid Background Effect */
+        /* Cyber Grid 背景 */
         body::before {
             content: "";
             position: fixed;
@@ -31,41 +31,42 @@
         }
 
         .cyber-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.15);
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.12);
             border-radius: 1.25rem;
             transition: all 0.3s ease;
         }
 
-        @media (min-width: 768px) {
-            .cyber-card { border-radius: 1.5rem; }
-        }
-
         .header-glow {
-            text-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+            text-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
         }
 
-        /* 數字專用清晰設定 */
+        /* 數字清晰化處理 */
         .readable-nums {
             font-variant-numeric: tabular-nums;
-            letter-spacing: 0.01em;
+            letter-spacing: 0;
+            font-family: 'Noto Sans TC', sans-serif !important;
         }
 
-        /* iOS Input Fix - 防止 16px 以下自動縮放 */
+        /* iOS Input Fix */
         input, select {
             font-size: 16px !important;
         }
 
-        /* 表格樣式調整 */
-        th { white-space: nowrap; }
+        /* 表格對齊設定 */
+        th, td {
+            white-space: nowrap;
+            padding: 1.25rem 1rem !important;
+        }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 10px; }
+        .text-left { text-align: left !important; }
+        .text-center { text-align: center !important; }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 10px; }
 
         .font-cyber { font-family: 'Orbitron', sans-serif; }
     </style>
@@ -73,65 +74,61 @@
 <body class="py-6 md:py-12 px-3 md:px-6">
 
     <div class="max-w-7xl mx-auto">
-        <!-- 頂部標題與日期 -->
+        <!-- 頂部標題 -->
         <div class="flex flex-col md:flex-row justify-between items-center md:items-start mb-8 md:mb-12 gap-6">
-            <div class="text-center md:text-left w-full md:w-auto">
-                <h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-2 md:mb-3 tracking-tight header-glow">
-                    推薦進度查詢 <span class="text-indigo-600 font-cyber text-2xl md:text-3xl block md:inline uppercase">Dashboard</span>
+            <div class="text-left w-full">
+                <h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-2 md:mb-4 tracking-tight header-glow">
+                    推薦進度查詢 <span class="text-indigo-600 font-cyber text-2xl md:text-3xl uppercase">Dashboard</span>
                 </h1>
-                <p class="text-slate-700 font-bold text-sm md:text-lg flex items-center justify-center md:justify-start bg-white/50 px-4 py-2 rounded-full w-fit mx-auto md:mx-0 shadow-sm border border-white/60">
-                    <svg class="w-4 h-4 md:w-5 md:h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <p class="text-slate-800 font-bold text-sm md:text-lg flex items-center bg-white/60 px-4 py-2 rounded-full w-fit shadow-sm border border-white/80">
+                    <svg class="w-4 h-4 md:w-5 md:h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="filter: drop-shadow(0 0 2px #6366f1);"><path stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     範圍：2025/12/15 之後記錄
                 </p>
             </div>
-            <div class="cyber-card px-6 py-4 border-l-4 md:border-l-8 border-indigo-500 text-indigo-900 font-black text-sm md:text-base shadow-md w-full md:w-auto text-center md:text-left" id="lastUpdateDisplay">
+            <div class="cyber-card px-6 py-4 border-l-4 md:border-l-8 border-indigo-500 text-indigo-900 font-black text-sm md:text-base shadow-md w-full md:w-auto text-left" id="lastUpdateDisplay">
                 試算表狀態：連線中...
             </div>
         </div>
 
         <!-- 查詢區域 -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 md:mb-12">
-            <!-- 手動輸入 ID -->
             <div class="lg:col-span-1 cyber-card p-6 md:p-8">
-                <h3 class="text-indigo-900 font-black mb-5 md:mb-6 flex items-center uppercase tracking-widest text-sm">
-                    <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                    手動查詢 <span class="ml-auto opacity-20 font-cyber text-lg">01</span>
+                <h3 class="text-indigo-950 font-black mb-5 md:mb-6 flex items-center uppercase tracking-widest text-sm">
+                    手動查詢 <span class="ml-auto opacity-20 font-cyber text-lg text-right">01</span>
                 </h3>
                 <div class="space-y-4 md:space-y-6">
                     <div>
-                        <label for="staffId" class="block text-[10px] md:text-xs font-black text-slate-500 mb-1 md:mb-2 uppercase tracking-widest">Employee Staff ID</label>
+                        <label for="staffId" class="block text-[10px] md:text-xs font-black text-slate-600 mb-1 md:mb-2 uppercase tracking-widest">Staff ID</label>
                         <input type="text" id="staffId" placeholder="例如: 11852" 
-                               class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-indigo-50 bg-white focus:ring-4 focus:ring-indigo-200 focus:border-indigo-400 outline-none transition-all text-slate-900 font-bold text-base md:text-lg">
+                               class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-indigo-100 bg-white focus:ring-4 focus:ring-indigo-200 outline-none transition-all text-slate-900 font-bold">
                     </div>
                     <button onclick="manualSearch()" 
-                            class="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 active:from-indigo-700 active:to-violet-700 text-white font-black text-base md:text-lg rounded-xl transition shadow-xl shadow-indigo-100 active:scale-[0.98] uppercase tracking-widest">
+                            class="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black rounded-xl transition shadow-lg active:scale-[0.98] uppercase tracking-widest">
                         執行查詢
                     </button>
                 </div>
             </div>
 
-            <!-- 下拉篩選 -->
             <div class="lg:col-span-2 cyber-card p-6 md:p-8">
-                <h3 class="text-violet-900 font-black mb-5 md:mb-6 flex items-center uppercase tracking-widest text-sm">
-                    <svg class="w-5 h-5 mr-2 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
-                    快速篩選 <span class="ml-auto opacity-20 font-cyber text-lg">02</span>
+                <h3 class="text-violet-950 font-black mb-5 md:mb-6 flex items-center uppercase tracking-widest text-sm">
+                    快速篩選 <span class="ml-auto opacity-20 font-cyber text-lg text-right">02</span>
                 </h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-left">
                     <div>
-                        <label class="block text-[10px] md:text-xs font-black text-slate-500 mb-1 md:mb-2 uppercase tracking-widest">Brand</label>
-                        <select id="filterBrand" onchange="updateFloorFilter()" class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-violet-50 bg-white focus:ring-4 focus:ring-violet-200 outline-none text-slate-900 font-bold text-sm md:text-base appearance-none cursor-pointer">
+                        <label class="block text-[10px] md:text-xs font-black text-slate-600 mb-1 md:mb-2 uppercase tracking-widest">Brand</label>
+                        <select id="filterBrand" onchange="updateFloorFilter()" class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-violet-50 bg-white focus:ring-4 outline-none text-slate-900 font-bold appearance-none cursor-pointer">
                             <option value="">請選擇 Brand</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[10px] md:text-xs font-black text-slate-500 mb-1 md:mb-2 uppercase tracking-widest">Floor</label>
-                        <select id="filterFloor" onchange="updateNameFilter()" disabled class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-violet-50 bg-white focus:ring-4 focus:ring-violet-200 outline-none text-slate-900 font-bold text-sm md:text-base appearance-none cursor-pointer">
+                        <label class="block text-[10px] md:text-xs font-black text-slate-600 mb-1 md:mb-2 uppercase tracking-widest">Floor</label>
+                        <select id="filterFloor" onchange="updateNameFilter()" disabled class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-violet-50 bg-white focus:ring-4 outline-none text-slate-900 font-bold appearance-none cursor-pointer">
                             <option value="">請選擇 Floor</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[10px] md:text-xs font-black text-slate-500 mb-1 md:mb-2 uppercase tracking-widest">Name</label>
-                        <select id="filterName" onchange="searchByFilter()" disabled class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-violet-50 bg-white focus:ring-4 focus:ring-violet-200 outline-none text-slate-900 font-bold text-sm md:text-base appearance-none cursor-pointer">
+                        <label class="block text-[10px] md:text-xs font-black text-slate-600 mb-1 md:mb-2 uppercase tracking-widest">Name</label>
+                        <select id="filterName" onchange="searchByFilter()" disabled class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-violet-50 bg-white focus:ring-4 outline-none text-slate-900 font-bold appearance-none cursor-pointer">
                             <option value="">請選擇姓名</option>
                         </select>
                     </div>
@@ -139,43 +136,42 @@
             </div>
         </div>
 
-        <!-- 數據統計 -->
+        <!-- 數據統計卡片 -->
         <div id="statsArea" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-10 md:mb-12 hidden">
-            <div class="cyber-card p-4 md:p-8 border-l-4 md:border-l-8 border-blue-500 relative overflow-hidden group">
-                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1 md:mb-2">總推薦</p>
+            <div class="cyber-card p-4 md:p-8 border-l-4 md:border-l-8 border-blue-500 text-center">
+                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1">總推薦</p>
                 <p id="totalCount" class="text-2xl md:text-5xl font-black text-slate-900 readable-nums">0</p>
             </div>
-            <div class="cyber-card p-4 md:p-8 border-l-4 md:border-l-8 border-emerald-500 relative overflow-hidden group">
-                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1 md:mb-2">已入職</p>
+            <div class="cyber-card p-4 md:p-8 border-l-4 md:border-l-8 border-emerald-500 text-center">
+                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1">已入職</p>
                 <p id="joinedCount" class="text-2xl md:text-5xl font-black text-emerald-600 readable-nums">0</p>
             </div>
-            <div class="cyber-card p-4 md:p-8 border-l-4 md:border-l-8 border-rose-500 relative overflow-hidden group">
-                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1 md:mb-2">Drop</p>
+            <div class="cyber-card p-4 md:p-8 border-l-4 md:border-l-8 border-rose-500 text-center">
+                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1">Drop</p>
                 <p id="withdrawCount" class="text-2xl md:text-5xl font-black text-rose-600 readable-nums">0</p>
             </div>
-            <div class="cyber-card p-4 md:p-8 border-l-4 md:border-l-8 border-amber-500 relative overflow-hidden group">
-                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1 md:mb-2">處理中</p>
+            <div class="cyber-card p-4 md:p-8 border-l-4 md:border-l-8 border-amber-500 text-center">
+                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1">處理中</p>
                 <p id="pendingCount" class="text-2xl md:text-5xl font-black text-amber-600 readable-nums">0</p>
             </div>
         </div>
 
         <!-- 推薦明細區塊 -->
         <div id="resultArea" class="hidden space-y-12 mb-16">
-            <!-- RJ Section -->
             <div id="sectionRJ">
-                <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 md:mb-6 px-2 flex items-center border-l-6 md:border-l-8 border-indigo-600 pl-4 md:pl-6 tracking-wider uppercase">
-                    RJ 推薦明細 <span class="ml-auto md:ml-4 px-2 md:px-3 py-1 bg-indigo-100 text-indigo-700 text-[10px] md:text-sm rounded uppercase font-cyber font-bold">RJ</span>
+                <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-indigo-600 pl-4 tracking-wider uppercase">
+                    RJ 推薦明細 <span class="font-cyber text-indigo-500 ml-2">REFERRAL JOIN</span>
                 </h2>
                 <div class="cyber-card overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead class="bg-indigo-50 border-b-2 border-indigo-100 text-indigo-950">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full border-collapse">
+                            <thead class="bg-indigo-50 border-b-2 border-indigo-100 text-indigo-950 font-black">
                                 <tr>
-                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">被介紹人</th>
-                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">日期資訊</th>
-                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">Status</th>
-                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">On Board Date</th>
-                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">最終標記</th>
+                                    <th class="text-left">被介紹人 (N)</th>
+                                    <th class="text-center">日期資訊 (B+C+D)</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">On Board</th>
+                                    <th class="text-center">最終標記</th>
                                 </tr>
                             </thead>
                             <tbody id="resultTableBodyRJ" class="divide-y divide-slate-200"></tbody>
@@ -184,21 +180,20 @@
                 </div>
             </div>
 
-            <!-- NJ Section -->
             <div id="sectionNJ">
-                <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 md:mb-6 px-2 flex items-center border-l-6 md:border-l-8 border-violet-600 pl-4 md:pl-6 tracking-wider uppercase">
-                    NJ 推薦明細 <span class="ml-auto md:ml-4 px-2 md:px-3 py-1 bg-violet-100 text-violet-700 text-[10px] md:text-sm rounded uppercase font-cyber font-bold">NJ</span>
+                <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-violet-600 pl-4 tracking-wider uppercase">
+                    NJ 推薦明細 <span class="font-cyber text-violet-500 ml-2">NEW JOINER</span>
                 </h2>
                 <div class="cyber-card overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead class="bg-violet-50 border-b-2 border-violet-100 text-violet-950">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full border-collapse">
+                            <thead class="bg-violet-50 border-b-2 border-violet-100 text-violet-950 font-black">
                                 <tr>
-                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">被介紹人</th>
-                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">日期資訊</th>
-                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">Status</th>
-                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">On Board Date</th>
-                                    <th class="px-4 md:px-8 py-4 md:py-5 text-xs md:text-sm font-black uppercase tracking-widest">最終標記</th>
+                                    <th class="text-left">被介紹人 (N)</th>
+                                    <th class="text-center">日期資訊 (B+C+D)</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">On Board</th>
+                                    <th class="text-center">最終標記</th>
                                 </tr>
                             </thead>
                             <tbody id="resultTableBodyNJ" class="divide-y divide-slate-200"></tbody>
@@ -208,79 +203,97 @@
             </div>
         </div>
 
-        <!-- 相關資訊表格 -->
-        <div id="resultAreaSheet2" class="hidden mb-16 md:20">
-            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 md:mb-6 px-2 flex items-center border-l-6 md:border-l-8 border-sky-600 pl-4 md:pl-6 tracking-wider uppercase">
-                相關資訊 <span class="ml-auto md:ml-4 px-2 md:px-3 py-1 bg-sky-100 text-sky-700 text-[10px] md:text-sm rounded uppercase font-cyber font-bold">Ref</span>
+        <!-- 相關資訊 -->
+        <div id="resultAreaSheet2" class="hidden mb-16">
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-sky-600 pl-4 tracking-wider uppercase">
+                相關資訊 <span class="font-cyber text-sky-500 ml-2">REFERENCE INFO</span>
             </h2>
             <div class="cyber-card overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-base">
-                        <thead class="bg-sky-50 text-sky-950 border-b-2 border-sky-100 font-black uppercase">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full border-collapse">
+                        <thead class="bg-sky-50 text-sky-950 border-b-2 border-sky-100 font-black uppercase text-sm">
                             <tr>
-                                <th class="px-4 md:px-8 py-5 md:py-6 border-r border-sky-100 min-w-[140px]">Name</th>
-                                <th class="px-4 md:px-8 py-5 md:py-6 border-r border-sky-100 min-w-[140px]">Resign No</th>
-                                <th class="px-4 md:px-8 py-5 md:py-6 border-r border-sky-100 min-w-[180px] leading-tight text-xs md:text-sm">
-                                    Total Offer<br>
-                                    <span class="text-[10px] font-bold block mt-1 opacity-70">(已減無返工Offer)</span>
-                                </th>
-                                <th class="px-4 md:px-8 py-5 md:py-6 border-r border-sky-100 min-w-[160px]">Should on Board</th>
-                                <th class="px-4 md:px-8 py-5 md:py-6 border-r border-sky-100 min-w-[140px]">On board</th>
-                                <th class="px-4 md:px-8 py-5 md:py-6 min-w-[140px]">Gap</th>
+                                <th class="text-left border-r border-sky-100">Name</th>
+                                <th class="text-center border-r border-sky-100">1月+2月<br>Resign No</th>
+                                <th class="text-center border-r border-sky-100 leading-tight">Total Offer <br><span class="text-[10px] block opacity-60 font-bold">(已減無返工Offer)</span></th>
+                                <th class="text-center border-r border-sky-100">Should<br>on Board</th>
+                                <th class="text-center border-r border-sky-100">On board</th>
+                                <th class="text-center">Gap</th>
                             </tr>
                         </thead>
-                        <tbody id="sheet2TableBody" class="divide-y divide-slate-200 text-base md:text-lg"></tbody>
+                        <tbody id="sheet2TableBody" class="divide-y divide-slate-200 text-lg readable-nums font-bold"></tbody>
                     </table>
                 </div>
             </div>
-            <!-- 動態邏輯說明行區塊 -->
-            <div class="mt-4 md:mt-6 px-4 md:px-8 py-4 md:py-6 bg-white/70 rounded-2xl md:rounded-3xl border-2 border-white shadow-inner">
-                <p id="dynamicLogicFormula" class="text-base md:text-xl text-slate-900 font-black italic mb-2 readable-nums leading-relaxed"></p>
-                <p class="text-[10px] md:text-sm text-slate-500 italic font-bold uppercase tracking-widest">
+            <div class="mt-4 p-4 md:p-6 bg-white/70 rounded-2xl border-2 border-white shadow-inner">
+                <p id="dynamicLogicFormula" class="text-base md:text-xl text-slate-900 font-black italic mb-2 readable-nums leading-relaxed text-left"></p>
+                <p class="text-[10px] md:text-sm text-slate-500 italic font-bold text-left uppercase">
                     * Formula: Target (2) + Resign No. - Total Offer = Gap
                 </p>
             </div>
         </div>
 
-        <!-- Brand Summary 區塊 -->
-        <div id="brandSummaryArea" class="hidden mb-20">
-            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 flex items-center border-l-6 md:border-l-8 border-emerald-600 pl-4 md:pl-6 tracking-wider uppercase">
-                Brand Summary <span class="ml-auto md:ml-4 px-2 md:px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] md:text-sm rounded uppercase font-cyber font-bold">Global</span>
+        <!-- Brand Summary -->
+        <div id="brandSummaryArea" class="hidden mb-16">
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-emerald-600 pl-4 tracking-wider uppercase">
+                Brand Summary <span class="font-cyber text-emerald-500 ml-2">GLOBAL DATA</span>
             </h2>
-            <div class="cyber-card overflow-hidden shadow-xl">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-base">
+            <div class="cyber-card overflow-hidden">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full border-collapse text-lg">
                         <thead class="bg-emerald-50 text-emerald-950 border-b-2 border-emerald-100 font-black uppercase">
                             <tr>
-                                <th class="px-4 md:px-10 py-5 md:py-7 font-black tracking-tight">Brand Name</th>
-                                <th class="px-4 md:px-10 py-5 md:py-7 text-center">Total Offer</th>
-                                <th class="px-4 md:px-10 py-5 md:py-7 text-center">Should on Board</th>
-                                <th class="px-4 md:px-10 py-5 md:py-7 text-center text-emerald-900">On board</th>
-                                <th class="px-4 md:px-10 py-5 md:py-7 text-center">Total Gap</th>
+                                <th class="text-left px-10">Brand Name</th>
+                                <th class="text-center px-10">Total Offer</th>
+                                <th class="text-center px-10">Total Should<br>on Board</th>
+                                <th class="text-center px-10 text-emerald-900">Total On board</th>
+                                <th class="text-center px-10">Total Gap</th>
                             </tr>
                         </thead>
-                        <tbody id="brandSummaryBody" class="divide-y divide-slate-200"></tbody>
+                        <tbody id="brandSummaryBody" class="divide-y divide-slate-200 readable-nums font-bold"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- 狀態顯示區 -->
+        <!-- PIC Summary -->
+        <div id="picSummaryArea" class="hidden mb-24">
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-blue-600 pl-4 tracking-wider uppercase">
+                PIC Summary <span class="font-cyber text-blue-500 ml-2">BY PERSON</span>
+            </h2>
+            <div class="cyber-card overflow-hidden">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full border-collapse">
+                        <thead class="bg-blue-50 text-blue-950 border-b-2 border-blue-100 font-black uppercase text-xs md:text-sm">
+                            <tr>
+                                <th class="text-left border-r border-blue-100">Brand</th>
+                                <th class="text-left border-r border-blue-100">PIC</th>
+                                <th class="text-center border-r border-blue-100">Total Offer</th>
+                                <th class="text-center border-r border-blue-100 leading-tight">1月+2月<br>Resign No</th>
+                                <th class="text-center border-r border-blue-100 leading-tight">Total Offer<br><span class="text-[9px] opacity-60 font-bold">(已減無返工Offer)</span></th>
+                                <th class="text-center border-r border-blue-100">Should<br>on Board</th>
+                                <th class="text-center border-r border-blue-100">On board</th>
+                                <th class="text-center">Gap</th>
+                            </tr>
+                        </thead>
+                        <tbody id="picSummaryBody" class="divide-y divide-slate-200 readable-nums font-bold"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 狀態顯示 -->
         <div id="loadingStatus" class="text-center py-10 text-indigo-700 font-black flex flex-col items-center justify-center gap-4">
-            <svg class="animate-spin h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span class="tracking-[0.2em] md:tracking-[0.3em] uppercase text-sm md:text-lg font-cyber">Synchronizing...</span>
+            <svg class="animate-spin h-8 w-8" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <span class="tracking-[0.2em] uppercase font-cyber text-sm">Synchronizing Database...</span>
         </div>
 
-        <div id="noResult" class="hidden text-center py-20 md:py-32 cyber-card mx-2">
-            <p class="text-slate-500 text-xl md:text-3xl font-black uppercase tracking-[0.1em] md:tracking-[0.2em] font-cyber">NO RECORD FOUND</p>
-            <p class="text-slate-500 text-base md:text-xl mt-4 font-bold px-4">請檢查編號或日期範圍 (2025/12/15+)</p>
+        <div id="noResult" class="hidden text-center py-20 cyber-card">
+            <p class="text-slate-500 text-xl font-black uppercase font-cyber">NO DATA DETECTED</p>
         </div>
 
-        <div id="initialPrompt" class="text-center py-32 md:py-48 opacity-20">
-            <p class="text-indigo-950 font-black text-2xl md:text-4xl tracking-tighter font-cyber uppercase">Initiate Search_</p>
+        <div id="initialPrompt" class="text-center py-32 opacity-20 uppercase font-cyber text-2xl">
+            Enter Staff ID to Start_
         </div>
     </div>
 
@@ -289,316 +302,222 @@
         const SHEET2_BASE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQI5NkFNnXAqi78qHKhg6CRZ4ZTVwu1Tevpo2PXdQn85pZWh6GeAhK29Ih4U7B9QKzqucIDomXJh94L/pub?gid=906179987&single=true&output=csv';
         const DATE_LIMIT = new Date('2025-12-15');
 
-        let dataS1 = [];
-        let headersS1 = [];
-        let dataS2 = [];
-        let headersS2 = [];
+        let dataS1 = [], headersS1 = [], dataS2 = [], headersS2 = [];
 
         async function init() {
-            const loading = document.getElementById('loadingStatus');
             const updateDisplay = document.getElementById('lastUpdateDisplay');
             const cacheBuster = `&t=${Date.now()}`;
-
             try {
-                const response1 = await fetch(SHEET1_BASE_URL + cacheBuster);
-                const lastMod = response1.headers.get('Last-Modified');
-                if (lastMod) {
-                    const date = new Date(lastMod);
-                    updateDisplay.innerText = `最後更新：${date.toLocaleString('zh-HK', { hour12: false })}`;
-                } else {
-                    const now = new Date();
-                    updateDisplay.innerText = `連線時間：${now.toLocaleString('zh-HK', { hour12: false })}`;
-                }
+                const r1 = await fetch(SHEET1_BASE_URL + cacheBuster);
+                const lastMod = r1.headers.get('Last-Modified');
+                updateDisplay.innerText = lastMod ? `最後更新：${new Date(lastMod).toLocaleString('zh-HK')}` : `同步時間：${new Date().toLocaleString('zh-HK')}`;
+                
+                const t1 = await r1.text();
+                const r2 = await fetch(SHEET2_BASE_URL + cacheBuster);
+                const t2 = await r2.text();
 
-                const text1 = await response1.text();
-                const response2 = await fetch(SHEET2_BASE_URL + cacheBuster);
-                const text2 = await response2.text();
-
-                Papa.parse(text1, {
-                    header: true, skipEmptyLines: true,
-                    complete: (results) => {
-                        dataS1 = results.data;
-                        headersS1 = results.meta.fields;
-                    }
-                });
-
-                Papa.parse(text2, {
-                    header: true, skipEmptyLines: true,
-                    complete: (results) => {
-                        dataS2 = results.data;
-                        headersS2 = results.meta.fields;
-                        populateBrandFilter();
-                        calculateBrandSummary();
-                    }
-                });
-
-                loading.classList.add('hidden');
-            } catch (e) {
-                loading.innerText = "連線失敗，請檢查網路。";
-                console.error(e);
-            }
+                Papa.parse(t1, { header: true, complete: res => { dataS1 = res.data; headersS1 = res.meta.fields; } });
+                Papa.parse(t2, { header: true, complete: res => { 
+                    dataS2 = res.data; headersS2 = res.meta.fields; 
+                    populateFilters(); 
+                    calculateSummaries(); 
+                    document.getElementById('loadingStatus').classList.add('hidden');
+                } });
+            } catch (e) { console.error(e); }
         }
 
-        function calculateBrandSummary() {
-            if (!dataS2.length) return;
-            const summaryBody = document.getElementById('brandSummaryBody');
-            summaryBody.innerHTML = '';
-            
-            const targetBrands = ['DERMES', 'ELYZE', 'REENEX'];
-            const brandKey = headersS2[0]; 
-            const nameKey = headersS2[5];  
-            const colNKey = headersS2[13]; 
-            const colPKey = headersS2[15]; 
-            const colOKey = headersS2[14]; 
-            const colRKey = headersS2[17]; 
+        function calculateSummaries() {
+            const brands = ['DERMES', 'ELYZE', 'REENEX'];
+            const sumBody = document.getElementById('brandSummaryBody');
+            const picBody = document.getElementById('picSummaryBody');
+            sumBody.innerHTML = ''; picBody.innerHTML = '';
 
-            targetBrands.forEach(brandName => {
-                const filtered = dataS2.filter(item => (item[brandKey] || "").toString().trim().toUpperCase() === brandName);
-                let sumOffer = 0, sumShould = 0, sumOnBoard = 0, sumGap = 0;
+            let grandTotal = { offer: 0, should: 0, onBoard: 0, gap: 0 };
 
-                filtered.forEach(item => {
-                    const nameVal = (item[nameKey] || "").toString().toUpperCase();
-                    if (nameVal.includes("TOTAL") || nameVal.trim() === "") return;
-                    sumOffer += parseFloat((item[colNKey] || "0").toString().replace(/,/g, '')) || 0;
-                    sumShould += parseFloat((item[colPKey] || "0").toString().replace(/,/g, '')) || 0;
-                    sumOnBoard += parseFloat((item[colOKey] || "0").toString().replace(/,/g, '')) || 0;
-                    sumGap += parseFloat((item[colRKey] || "0").toString().replace(/,/g, '')) || 0;
+            brands.forEach(brand => {
+                const brandRecords = dataS2.filter(i => (i[headersS2[0]]||"").toUpperCase() === brand && !(i[headersS2[5]]||"").toUpperCase().includes("TOTAL"));
+                
+                let bs = { offer: 0, should: 0, onBoard: 0, gap: 0 };
+                brandRecords.forEach(i => {
+                    bs.offer += parseFloat((i[headersS2[13]]||"0").replace(/,/g,'')) || 0;
+                    bs.should += parseFloat((i[headersS2[15]]||"0").replace(/,/g,'')) || 0;
+                    bs.onBoard += parseFloat((i[headersS2[14]]||"0").replace(/,/g,'')) || 0;
+                    bs.gap += parseFloat((i[headersS2[17]]||"0").replace(/,/g,'')) || 0;
                 });
 
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-emerald-50/70 transition duration-300 font-bold readable-nums text-sm md:text-lg";
-                tr.innerHTML = `
-                    <td class="px-4 md:px-10 py-5 md:py-7 font-black text-slate-900 tracking-tight">${brandName}</td>
-                    <td class="px-4 md:px-10 py-5 md:py-7 text-center text-slate-700">${sumOffer.toLocaleString()}</td>
-                    <td class="px-4 md:px-10 py-5 md:py-7 text-center text-slate-700">${sumShould.toLocaleString()}</td>
-                    <td class="px-4 md:px-10 py-5 md:py-7 text-center text-emerald-800 font-black text-lg md:text-2xl">${sumOnBoard.toLocaleString()}</td>
-                    <td class="px-4 md:px-10 py-5 md:py-7 text-center ${sumGap < 0 ? 'text-rose-700 font-black' : 'text-slate-800'}">${sumGap.toLocaleString()}</td>
-                `;
-                summaryBody.appendChild(tr);
+                grandTotal.offer += bs.offer; grandTotal.should += bs.should; grandTotal.onBoard += bs.onBoard; grandTotal.gap += bs.gap;
+
+                sumBody.innerHTML += `<tr class="hover:bg-emerald-50/70 transition duration-300">
+                    <td class="px-10 py-5 font-black text-slate-900 text-left">${brand}</td>
+                    <td class="px-10 py-5 text-slate-800 text-center">${bs.offer.toLocaleString()}</td>
+                    <td class="px-10 py-5 text-slate-800 text-center">${bs.should.toLocaleString()}</td>
+                    <td class="px-10 py-5 text-emerald-800 font-black text-2xl text-center">${bs.onBoard.toLocaleString()}</td>
+                    <td class="px-10 py-5 text-center ${bs.gap < 0 ? 'text-rose-700' : 'text-slate-800'}">${bs.gap.toLocaleString()}</td>
+                </tr>`;
+
+                const uniquePICs = [...new Set(brandRecords.map(i => i[headersS2[2]]).filter(v => v))];
+                uniquePICs.forEach(picName => {
+                    const picRecords = brandRecords.filter(i => i[headersS2[2]] === picName);
+                    let ps = { offer: 0, res: 0, should: 0, onBoard: 0, gap: 0 };
+                    
+                    picRecords.forEach(i => {
+                        const offer = parseFloat((i[headersS2[13]]||"0").replace(/,/g,'')) || 0;
+                        ps.offer += offer;
+                        ps.res += (parseFloat(i[headersS2[9]])||0) + (parseFloat(i[headersS2[10]])||0);
+                        ps.should += parseFloat((i[headersS2[15]]||"0").replace(/,/g,'')) || 0;
+                        ps.onBoard += parseFloat((i[headersS2[14]]||"0").replace(/,/g,'')) || 0;
+                        ps.gap += parseFloat((i[headersS2[17]]||"0").replace(/,/g,'')) || 0;
+                    });
+
+                    picBody.innerHTML += `<tr class="hover:bg-blue-50/50 transition duration-300">
+                        <td class="px-6 py-5 border-r border-blue-50 text-slate-600 text-left">${brand}</td>
+                        <td class="px-6 py-5 border-r border-blue-50 font-black text-slate-900 text-left">${picName}</td>
+                        <td class="px-6 py-5 border-r border-blue-50 text-slate-800 text-center">${ps.offer.toLocaleString()}</td>
+                        <td class="px-6 py-5 border-r border-blue-50 text-rose-700 font-black text-center">${ps.res.toLocaleString()}</td>
+                        <td class="px-6 py-5 border-r border-blue-50 text-slate-800 text-center">${ps.offer.toLocaleString()}</td>
+                        <td class="px-6 py-5 border-r border-blue-50 text-slate-800 text-center">${ps.should.toLocaleString()}</td>
+                        <td class="px-6 py-5 border-r border-blue-50 text-emerald-800 font-black text-lg text-center">${ps.onBoard.toLocaleString()}</td>
+                        <td class="px-6 py-5 text-center ${ps.gap < 0 ? 'text-rose-700' : 'text-slate-900'}">${ps.gap.toLocaleString()}</td>
+                    </tr>`;
+                });
             });
+
+            sumBody.innerHTML += `<tr class="bg-slate-100 font-black border-t-2 border-slate-300">
+                <td class="px-10 py-6 text-indigo-900 text-left">GRAND TOTAL</td>
+                <td class="px-10 py-6 text-slate-950 text-center">${grandTotal.offer.toLocaleString()}</td>
+                <td class="px-10 py-6 text-slate-950 text-center">${grandTotal.should.toLocaleString()}</td>
+                <td class="px-10 py-6 text-emerald-900 text-2xl text-center">${grandTotal.onBoard.toLocaleString()}</td>
+                <td class="px-10 py-6 text-center ${grandTotal.gap < 0 ? 'text-rose-800' : ''}">${grandTotal.gap.toLocaleString()}</td>
+            </tr>`;
+
             document.getElementById('brandSummaryArea').classList.remove('hidden');
+            document.getElementById('picSummaryArea').classList.remove('hidden');
         }
 
-        function populateBrandFilter() {
-            const brandSelect = document.getElementById('filterBrand');
-            const brands = [...new Set(dataS2.map(item => {
-                const val = item[headersS2[0]];
-                return val ? val.toString().trim().toUpperCase() : "";
-            }).filter(v => v && !v.includes("TOTAL")))].sort();
-            brands.forEach(b => {
-                const opt = document.createElement('option');
-                opt.value = b; opt.innerText = b; brandSelect.appendChild(opt);
-            });
+        function populateFilters() {
+            const bSel = document.getElementById('filterBrand');
+            const uniqueBrands = [...new Set(dataS2.map(i => i[headersS2[0]]).filter(v => v && !v.toUpperCase().includes("TOTAL")))].sort();
+            uniqueBrands.forEach(b => bSel.innerHTML += `<option value="${b}">${b}</option>`);
         }
 
         function updateFloorFilter() {
-            const brand = document.getElementById('filterBrand').value;
-            const floorSelect = document.getElementById('filterFloor');
-            const nameSelect = document.getElementById('filterName');
-            floorSelect.innerHTML = '<option value="">請選擇 Floor</option>';
-            nameSelect.innerHTML = '<option value="">請選擇姓名</option>';
-            nameSelect.disabled = true;
-            if (!brand) { floorSelect.disabled = true; return; }
-            const floors = [...new Set(dataS2.filter(i => (i[headersS2[0]] || "").toString().trim().toUpperCase() === brand).map(i => i[headersS2[1]]).filter(v => v))].sort();
-            floors.forEach(f => {
-                const opt = document.createElement('option');
-                opt.value = f; opt.innerText = f; floorSelect.appendChild(opt);
-            });
-            floorSelect.disabled = false;
+            const b = document.getElementById('filterBrand').value;
+            const fSel = document.getElementById('filterFloor');
+            fSel.innerHTML = '<option value="">請選擇 Floor</option>';
+            if (!b) return fSel.disabled = true;
+            const floors = [...new Set(dataS2.filter(i => i[headersS2[0]] === b).map(i => i[headersS2[1]]).filter(v => v))].sort();
+            floors.forEach(f => fSel.innerHTML += `<option value="${f}">${f}</option>`);
+            fSel.disabled = false;
         }
 
         function updateNameFilter() {
-            const brand = document.getElementById('filterBrand').value;
-            const floor = document.getElementById('filterFloor').value;
-            const nameSelect = document.getElementById('filterName');
-            nameSelect.innerHTML = '<option value="">請選擇姓名</option>';
-            if (!floor) { nameSelect.disabled = true; return; }
-            const list = dataS2.filter(i => (i[headersS2[0]] || "").toString().trim().toUpperCase() === brand && (i[headersS2[1]] || "").toString().trim() === floor);
-            list.forEach(i => {
-                const opt = document.createElement('option');
-                opt.value = i[headersS2[5]]; opt.innerText = i[headersS2[5]]; nameSelect.appendChild(opt);
-            });
-            nameSelect.disabled = false;
+            const b = document.getElementById('filterBrand').value, f = document.getElementById('filterFloor').value;
+            const nSel = document.getElementById('filterName');
+            nSel.innerHTML = '<option value="">請選擇姓名</option>';
+            if (!f) return nSel.disabled = true;
+            dataS2.filter(i => i[headersS2[0]] === b && i[headersS2[1]] === f).forEach(i => nSel.innerHTML += `<option value="${i[headersS2[5]]}">${i[headersS2[5]]}</option>`);
+            nSel.disabled = false;
         }
 
         function searchByFilter() {
-            const name = document.getElementById('filterName').value;
-            if (!name) return;
-            const brand = document.getElementById('filterBrand').value;
-            const floor = document.getElementById('filterFloor').value;
-            const staff = dataS2.find(i => (i[headersS2[0]] || "").toString().trim().toUpperCase() === brand && (i[headersS2[1]] || "").toString().trim() === floor && (i[headersS2[5]] || "").toString().trim() === name);
-            if (staff) {
-                const id = (staff[headersS2[4]] || "").toString().trim();
-                document.getElementById('staffId').value = id;
-                executeSearch(id);
-            }
+            const n = document.getElementById('filterName').value;
+            if (!n) return;
+            const b = document.getElementById('filterBrand').value;
+            const f = document.getElementById('filterFloor').value;
+            const staff = dataS2.find(i => i[headersS2[5]] === n && i[headersS2[0]] === b && i[headersS2[1]] === f);
+            if (staff) { document.getElementById('staffId').value = staff[headersS2[4]]; executeSearch(staff[headersS2[4]]); }
         }
 
-        function manualSearch() {
-            const id = document.getElementById('staffId').value.trim();
-            if (id) executeSearch(id);
-        }
+        function manualSearch() { const id = document.getElementById('staffId').value.trim(); if (id) executeSearch(id); }
 
         function executeSearch(staffId) {
             document.getElementById('initialPrompt').classList.add('hidden');
-            const staffIdKeyS1 = headersS1[9]; 
-            const filterS1 = dataS1.filter(item => {
-                const id = (item[staffIdKeyS1] || "").toString().trim();
-                if (id !== staffId) return false;
-                const dB = parseDate(item[headersS1[1]]);
-                const dC = parseDate(item[headersS1[2]]);
-                const dD = parseDate(item[headersS1[3]]);
-                return (dB && dB > DATE_LIMIT) || (dC && dC > DATE_LIMIT) || (dD && dD > DATE_LIMIT);
-            });
-            const staffIdKeyS2 = headersS2[4]; 
-            const filterS2 = dataS2.filter(item => (item[staffIdKeyS2] || "").toString().trim() === staffId);
-            if (filterS1.length > 0 || filterS2.length > 0) {
-                renderS1(filterS1);
-                renderS2(filterS2);
-                document.getElementById('noResult').classList.add('hidden');
-            } else { showNone(); }
+            const f1 = dataS1.filter(i => (i[headersS1[9]]||"").trim() === staffId && (parseDate(i[headersS1[1]]) > DATE_LIMIT || parseDate(i[headersS1[2]]) > DATE_LIMIT));
+            const f2 = dataS2.filter(i => (i[headersS2[4]]||"").trim() === staffId);
+            if (f1.length || f2.length) { renderS1(f1); renderS2(f2); document.getElementById('noResult').classList.add('hidden'); }
+            else { showNone(); }
         }
 
         function parseDate(d) {
             if (!d || d === '-') return null;
-            let ts = Date.parse(d); if (!isNaN(ts)) return new Date(ts);
-            const parts = d.split(/[\/\-\s]+/);
-            if (parts.length === 3) {
-                let day = parseInt(parts[0]), monthStr = parts[1], year = parseInt(parts[2]);
-                const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-                let month = months.indexOf(monthStr.toLowerCase().substring(0, 3));
-                if (day && month !== -1 && year) return new Date(year, month, day);
+            const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+            const p = d.split(/[\s/-]+/);
+            if (p.length === 3) {
+                let day = parseInt(p[0]), mIdx = months.indexOf(p[1].toLowerCase().substring(0, 3)), yr = parseInt(p[2]);
+                if (day && mIdx !== -1 && yr) return new Date(yr, mIdx, day);
             }
-            return null;
-        }
-
-        function getZColumnClass(val) {
-            const s = (val || "PENDING").toString().toUpperCase().trim();
-            if (s.includes('WITHDRAW') || s.includes('NOSHOW') || s.includes('NO SHOW')) return "bg-rose-100 text-rose-800 border-2 border-rose-200 font-black";
-            if (s.includes('ONBOARD') || s.includes('ON BOARD')) return "bg-emerald-100 text-emerald-900 border-2 border-emerald-200 font-black";
-            return "bg-amber-100 text-amber-900 border-2 border-amber-200 font-black";
+            return new Date(d);
         }
 
         function renderS1(list) {
-            const tbodyRJ = document.getElementById('resultTableBodyRJ');
-            const tbodyNJ = document.getElementById('resultTableBodyNJ');
-            tbodyRJ.innerHTML = ''; tbodyNJ.innerHTML = '';
-            let cTotal = 0, cJoined = 0, cWithdraw = 0, cPending = 0;
+            const rbRJ = document.getElementById('resultTableBodyRJ'), rbNJ = document.getElementById('resultTableBodyNJ');
+            rbRJ.innerHTML = ''; rbNJ.innerHTML = '';
+            let c = { total: 0, joined: 0, drop: 0, wait: 0 };
 
-            list.forEach(item => {
-                cTotal++;
-                const rawName = item[headersS1[13]] || "未知"; 
-                const dateParts = [item[headersS1[1]], item[headersS1[2]], item[headersS1[3]]].filter(v => v && v !== '-');
+            list.forEach(i => {
+                c.total++;
+                const name = i[headersS1[13]], rjnj = (i[headersS1[12]]||"").toUpperCase();
+                const bVal = (i[headersS1[1]]||"").trim(), cVal = (i[headersS1[2]]||"").trim(), dVal = (i[headersS1[3]]||"").trim();
+                const dateParts = [bVal, cVal, dVal].filter(v => v && v !== '-');
                 const uniqueParts = [];
                 dateParts.forEach(p => {
-                    const norm = p.trim().toLowerCase();
-                    if (!uniqueParts.some(ex => ex.toLowerCase().includes(norm) || norm.includes(ex.toLowerCase()))) uniqueParts.push(p);
+                    if (!uniqueParts.some(ex => ex.includes(p) || p.includes(ex))) uniqueParts.push(p);
                 });
-                const extraInfo = uniqueParts.join(' ');
-                const rjnj = (item[headersS1[12]] || "-").toString().trim(); 
-                const statusW = (item[headersS1[22]] || "-").toString(); 
-                const zVal = (item[headersS1[25]] || "").toString(); 
-                const obDateStr = [item[headersS1[19]], item[headersS1[20]], item[headersS1[21]]].filter(v => v && v !== '-').join(' ');
+                const cleanDate = uniqueParts.join(' ');
+                const status = i[headersS1[22]]||"-", ob = i[headersS1[19]]||"-", z = i[headersS1[25]]||"PENDING";
 
-                const statusUpper = statusW.toUpperCase(), zUpper = zVal.toUpperCase();
-                if (zUpper.includes('ONBOARD') || zUpper.includes('ON BOARD')) cJoined++;
-                else if (statusUpper.includes('WITHDRAW') || statusUpper.includes('NO SHOW') || statusUpper.includes('NOSHOW') || zUpper.includes('WITHDRAW') || zUpper.includes('NO SHOW') || zUpper.includes('NOSHOW')) cWithdraw++;
-                else cPending++;
+                if (z.toUpperCase().includes('ONBOARD')) c.joined++;
+                else if (z.toUpperCase().includes('WITHDRAW') || status.toUpperCase().includes('WITHDRAW')) c.drop++;
+                else c.wait++;
 
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-indigo-50/70 transition duration-300 font-bold";
-                const displayZ = zVal || 'PENDING';
-                tr.innerHTML = `
-                    <td class="px-4 md:px-8 py-5 md:py-6 font-black text-slate-950 leading-tight text-base md:text-xl">${rawName}</td>
-                    <td class="px-4 md:px-8 py-5 md:py-6 text-slate-800 text-[10px] md:text-sm font-black readable-nums tracking-tighter bg-slate-50/50 uppercase">${extraInfo || '-'}</td>
-                    <td class="px-4 md:px-8 py-5 md:py-6 text-slate-800 text-sm md:text-lg">${statusW}</td>
-                    <td class="px-4 md:px-8 py-5 md:py-6 text-slate-600 text-xs md:text-base readable-nums">${obDateStr || '-'}</td>
-                    <td class="px-4 md:px-8 py-5 md:py-6 min-w-[120px]">
-                        <span class="px-3 md:px-5 py-1.5 md:py-2.5 rounded-xl text-[10px] shadow-sm uppercase tracking-widest ${getZColumnClass(displayZ)}">${displayZ}</span>
-                    </td>
-                `;
-                if (rjnj.toUpperCase().includes('RJ')) tbodyRJ.appendChild(tr);
-                else tbodyNJ.appendChild(tr);
+                const tr = `<tr>
+                    <td class="px-4 md:px-8 py-5 md:py-6 font-black text-slate-950 text-base md:text-xl text-left">${name}</td>
+                    <td class="px-4 md:px-8 py-5 md:py-6 text-slate-800 text-[10px] md:text-sm font-bold bg-slate-50/50 text-center">${cleanDate}</td>
+                    <td class="px-4 md:px-8 py-5 md:py-6 text-slate-800 text-sm md:text-lg text-center">${status}</td>
+                    <td class="px-4 md:px-8 py-5 md:py-6 text-slate-600 text-xs md:text-base readable-nums text-center">${ob}</td>
+                    <td class="px-4 md:px-8 py-5 md:py-6 text-center"><span class="px-3 md:px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm ${getZColumnClass(z)}">${z}</span></td>
+                </tr>`;
+                if (rjnj.includes('RJ')) rbRJ.innerHTML += tr; else rbNJ.innerHTML += tr;
             });
 
-            if (tbodyRJ.innerHTML === '') tbodyRJ.innerHTML = '<tr><td colspan="5" class="px-8 py-16 text-center text-slate-400 italic text-base md:text-xl uppercase tracking-widest bg-slate-50/40">_DATABASE_EMPTY_</td></tr>';
-            if (tbodyNJ.innerHTML === '') tbodyNJ.innerHTML = '<tr><td colspan="5" class="px-8 py-16 text-center text-slate-400 italic text-base md:text-xl uppercase tracking-widest bg-slate-50/40">_DATABASE_EMPTY_</td></tr>';
+            if (!rbRJ.innerHTML) rbRJ.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-400 italic">No Data</td></tr>';
+            if (!rbNJ.innerHTML) rbNJ.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-400 italic">No Data</td></tr>';
 
-            document.getElementById('totalCount').innerText = cTotal;
-            document.getElementById('joinedCount').innerText = cJoined;
-            document.getElementById('withdrawCount').innerText = cWithdraw;
-            document.getElementById('pendingCount').innerText = cPending;
+            document.getElementById('totalCount').innerText = c.total;
+            document.getElementById('joinedCount').innerText = c.joined;
+            document.getElementById('withdrawCount').innerText = c.drop;
+            document.getElementById('pendingCount').innerText = c.wait;
             document.getElementById('statsArea').classList.remove('hidden');
             document.getElementById('resultArea').classList.remove('hidden');
         }
 
         function renderS2(list) {
-            const tbody = document.getElementById('sheet2TableBody');
-            const formulaText = document.getElementById('dynamicLogicFormula');
-            tbody.innerHTML = '';
-            
-            list.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-sky-50 transition duration-300 font-bold readable-nums";
-                
-                // 1. Name
-                const tdName = document.createElement('td');
-                tdName.className = "px-4 md:px-8 py-6 md:py-7 text-slate-950 font-black border-r border-sky-100 text-base md:text-xl";
-                tdName.innerText = item[headersS2[5]] || "-";
-                tr.appendChild(tdName);
+            const rb = document.getElementById('sheet2TableBody'), fm = document.getElementById('dynamicLogicFormula');
+            rb.innerHTML = '';
+            list.forEach(i => {
+                const isAS = (i[headersS2[3]]||"").toUpperCase().includes('AS') || (i[headersS2[3]]||"").toUpperCase() === 'S';
+                let rVal = isAS ? (parseFloat(i[headersS2[9]])||0) + (parseFloat(i[headersS2[10]])||0) : 0;
+                let offer = parseFloat((i[headersS2[13]]||"0").replace(/,/g,'')) || 0;
+                let gap = parseFloat((i[headersS2[17]]||"0").replace(/,/g,'')) || 0;
 
-                // 2. Resign No
-                const tdResign = document.createElement('td');
-                tdResign.className = "px-4 md:px-8 py-6 md:py-7 text-slate-800 border-r border-sky-100 bg-sky-50/50 font-black text-lg md:text-2xl text-center";
-                const dValRaw = (item[headersS2[3]] || "").toString().trim().toUpperCase();
-                const isTarget = dValRaw === 'AS' || dValRaw === 'S' || dValRaw.includes('AS');
-                
-                let resignVal = 0;
-                if (isTarget) {
-                    const valJ = parseFloat((item[headersS2[9]] || "0").toString().replace(/,/g, '')) || 0;
-                    const valK = parseFloat((item[headersS2[10]] || "0").toString().replace(/,/g, '')) || 0;
-                    resignVal = valJ + valK;
-                    tdResign.innerText = resignVal.toLocaleString();
-                    tdResign.className += " text-sky-900";
-                } else {
-                    tdResign.innerText = "-";
-                    tdResign.className += " text-slate-400";
-                }
-                tr.appendChild(tdResign);
-
-                // 3. Total Offer
-                const offerVal = parseFloat((item[headersS2[13]] || "0").toString().replace(/,/g, '')) || 0;
-                const tdOffer = document.createElement('td');
-                tdOffer.className = "px-4 md:px-8 py-6 md:py-7 text-slate-800 border-r border-sky-100 text-lg md:text-2xl text-center";
-                tdOffer.innerText = offerVal.toLocaleString();
-                tr.appendChild(tdOffer);
-
-                // 4. Should
-                const tdShould = document.createElement('td');
-                tdShould.className = "px-4 md:px-8 py-6 md:py-7 text-slate-800 border-r border-sky-100 text-lg md:text-2xl text-center";
-                tdShould.innerText = item[headersS2[15]] || "-";
-                tr.appendChild(tdShould);
-
-                // 5. Onboard
-                const tdOnboard = document.createElement('td');
-                tdOnboard.className = "px-4 md:px-8 py-6 md:py-7 text-slate-800 border-r border-sky-100 text-lg md:text-2xl text-center";
-                tdOnboard.innerText = item[headersS2[14]] || "-";
-                tr.appendChild(tdOnboard);
-
-                // 6. Gap
-                const gapVal = parseFloat((item[headersS2[17]] || "0").toString().replace(/,/g, '')) || 0;
-                const tdGap = document.createElement('td');
-                tdGap.className = "px-4 md:px-8 py-6 md:py-7 text-center text-xl md:text-3xl font-black";
-                if (gapVal < 0) tdGap.className += " bg-rose-100 text-rose-900";
-                tdGap.innerText = gapVal.toLocaleString();
-                tr.appendChild(tdGap);
-
-                tbody.appendChild(tr);
-
-                // 更新動態公式說明文字
-                formulaText.innerHTML = `Formula Trace: Target (2) + Resign (<span class="text-sky-900 font-black underline decoration-2">${resignVal}</span>) - Offer (<span class="text-slate-950 font-black underline decoration-2">${offerVal}</span>) = Gap (<span class="${gapVal < 0 ? 'text-rose-800 font-black underline decoration-double' : 'text-slate-950 font-black underline'}">${gapVal}</span>)`;
+                rb.innerHTML += `<tr class="hover:bg-sky-50 transition duration-300">
+                    <td class="px-4 md:px-8 py-6 md:py-7 text-slate-950 font-black text-base md:text-xl border-r border-sky-50 text-left">${i[headersS2[5]]}</td>
+                    <td class="px-4 md:px-8 py-6 md:py-7 text-slate-800 border-r border-sky-50 bg-sky-50/50 text-xl md:text-2xl text-center">${isAS ? rVal : '-'}</td>
+                    <td class="px-4 md:px-8 py-6 md:py-7 text-slate-700 border-r border-sky-50 text-xl md:text-2xl text-center">${offer}</td>
+                    <td class="px-4 md:px-8 py-6 md:py-7 text-slate-700 border-r border-sky-50 text-xl md:text-2xl text-center">${i[headersS2[15]]}</td>
+                    <td class="px-4 md:px-8 py-6 md:py-7 text-slate-700 border-r border-sky-50 text-xl md:text-2xl text-center">${i[headersS2[14]]}</td>
+                    <td class="px-4 md:px-8 py-6 md:py-7 text-xl md:text-3xl font-black text-center ${gap < 0 ? 'bg-rose-100 text-rose-900 shadow-inner' : ''}">${gap}</td>
+                </tr>`;
+                fm.innerHTML = `Formula Trace: 2 + Resign (<span class="text-indigo-700">${rVal}</span>) - Offer (<span class="text-slate-900">${offer}</span>) = Gap (<span class="${gap < 0 ? 'text-rose-700 underline' : ''}">${gap}</span>)`;
             });
             document.getElementById('resultAreaSheet2').classList.remove('hidden');
+        }
+
+        function getZColumnClass(val) {
+            const v = val.toUpperCase();
+            if (v.includes('WITHDRAW') || v.includes('NO SHOW')) return "bg-rose-100 text-rose-800 border-2 border-rose-200";
+            if (v.includes('ONBOARD')) return "bg-emerald-100 text-emerald-900 border-2 border-emerald-200";
+            return "bg-amber-100 text-amber-900 border-2 border-amber-200";
         }
 
         function showNone() {
