@@ -150,21 +150,26 @@
 
             <!-- 03: 未推薦檢查 -->
             <div class="lg:col-span-1 cyber-card p-6 md:p-8">
-                <h3 class="text-rose-950 font-black mb-5 md:mb-6 flex items-center uppercase tracking-widest text-sm text-left">
+                <h3 class="text-rose-950 font-black mb-4 flex items-center uppercase tracking-widest text-sm text-left">
                     未推薦檢查 <span class="ml-auto opacity-20 font-cyber text-lg text-right">03</span>
                 </h3>
-                <div class="grid grid-cols-1 gap-3">
-                    <button onclick="checkInactive(1)" 
-                            class="btn-inactive py-3 px-4 bg-white border-2 border-rose-100 hover:border-rose-300 text-rose-800 font-bold rounded-xl text-sm text-left flex items-center justify-between">
+                <div class="grid grid-cols-1 gap-2">
+                    <button onclick="checkInactiveByDays(14)" 
+                            class="btn-inactive py-2.5 px-4 bg-white border-2 border-rose-100 hover:border-rose-300 text-rose-800 font-bold rounded-xl text-xs text-left flex items-center justify-between">
+                        最近 2 星期無推薦
+                        <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                    <button onclick="checkInactiveByDays(30)" 
+                            class="btn-inactive py-2.5 px-4 bg-white border-2 border-rose-100 hover:border-rose-300 text-rose-800 font-bold rounded-xl text-xs text-left flex items-center justify-between">
                         最近 1 個月無推薦
                         <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
                     </button>
-                    <button onclick="checkInactive(2)" 
-                            class="btn-inactive py-3 px-4 bg-white border-2 border-rose-100 hover:border-rose-300 text-rose-800 font-bold rounded-xl text-sm text-left flex items-center justify-between">
+                    <button onclick="checkInactiveByDays(60)" 
+                            class="btn-inactive py-2.5 px-4 bg-white border-2 border-rose-100 hover:border-rose-300 text-rose-800 font-bold rounded-xl text-xs text-left flex items-center justify-between">
                         最近 2 個月無推薦
                         <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
                     </button>
-                    <p class="text-[10px] text-slate-400 italic px-1 mt-1 text-left">* 排除 LSL/Hipo E1/Jennifer.tokf</p>
+                    <p class="text-[10px] text-slate-400 italic px-1 mt-1 text-left">* 排除 Hipo E1/Jennifer.tokf/CM/DM</p>
                 </div>
             </div>
         </div>
@@ -252,7 +257,7 @@
                         <thead class="bg-sky-50 text-sky-950 border-b-2 border-sky-100 font-black uppercase text-sm">
                             <tr>
                                 <th class="text-left border-r border-sky-100">Name</th>
-                                <th class="text-center border-r border-sky-100 leading-tight">1月+2月<br>Resign No</th>
+                                <th class="text-center border-r border-sky-100">1月+2月<br>Resign No</th>
                                 <th class="text-center border-r border-sky-100 leading-tight">Total Offer <br><span class="text-[10px] block opacity-60 font-bold">(已減無返工Offer)</span></th>
                                 <th class="text-center border-r border-sky-100 leading-tight">Should<br>on Board</th>
                                 <th class="text-center border-r border-sky-100">On board</th>
@@ -272,7 +277,7 @@
             </div>
         </div>
 
-        <!-- 非活躍名單 -->
+        <!-- 非活躍推薦人清單 (按品牌分開列出) -->
         <div id="inactiveResultArea" class="hidden mb-16 text-left space-y-10">
             <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-rose-600 pl-4 tracking-wider uppercase text-left">
                 非活躍推薦名單 <span id="inactiveTitleSpan" class="font-cyber text-rose-500 ml-2"></span>
@@ -280,7 +285,7 @@
             <div id="inactiveBrandContainer" class="space-y-10 text-left"></div>
         </div>
 
-        <!-- 全局統計區 -->
+        <!-- Brand Summary -->
         <div id="brandSummaryArea" class="hidden mb-16 text-left">
             <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-emerald-600 pl-4 tracking-wider uppercase text-left">
                 Brand Summary <span class="font-cyber text-emerald-500 ml-2">GLOBAL DATA</span>
@@ -304,6 +309,7 @@
             </div>
         </div>
 
+        <!-- PIC Summary -->
         <div id="picSummaryArea" class="hidden mb-24 text-left">
             <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-blue-600 pl-4 tracking-wider uppercase text-left">
                 PIC Summary <span class="font-cyber text-blue-500 ml-2">BY PERSON</span>
@@ -332,7 +338,7 @@
 
         <!-- 狀態顯示 -->
         <div id="loadingStatus" class="text-center py-10 text-indigo-700 font-black flex flex-col items-center justify-center gap-4">
-            <svg class="animate-spin h-8 w-8" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <svg class="animate-spin h-8 w-8 text-indigo-600" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             <span class="tracking-[0.2em] uppercase font-cyber text-sm">Synchronizing Database...</span>
         </div>
 
@@ -360,9 +366,11 @@
                 const r1 = await fetch(SHEET1_BASE_URL + cacheBuster);
                 const lastMod = r1.headers.get('Last-Modified');
                 updateDisplay.innerText = lastMod ? `最後更新：${new Date(lastMod).toLocaleString('zh-HK', { hour12: false })}` : `同步時間：${new Date().toLocaleString('zh-HK', { hour12: false })}`;
+                
                 const t1 = await r1.text();
                 const r2 = await fetch(SHEET2_BASE_URL + cacheBuster);
                 const t2 = await r2.text();
+
                 Papa.parse(t1, { header: true, complete: res => { dataS1 = res.data; headersS1 = res.meta.fields; } });
                 Papa.parse(t2, { header: true, complete: res => { 
                     const rawData = res.data;
@@ -392,6 +400,7 @@
             brands.forEach(brand => {
                 const brandRecords = dataS2.filter(i => (i[headersS2[0]]||"").toUpperCase() === brand && !(i[headersS2[5]]||"").toUpperCase().includes("TOTAL"));
                 let bs = { offer: 0, should: 0, onBoard: 0, gap: 0, njOffer: 0 };
+                
                 brandRecords.forEach(i => {
                     bs.offer += parseFloat((i[headersS2[13]]||"0").replace(/,/g,'')) || 0;
                     bs.should += parseFloat((i[headersS2[15]]||"0").replace(/,/g,'')) || 0;
@@ -400,28 +409,29 @@
                     bs.njOffer += parseFloat((i[headersS2[21]]||"0").replace(/,/g,'')) || 0;
                 });
                 grandTotal.offer += bs.offer; grandTotal.should += bs.should; grandTotal.onBoard += bs.onBoard; grandTotal.gap += bs.gap; grandTotal.njOffer += bs.njOffer;
-                sumBody.innerHTML += `<tr class="hover:bg-emerald-50/70 transition duration-300"><td class="px-10 py-5 font-black text-slate-900 text-left">${brand}</td><td class="px-10 py-5 text-slate-800 text-center text-center">${bs.offer.toLocaleString()}</td><td class="px-10 py-5 text-slate-800 text-center text-center">${bs.should.toLocaleString()}</td><td class="px-10 py-5 text-emerald-800 font-black text-2xl text-center text-center">${bs.onBoard.toLocaleString()}</td><td class="px-10 py-5 text-center text-center ${bs.gap < 0 ? 'text-rose-700 font-black' : 'text-slate-800'} text-center">${bs.gap.toLocaleString()}</td><td class="px-10 py-5 text-slate-800 text-center text-center">${bs.njOffer.toLocaleString()}</td></tr>`;
+                sumBody.innerHTML += `<tr class="hover:bg-emerald-50/70 transition duration-300"><td class="px-10 py-5 font-black text-slate-900 text-left text-left text-left">${brand}</td><td class="px-10 py-5 text-slate-800 text-center text-center text-center">${bs.offer.toLocaleString()}</td><td class="px-10 py-5 text-slate-800 text-center text-center text-center">${bs.should.toLocaleString()}</td><td class="px-10 py-5 text-emerald-800 font-black text-2xl text-center text-center text-center">${bs.onBoard.toLocaleString()}</td><td class="px-10 py-5 text-center text-center text-center ${bs.gap < 0 ? 'text-rose-700 font-black' : 'text-slate-800'} text-center">${bs.gap.toLocaleString()}</td><td class="px-10 py-5 text-slate-800 text-center text-center text-center">${bs.njOffer.toLocaleString()}</td></tr>`;
                 const uniquePICs = [...new Set(brandRecords.map(i => i[headersS2[2]]).filter(v => v))];
                 uniquePICs.forEach(picName => {
                     const picRecords = brandRecords.filter(i => i[headersS2[2]] === picName);
                     let ps = { offer: 0, res: 0, should: 0, onBoard: 0, gap: 0, njOffer: 0 };
                     picRecords.forEach(i => {
-                        ps.offer += parseFloat((i[headersS2[13]]||"0").replace(/,/g,'')) || 0;
+                        const offer = parseFloat((i[headersS2[13]]||"0").replace(/,/g,'')) || 0;
+                        ps.offer += offer;
                         ps.res += (parseFloat(i[headersS2[9]])||0) + (parseFloat(i[headersS2[10]])||0);
                         ps.should += parseFloat((i[headersS2[15]]||"0").replace(/,/g,'')) || 0;
                         ps.onBoard += parseFloat((i[headersS2[14]]||"0").replace(/,/g,'')) || 0;
                         ps.gap += parseFloat((i[headersS2[17]]||"0").replace(/,/g,'')) || 0;
                         ps.njOffer += parseFloat((i[headersS2[21]]||"0").replace(/,/g,'')) || 0;
                     });
-                    picBody.innerHTML += `<tr class="hover:bg-blue-50/50 transition duration-300"><td class="px-6 py-5 border-r border-blue-50 text-slate-600 text-left text-left text-left">${brand}</td><td class="px-6 py-5 border-r border-blue-50 font-black text-slate-900 text-left text-left text-left">${picName}</td><td class="px-6 py-5 border-r border-blue-50 text-slate-800 text-center text-center">${ps.offer.toLocaleString()}</td><td class="px-6 py-5 border-r border-blue-50 text-rose-700 font-black text-center text-center text-center">${ps.res.toLocaleString()}</td><td class="px-6 py-5 border-r border-blue-50 text-slate-800 text-center text-center text-center">${ps.offer.toLocaleString()}</td><td class="px-6 py-5 border-r border-blue-50 text-slate-800 text-center text-center text-center">${ps.should.toLocaleString()}</td><td class="px-6 py-5 border-r border-blue-50 text-emerald-800 font-black text-lg text-center text-center text-center">${ps.onBoard.toLocaleString()}</td><td class="px-6 py-5 border-r border-blue-50 text-center text-center text-center ${ps.gap < 0 ? 'text-rose-700 font-black' : 'text-slate-900'} text-center">${ps.gap.toLocaleString()}</td><td class="px-6 py-5 text-slate-800 text-center text-center text-center text-center">${ps.njOffer.toLocaleString()}</td></tr>`;
+                    picBody.innerHTML += `<tr class="hover:bg-blue-50/50 transition duration-300"><td class="px-6 py-5 border-r border-blue-50 text-slate-600 text-left text-left text-left text-left">${brand}</td><td class="px-6 py-5 border-r border-blue-50 font-black text-slate-900 text-left text-left text-left text-left">${picName}</td><td class="px-6 py-5 border-r border-blue-50 text-slate-800 text-center text-center text-center">${ps.offer.toLocaleString()}</td><td class="px-6 py-5 border-r border-blue-50 text-rose-700 font-black text-center text-center text-center text-center">${ps.res.toLocaleString()}</td><td class="px-6 py-5 border-r border-blue-50 text-slate-800 text-center text-center text-center text-center">${ps.offer.toLocaleString()}</td><td class="px-6 py-5 border-r border-blue-50 text-slate-800 text-center text-center text-center text-center">${ps.should.toLocaleString()}</td><td class="px-6 py-5 border-r border-blue-50 text-emerald-800 font-black text-lg text-center text-center text-center text-center">${ps.onBoard.toLocaleString()}</td><td class="px-6 py-5 border-r border-blue-50 text-center text-center text-center text-center ${ps.gap < 0 ? 'text-rose-700 font-black' : 'text-slate-900'} text-center">${ps.gap.toLocaleString()}</td><td class="px-6 py-5 text-slate-800 text-center text-center text-center text-center text-center">${ps.njOffer.toLocaleString()}</td></tr>`;
                 });
             });
-            sumBody.innerHTML += `<tr class="bg-slate-100 font-black border-t-2 border-slate-300"><td class="px-10 py-6 text-indigo-900 text-left text-left">GRAND TOTAL</td><td class="px-10 py-6 text-slate-950 text-center text-center text-center">${grandTotal.offer.toLocaleString()}</td><td class="px-10 py-6 text-slate-950 text-center text-center text-center">${grandTotal.should.toLocaleString()}</td><td class="px-10 py-6 text-emerald-900 text-2xl text-center text-center text-center">${grandTotal.onBoard.toLocaleString()}</td><td class="px-10 py-6 text-center text-center text-center ${grandTotal.gap < 0 ? 'text-rose-800' : ''} text-center">${grandTotal.gap.toLocaleString()}</td><td class="px-10 py-6 text-slate-950 text-center text-center text-center text-center">${grandTotal.njOffer.toLocaleString()}</td></tr>`;
+            sumBody.innerHTML += `<tr class="bg-slate-100 font-black border-t-2 border-slate-300"><td class="px-10 py-6 text-indigo-900 text-left text-left text-left">GRAND TOTAL</td><td class="px-10 py-6 text-slate-950 text-center text-center text-center text-center">${grandTotal.offer.toLocaleString()}</td><td class="px-10 py-6 text-slate-950 text-center text-center text-center text-center">${grandTotal.should.toLocaleString()}</td><td class="px-10 py-6 text-emerald-900 text-2xl text-center text-center text-center text-center">${grandTotal.onBoard.toLocaleString()}</td><td class="px-10 py-6 text-center text-center text-center text-center ${grandTotal.gap < 0 ? 'text-rose-800' : ''} text-center">${grandTotal.gap.toLocaleString()}</td><td class="px-10 py-6 text-slate-950 text-center text-center text-center text-center text-center">${grandTotal.njOffer.toLocaleString()}</td></tr>`;
             document.getElementById('brandSummaryArea').classList.remove('hidden'); document.getElementById('picSummaryArea').classList.remove('hidden');
         }
 
-        // --- 無推薦檢查 ---
-        function checkInactive(months) {
+        // --- 無推薦檢查 (按品牌分組 + 職位過濾) ---
+        function checkInactiveByDays(days) {
             document.getElementById('initialPrompt').classList.add('hidden');
             document.getElementById('resultArea').classList.add('hidden');
             document.getElementById('resultAreaSheet2').classList.add('hidden');
@@ -430,7 +440,13 @@
             document.getElementById('noResult').classList.add('hidden');
 
             const now = new Date();
-            const cutoffDate = new Date(); cutoffDate.setMonth(now.getMonth() - months);
+            const cutoffDate = new Date(); cutoffDate.setDate(now.getDate() - days);
+            const inactiveTitleSpan = document.getElementById('inactiveTitleSpan');
+            
+            if (days === 14) inactiveTitleSpan.innerText = "最近 2 星期無推薦";
+            else if (days === 30) inactiveTitleSpan.innerText = "最近 1 個月無推薦";
+            else inactiveTitleSpan.innerText = "最近 2 個月無推薦";
+
             const lastActivityMap = new Map();
             dataS1.forEach(i => {
                 const sId = (i[headersS1[9]]||"").trim(); if (!sId) return;
@@ -441,9 +457,11 @@
                 }
             });
 
+            // 核心過濾：排除職位 HIPO E1, CM, DM (位於 Column D)
             const inactiveList = dataS2.filter(i => {
-                const sId = (i[headersS2[4]]||"").trim(), pos = (i[headersS2[3]]||"").trim().toUpperCase();
-                if (!sId || i[headersS2[5]].toUpperCase().includes("TOTAL") || pos === 'HIPO E1' || pos === 'CM' || pos === 'DM') return false;
+                const sId = (i[headersS2[4]]||"").trim(), name = (i[headersS2[5]]||"").trim();
+                const pos = (i[headersS2[3]]||"").trim().toUpperCase();
+                if (!sId || name.toUpperCase().includes("TOTAL") || pos === 'HIPO E1' || pos === 'CM' || pos === 'DM') return false;
                 const lastDate = lastActivityMap.get(sId);
                 return !lastDate || lastDate < cutoffDate;
             });
@@ -454,12 +472,12 @@
                 const brandList = inactiveList.filter(i => (i[headersS2[0]]||"").toUpperCase() === brandName);
                 if (brandList.length > 0) {
                     container.innerHTML += `
-                        <div class="space-y-4">
+                        <div class="space-y-4 text-left">
                             <h3 class="text-lg font-black text-slate-800 flex items-center bg-white/40 px-4 py-2 rounded-xl w-fit border border-white">
                                 <span class="w-3 h-3 bg-rose-500 rounded-full mr-3"></span>
                                 ${brandName} <span class="ml-3 text-rose-600 font-cyber text-sm">Total: ${brandList.length}</span>
                             </h3>
-                            <div class="cyber-card overflow-hidden">
+                            <div class="cyber-card overflow-hidden text-center">
                                 <div class="overflow-x-auto custom-scrollbar">
                                     <table class="w-full border-collapse">
                                         <thead class="bg-rose-50/50 border-b-2 border-rose-100 text-rose-950 font-black text-sm">
@@ -471,7 +489,7 @@
                                                 <th class="text-center">距離今日</th>
                                             </tr>
                                         </thead>
-                                        <tbody class="divide-y divide-slate-100 font-bold text-lg">
+                                        <tbody class="divide-y divide-slate-100 font-bold text-lg text-center">
                                             ${brandList.map(i => {
                                                 const sId = (i[headersS2[4]]||"").trim();
                                                 const lastDate = lastActivityMap.get(sId);
@@ -481,7 +499,7 @@
                                                     <td class="text-slate-900 font-black text-left border-r border-rose-50 text-left">${i[headersS2[5]]||"-"}</td>
                                                     <td class="text-slate-600 text-left border-r border-rose-50 text-left italic text-left">${i[headersS2[3]]||"-"}</td>
                                                     <td class="text-slate-700 text-center border-r border-rose-50 text-center">${lastDate ? lastDate.toLocaleDateString('zh-HK') : "-"}</td>
-                                                    <td class="text-rose-700 font-black text-center text-center text-center">${daysDiff}</td>
+                                                    <td class="text-rose-700 font-black text-center text-center text-center text-center">${daysDiff}</td>
                                                 </tr>`;
                                             }).join('')}
                                         </tbody>
@@ -491,12 +509,11 @@
                         </div>`;
                 }
             });
-            document.getElementById('inactiveTitleSpan').innerText = months === 1 ? "最近 1 個月無推薦" : "最近 2 個月無推薦";
             document.getElementById('inactiveResultArea').classList.remove('hidden');
             window.scrollTo({ top: document.getElementById('inactiveResultArea').offsetTop - 30, behavior: 'smooth' });
         }
 
-        // --- 核心工具 ---
+        // --- 核心功能 ---
         function populateFilters() {
             const bSel = document.getElementById('filterBrand');
             const uniqueBrands = [...new Set(dataS2.map(i => i[headersS2[0]]).filter(v => v && !v.toUpperCase().includes("TOTAL")))].sort();
@@ -529,6 +546,7 @@
             const personInS2 = dataS2.find(i => (i[headersS2[4]]||"").trim() === staffId);
             const f1 = dataS1.filter(i => (i[headersS1[9]]||"").trim() === staffId && (parseDate(i[headersS1[1]]) > DATE_LIMIT || parseDate(i[headersS1[2]]) > DATE_LIMIT));
             const f2 = dataS2.filter(i => (i[headersS2[4]]||"").trim() === staffId);
+            
             if (personInS2 || f1.length || f2.length) {
                 renderS1(f1); renderS2(f2); renderTrackingInfo(staffId, personInS2);
                 document.getElementById('noResult').classList.add('hidden');
@@ -582,11 +600,11 @@
                 const fullObD = [tV, uV, vV].filter(v => v && v !== '-').join(' ') || "-";
                 const status = i[headersS1[22]]||"-", z = i[headersS1[25]]||"PENDING";
                 if (z.toUpperCase().includes('ONBOARD')) c.joined++; else if (z.toUpperCase().includes('WITHDRAW') || status.toUpperCase().includes('WITHDRAW')) c.drop++; else c.wait++;
-                const tr = `<tr><td class="px-4 md:px-8 py-5 md:py-6 font-black text-slate-950 text-base md:text-xl text-left text-left">${name}</td><td class="px-4 md:px-8 py-5 md:py-6 text-slate-800 text-[10px] md:text-sm font-bold bg-slate-50/50 text-center text-center text-center">${cleanD}</td><td class="px-4 md:px-8 py-5 md:py-6 text-slate-800 text-sm md:text-lg text-center text-center text-center text-center">${status}</td><td class="px-4 md:px-8 py-5 md:py-6 text-slate-600 text-sm md:text-base readable-nums text-center text-center text-center text-center text-center">${fullObD}</td><td class="px-4 md:px-8 py-5 md:py-6 text-center text-center text-center text-center text-center"><span class="px-3 md:px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm ${getZColumnClass(z)} text-center text-center">${z}</span></td></tr>`;
+                const tr = `<tr><td class="px-4 md:px-8 py-5 md:py-6 font-black text-slate-950 text-base md:text-xl text-left text-left text-left">${name}</td><td class="px-4 md:px-8 py-5 md:py-6 text-slate-800 text-[10px] md:text-sm font-bold bg-slate-50/50 text-center text-center text-center text-center">${cleanD}</td><td class="px-4 md:px-8 py-5 md:py-6 text-slate-800 text-sm md:text-lg text-center text-center text-center text-center text-center">${status}</td><td class="px-4 md:px-8 py-5 md:py-6 text-slate-600 text-sm md:text-base readable-nums text-center text-center text-center text-center text-center text-center text-center">${fullObD}</td><td class="px-4 md:px-8 py-5 md:py-6 text-center text-center text-center text-center text-center text-center text-center text-center"><span class="px-3 md:px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm ${getZColumnClass(z)} text-center text-center text-center">${z}</span></td></tr>`;
                 if (rjnj.includes('RJ')) rbRJ.innerHTML += tr; else rbNJ.innerHTML += tr;
             });
-            if (!rbRJ.innerHTML) rbRJ.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-400 italic">No Data</td></tr>';
-            if (!rbNJ.innerHTML) rbNJ.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-400 italic">No Data</td></tr>';
+            if (!rbRJ.innerHTML) rbRJ.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-400 italic text-center text-center">No Data</td></tr>';
+            if (!rbNJ.innerHTML) rbNJ.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-400 italic text-center text-center">No Data</td></tr>';
             document.getElementById('totalCount').innerText = c.total; document.getElementById('joinedCount').innerText = c.joined; document.getElementById('withdrawCount').innerText = c.drop; document.getElementById('pendingCount').innerText = c.wait;
             document.getElementById('statsArea').classList.remove('hidden'); document.getElementById('resultArea').classList.remove('hidden');
         }
@@ -598,7 +616,7 @@
                 const isAS = (i[headersS2[3]]||"").toUpperCase().includes('AS') || (i[headersS2[3]]||"").toUpperCase() === 'S';
                 let rVal = isAS ? (parseFloat(i[headersS2[9]])||0) + (parseFloat(i[headersS2[10]])||0) : 0;
                 let offer = parseFloat((i[headersS2[13]]||"0").replace(/,/g,'')) || 0, gap = parseFloat((i[headersS2[17]]||"0").replace(/,/g,'')) || 0, njo = parseFloat((i[headersS2[21]]||"0").replace(/,/g,'')) || 0;
-                rb.innerHTML += `<tr class="hover:bg-sky-50 transition duration-300 font-bold"><td class="px-4 md:px-8 py-6 md:py-7 text-slate-950 font-black text-base md:text-xl border-r border-sky-50 text-left text-left text-left text-left text-left">${i[headersS2[5]]}</td><td class="px-4 md:px-8 py-6 md:py-7 text-slate-800 border-r border-sky-50 bg-sky-50/50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center">${isAS ? rVal : '-'}</td><td class="px-4 md:px-8 py-6 md:py-7 text-slate-700 border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center">${offer}</td><td class="px-4 md:px-8 py-6 md:py-7 text-slate-700 border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center">${i[headersS2[15]]}</td><td class="px-4 md:px-8 py-6 md:py-7 text-slate-700 border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center">${i[headersS2[14]]}</td><td class="px-4 md:px-8 py-6 md:py-7 text-xl md:text-3xl font-black text-center border-r border-sky-50 text-center text-center text-center text-center text-center text-center ${gap < 0 ? 'bg-rose-100 text-rose-900 shadow-inner' : ''}">${gap}</td><td class="px-4 md:px-8 py-6 md:py-7 text-slate-700 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center">${njo}</td></tr>`;
+                rb.innerHTML += `<tr class="hover:bg-sky-50 transition duration-300 font-bold"><td class="px-4 md:px-8 py-6 md:py-7 text-slate-950 font-black text-base md:text-xl border-r border-sky-50 text-left text-left text-left text-left text-left text-left">${i[headersS2[5]]}</td><td class="px-4 md:px-8 py-6 md:py-7 text-slate-800 border-r border-sky-50 bg-sky-50/50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center">${isAS ? rVal : '-'}</td><td class="px-4 md:px-8 py-6 md:py-7 text-slate-700 border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center">${offer}</td><td class="px-4 md:px-8 py-6 md:py-7 text-slate-700 border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center">${i[headersS2[15]]}</td><td class="px-4 md:px-8 py-6 md:py-7 text-slate-700 border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center">${i[headersS2[14]]}</td><td class="px-4 md:px-8 py-6 md:py-7 text-xl md:text-3xl font-black text-center border-r border-sky-50 text-center text-center text-center text-center text-center text-center text-center ${gap < 0 ? 'bg-rose-100 text-rose-900 shadow-inner text-center text-center' : ''}">${gap}</td><td class="px-4 md:px-8 py-6 md:py-7 text-slate-700 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center text-center">${njo}</td></tr>`;
                 fm.innerHTML = `Formula Trace: 2 + Resign (<span class="text-indigo-700">${rVal}</span>) - Offer (<span class="text-slate-900">${offer}</span>) = Gap (<span class="${gap < 0 ? 'text-rose-700 underline' : ''}">${gap}</span>)`;
             });
             document.getElementById('resultAreaSheet2').classList.remove('hidden');
