@@ -66,7 +66,7 @@
                 <div>
                     <h1 class="text-2xl font-bold text-slate-800">獎金預算模擬器 (雙重倍數版)</h1>
                     <p class="text-slate-500 text-sm flex items-center gap-2">
-                        篩選後人數：<span id="header-count" class="font-bold text-blue-600">0 人</span> 
+                        總人數：<span id="header-total-count" class="font-bold text-blue-600">0 人</span> 
                         <span class="text-slate-300">|</span>
                         12月已領取：<span id="header-dec-paid" class="font-bold text-orange-600">0 人</span>
                     </p>
@@ -74,7 +74,7 @@
             </div>
             <div class="flex gap-2">
                 <button onclick="fetchData()" class="flex items-center gap-2 px-6 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all shadow-sm">
-                    <i data-lucide="refresh-cw" size="16"></i> 重新整理數據
+                    <i data-lucide="refresh-cw" size="16"></i> 重新整理
                 </button>
             </div>
         </header>
@@ -83,10 +83,10 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-blue-600 p-8 rounded-3xl text-white shadow-xl shadow-blue-200 relative overflow-hidden">
                 <i data-lucide="dollar-sign" class="absolute -right-4 -top-4 w-32 h-32 opacity-10 text-white"></i>
-                <p class="text-blue-100 text-xs font-bold mb-2 tracking-[0.2em] uppercase">當前篩選總預算</p>
+                <p class="text-blue-100 text-xs font-bold mb-2 tracking-[0.2em] uppercase">本次模擬總預算</p>
                 <div id="total-budget" class="text-5xl font-black">$0</div>
                 <div class="mt-6 flex items-center gap-2 text-xs text-blue-100 font-bold bg-blue-700/50 w-fit px-3 py-1.5 rounded-full">
-                    <i data-lucide="check-circle-2" size="14"></i> 數據已根據 Grade 倍數及品牌篩選自動更新
+                    <i data-lucide="check-circle-2" size="14"></i> 已扣除/調整 12 月發放因素
                 </div>
             </div>
             
@@ -170,7 +170,7 @@
                                     <th class="px-8 py-5">品牌 (Column B)</th>
                                     <th class="px-6 py-5 text-center">總人數</th>
                                     <th class="px-6 py-5 text-center">12月已領</th>
-                                    <th class="px-6 py-5 text-right tracking-widest text-slate-400 italic font-medium text-xs">去年總數 (J)</th>
+                                    <th class="px-6 py-5 text-right tracking-widest text-slate-400 italic font-medium text-xs text-xs">去年總數 (J)</th>
                                     <th class="px-6 py-5 text-right text-blue-600 font-bold tracking-widest">本次預算</th>
                                 </tr>
                             </thead>
@@ -203,13 +203,13 @@
         ];
         
         // 密碼的 SHA-256 雜湊值 (對應 "35117386")
-        // 這樣別人在 GitHub 上就看不到你的明文密碼
         const PASSWORD_HASH = "e2d67768407481f33777d195a63901416757b447831f2479e5a31a7428f52285";
 
         // State
         let state = {
             rawData: [],
             activeTab: 'standard', 
+            // 根據圖片更新預設倍數
             multipliers: { A: 0.5, B: 0.5, C: 0.3, D: 0, E: 0 },
             decMultipliers: { A: 0.3, B: 0.3, C: 0, D: 0, E: 0 },
             selectedBrands: new Set(),
@@ -230,7 +230,7 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // 密碼驗證邏輯 (使用雜湊比對)
+        // 密碼驗證邏輯
         async function verifyPassword() {
             const input = document.getElementById('password-input').value;
             const errorMsg = document.getElementById('error-message');
@@ -239,7 +239,6 @@
             const body = document.body;
             const btn = document.getElementById('unlock-btn');
 
-            // 停用按鈕防止重複點擊
             btn.disabled = true;
             btn.innerHTML = '<span>驗證中...</span>';
 
@@ -322,13 +321,13 @@
         async function fetchData() {
             if (!state.isAuthenticated) return;
 
-            const header = document.querySelector('p.text-slate-500');
-            const originalText = header.innerHTML;
-            header.innerHTML = "正在連線數據中...";
+            const headerText = document.querySelector('header h1');
+            const originalTitle = headerText.textContent;
+            headerText.textContent = "數據載入中...";
             
             try {
                 const response = await fetch(CSV_URL);
-                if (!response.ok) throw new Error('CORS Error');
+                if (!response.ok) throw new Error('Network Error');
                 const csvText = await response.text();
                 state.rawData = parseCSV(csvText);
                 render();
@@ -336,11 +335,11 @@
                 console.error(err);
                 const errorContainer = document.createElement('div');
                 errorContainer.className = "fixed bottom-8 left-1/2 -translate-x-1/2 bg-rose-600 text-white px-6 py-3 rounded-2xl shadow-2xl font-bold z-[100] animate-bounce text-sm";
-                errorContainer.textContent = "數據連線失敗。請確保網絡正常或 CSV 連結有效。";
+                errorContainer.textContent = "數據連線失敗。請檢查網絡或 CSV 連結。";
                 document.body.appendChild(errorContainer);
                 setTimeout(() => errorContainer.remove(), 5000);
             } finally {
-                header.innerHTML = originalText;
+                headerText.textContent = originalTitle;
                 updateStats();
             }
         }
@@ -418,10 +417,10 @@
                 .sort((a, b) => {
                     const idxA = BRAND_ORDER.indexOf(a.name);
                     const idxB = BRAND_ORDER.indexOf(b.name);
-                    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+                    if (idxA !== -1 && idxB !== -1) return idxA - indexB;
                     if (idxA !== -1) return -1;
                     if (idxB !== -1) return 1;
-                    return b.currentBudget - a.currentBudget;
+                    return a.name.localeCompare(b.name);
                 });
         }
 
@@ -429,7 +428,7 @@
             const container = document.getElementById('multipliers-inputs');
             const data = state.activeTab === 'standard' ? state.multipliers : state.decMultipliers;
             const colors = { A: 'bg-rose-500', B: 'bg-orange-500', C: 'bg-amber-500', D: 'bg-blue-500', E: 'bg-slate-400' };
-            const accentClass = state.activeTab === 'standard' ? 'text-blue-600 border-blue-100 focus:border-blue-500' : 'text-orange-600 border-orange-100 focus:border-orange-500';
+            const accentClass = state.activeTab === 'standard' ? 'text-blue-600' : 'text-orange-600';
             const btnColor = state.activeTab === 'standard' ? 'hover:bg-blue-50 text-blue-600' : 'hover:bg-orange-50 text-orange-600';
 
             container.innerHTML = ['A', 'B', 'C', 'D', 'E'].map(grade => `
@@ -443,9 +442,9 @@
                         <button onclick="adjustMultiplier('${grade}', -0.1)" class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${btnColor}">
                             <i data-lucide="minus" size="14"></i>
                         </button>
-                        <input type="number" step="0.1" min="0" max="2" value="${data[grade]}" 
+                        <input type="number" step="0.1" min="0" max="2" value="${data[grade].toFixed(1)}" 
                             onchange="handleMultiplierChange('${grade}', this.value)"
-                            class="w-10 bg-transparent font-bold text-center text-xs focus:outline-none ${state.activeTab === 'standard' ? 'text-blue-600' : 'text-orange-600'}">
+                            class="w-10 bg-transparent font-bold text-center text-xs focus:outline-none ${accentClass}">
                         <button onclick="adjustMultiplier('${grade}', 0.1)" class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${btnColor}">
                             <i data-lucide="plus" size="14"></i>
                         </button>
@@ -513,7 +512,8 @@
                 decPaidCount: acc.decPaidCount + curr.decPaidCount
             }), { bonus: 0, count: 0, decPaidCount: 0 });
 
-            document.getElementById('header-count').textContent = `${totals.count} 人`;
+            // 更新 Header 與看板數據
+            document.getElementById('header-total-count').textContent = `${totals.count} 人`;
             document.getElementById('header-dec-paid').textContent = `${totals.decPaidCount} 人`;
             document.getElementById('total-budget').textContent = `$${totals.bonus.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
             document.getElementById('unpaid-count').textContent = totals.count - totals.decPaidCount;
