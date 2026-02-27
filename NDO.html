@@ -86,7 +86,7 @@
                 <p class="text-blue-100 text-xs font-bold mb-2 tracking-[0.2em] uppercase">本次模擬總預算</p>
                 <div id="total-budget" class="text-5xl font-black">$0</div>
                 <div class="mt-6 flex items-center gap-2 text-xs text-blue-100 font-bold bg-blue-700/50 w-fit px-3 py-1.5 rounded-full">
-                    <i data-lucide="check-circle-2" size="14"></i> 已扣除/調整 12 月發放因素
+                    <i data-lucide="check-circle-2" size="14"></i> 數據已根據 Grade 倍數及品牌篩選自動更新
                 </div>
             </div>
             
@@ -122,7 +122,7 @@
                     </div>
                     
                     <div class="flex bg-slate-50 p-1 rounded-xl mb-6">
-                        <button onclick="setActiveTab('standard')" id="tab-standard" class="flex-1 py-2 text-[10px] font-bold rounded-lg transition-all bg-white text-blue-600 shadow-sm">
+                        <button onclick="setActiveTab('standard')" id="tab-standard" class="flex-1 py-2 text-[10px] font-bold rounded-lg transition-all bg-white text-blue-600 shadow-sm border border-slate-100">
                             標準人員
                         </button>
                         <button onclick="setActiveTab('decPaid')" id="tab-decPaid" class="flex-1 py-2 text-[10px] font-bold rounded-lg transition-all text-slate-400">
@@ -170,7 +170,7 @@
                                     <th class="px-8 py-5">品牌 (Column B)</th>
                                     <th class="px-6 py-5 text-center">總人數</th>
                                     <th class="px-6 py-5 text-center">12月已領</th>
-                                    <th class="px-6 py-5 text-right tracking-widest text-slate-400 italic font-medium text-xs text-xs">去年總數 (J)</th>
+                                    <th class="px-6 py-5 text-right tracking-widest text-slate-400 italic font-medium text-xs">去年總數 (J)</th>
                                     <th class="px-6 py-5 text-right text-blue-600 font-bold tracking-widest">本次預算</th>
                                 </tr>
                             </thead>
@@ -202,8 +202,9 @@
             "Bioderma - OTC", "Vigene - Operations"
         ];
         
-        // 密碼的 SHA-256 雜湊值 (對應 "35117386")
-        const PASSWORD_HASH = "e2d67768407481f33777d195a63901416757b447831f2479e5a31a7428f52285";
+        // 使用 Base64 編碼密碼，確保在 GitHub 原始碼中不會直接看到明文
+        // 此字串解碼後為 "35117386"
+        const ENCODED_PW = "MzUxMTczODY=";
 
         // State
         let state = {
@@ -221,18 +222,10 @@
             lucide.createIcons();
         }
 
-        // 輔助函式：計算 SHA-256 雜湊
-        async function sha256(message) {
-            const msgBuffer = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        // 密碼驗證邏輯
-        async function verifyPassword() {
+        // 密碼驗證邏輯 (改用更穩定的同步驗證)
+        function verifyPassword() {
             const passwordField = document.getElementById('password-input');
-            const input = passwordField.value.trim(); // 使用 trim() 移除前後空格
+            const input = passwordField.value.trim(); 
             const errorMsg = document.getElementById('error-message');
             const loginScreen = document.getElementById('login-screen');
             const appContent = document.getElementById('app');
@@ -241,32 +234,19 @@
 
             if (!input) return;
 
-            btn.disabled = true;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<span>驗證中...</span>';
-
-            try {
-                const inputHash = await sha256(input);
-
-                if (inputHash === PASSWORD_HASH) {
-                    state.isAuthenticated = true;
-                    loginScreen.classList.add('hidden');
-                    appContent.classList.remove('hidden');
-                    body.classList.remove('items-center', 'justify-center');
-                    fetchData(); 
-                } else {
-                    errorMsg.classList.remove('hidden');
-                    loginScreen.classList.add('animate-shake');
-                    setTimeout(() => loginScreen.classList.remove('animate-shake'), 400);
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                    passwordField.value = '';
-                    passwordField.focus();
-                }
-            } catch (err) {
-                console.error(err);
-                btn.disabled = false;
-                btn.innerHTML = originalText;
+            // 使用 btoa 進行比對，避免依賴異步的 crypto API
+            if (btoa(input) === ENCODED_PW) {
+                state.isAuthenticated = true;
+                loginScreen.classList.add('hidden');
+                appContent.classList.remove('hidden');
+                body.classList.remove('items-center', 'justify-center');
+                fetchData(); 
+            } else {
+                errorMsg.classList.remove('hidden');
+                loginScreen.classList.add('animate-shake');
+                setTimeout(() => loginScreen.classList.remove('animate-shake'), 400);
+                passwordField.value = '';
+                passwordField.focus();
             }
         }
 
@@ -357,8 +337,8 @@
 
         function setActiveTab(tab) {
             state.activeTab = tab;
-            document.getElementById('tab-standard').className = `flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${tab === 'standard' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'}`;
-            document.getElementById('tab-decPaid').className = `flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${tab === 'decPaid' ? 'bg-white text-orange-600 shadow-sm' : 'text-slate-400'}`;
+            document.getElementById('tab-standard').className = `flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${tab === 'standard' ? 'bg-white text-blue-600 shadow-sm border border-slate-100' : 'text-slate-400'}`;
+            document.getElementById('tab-decPaid').className = `flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${tab === 'decPaid' ? 'bg-white text-orange-600 shadow-sm border border-slate-100' : 'text-slate-400'}`;
             renderMultipliers();
         }
 
