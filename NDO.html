@@ -11,10 +11,14 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        /* 移除原生 number input 的上下箭頭 */
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
             -webkit-appearance: none;
             margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
         }
     </style>
 </head>
@@ -37,29 +41,11 @@
                 </div>
             </div>
             <div class="flex gap-2">
-                <button onclick="toggleManualInput()" class="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-xl text-sm font-bold transition-all border border-amber-200">
-                    <i data-lucide="clipboard-list" size="16"></i> 手動更新
-                </button>
-                <button onclick="fetchData()" class="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all shadow-sm">
-                    <i data-lucide="refresh-cw" size="16"></i> 重新讀取
+                <button onclick="fetchData()" class="flex items-center gap-2 px-6 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all shadow-sm">
+                    <i data-lucide="refresh-cw" size="16"></i> 重新整理數據
                 </button>
             </div>
         </header>
-
-        <!-- Manual Input Box -->
-        <div id="manual-input-box" class="hidden bg-white p-6 rounded-2xl border border-amber-200 shadow-sm space-y-4">
-            <div class="flex items-start gap-3 text-amber-700">
-                <i data-lucide="alert-circle" class="shrink-0 mt-0.5" size="20"></i>
-                <div class="text-sm">
-                    <p class="font-bold mb-1">手動數據更新模式</p>
-                    <p class="opacity-80">請貼上從 Google Sheets 導出的 CSV 內容。確保包含所有欄位。</p>
-                </div>
-            </div>
-            <textarea id="manual-csv-text" class="w-full h-32 p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="在此貼上 CSV 數據..."></textarea>
-            <button onclick="handleManualSubmit()" class="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
-                套用數據
-            </button>
-        </div>
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -152,7 +138,7 @@
                                     <th class="px-8 py-5">品牌 (Column B)</th>
                                     <th class="px-6 py-5 text-center">總人數</th>
                                     <th class="px-6 py-5 text-center">12月已領</th>
-                                    <th class="px-6 py-5 text-right tracking-widest text-slate-400 italic font-medium">去年總數 (J)</th>
+                                    <th class="px-6 py-5 text-right tracking-widest text-slate-400 italic font-medium text-xs text-xs">去年總數 (J)</th>
                                     <th class="px-6 py-5 text-right text-blue-600 font-bold tracking-widest">本次預算</th>
                                 </tr>
                             </thead>
@@ -187,7 +173,7 @@
         // State
         let state = {
             rawData: [],
-            activeTab: 'standard', // 'standard' or 'decPaid'
+            activeTab: 'standard', 
             multipliers: { A: 0.5, B: 0.5, C: 0.3, D: 0, E: 0 },
             decMultipliers: { A: 0.3, B: 0.3, C: 0, D: 0, E: 0 },
             selectedBrands: new Set(),
@@ -195,12 +181,10 @@
             searchTerm: ''
         };
 
-        // Initialize Lucide Icons
         function refreshIcons() {
             lucide.createIcons();
         }
 
-        // CSV Parsing
         function parseCSV(csvText) {
             try {
                 const lines = csvText.split(/\r?\n/);
@@ -240,7 +224,6 @@
                     };
                 });
 
-                // Extract unique brands
                 const brands = Array.from(new Set(parsed.map(item => item.brand))).sort((a, b) => {
                     const indexA = BRAND_ORDER.indexOf(a);
                     const indexB = BRAND_ORDER.indexOf(b);
@@ -251,7 +234,9 @@
                 });
 
                 state.allAvailableBrands = brands;
-                state.selectedBrands = new Set(brands);
+                if (state.selectedBrands.size === 0) {
+                    state.selectedBrands = new Set(brands);
+                }
                 return parsed;
             } catch (e) {
                 console.error("CSV Parsing Error:", e);
@@ -259,7 +244,6 @@
             }
         }
 
-        // Fetch Data
         async function fetchData() {
             const header = document.querySelector('p.text-slate-500');
             const originalText = header.innerHTML;
@@ -273,25 +257,10 @@
                 render();
             } catch (err) {
                 console.error(err);
-                alert("自動抓取失敗，請使用手動更新貼上數據。");
-                document.getElementById('manual-input-box').classList.remove('hidden');
+                alert("自動抓取失敗。請確保 Google Sheets 已公開發佈為 CSV，或者瀏覽器未阻擋連線。");
             } finally {
                 header.innerHTML = originalText;
                 updateStats();
-            }
-        }
-
-        // Event Handlers
-        function toggleManualInput() {
-            document.getElementById('manual-input-box').classList.toggle('hidden');
-        }
-
-        function handleManualSubmit() {
-            const text = document.getElementById('manual-csv-text').value;
-            if (text.trim()) {
-                state.rawData = parseCSV(text);
-                document.getElementById('manual-input-box').classList.add('hidden');
-                render();
             }
         }
 
@@ -302,11 +271,26 @@
             renderMultipliers();
         }
 
+        // 核心倍數更新與範圍限制 (0 到 2)
         function handleMultiplierChange(grade, value) {
-            const val = parseFloat(value) || 0;
+            let val = parseFloat(value) || 0;
+            // 限制最大值
+            if (val > 2) val = 2;
+            if (val < 0) val = 0;
+            
+            // 四捨五入處理浮點數精度
+            val = Math.round(val * 10) / 10;
+
             if (state.activeTab === 'standard') state.multipliers[grade] = val;
             else state.decMultipliers[grade] = val;
             render();
+        }
+
+        // 上下調按鈕邏輯
+        function adjustMultiplier(grade, delta) {
+            const currentData = state.activeTab === 'standard' ? state.multipliers : state.decMultipliers;
+            const newVal = (currentData[grade] || 0) + delta;
+            handleMultiplierChange(grade, newVal);
         }
 
         function handleSearch(val) {
@@ -330,7 +314,6 @@
             render();
         }
 
-        // Calculation
         function calculateSummary() {
             const summary = {};
             const filteredData = state.rawData.filter(item => state.selectedBrands.has(item.brand));
@@ -366,12 +349,12 @@
                 });
         }
 
-        // Rendering Functions
         function renderMultipliers() {
             const container = document.getElementById('multipliers-inputs');
             const data = state.activeTab === 'standard' ? state.multipliers : state.decMultipliers;
             const colors = { A: 'bg-rose-500', B: 'bg-orange-500', C: 'bg-amber-500', D: 'bg-blue-500', E: 'bg-slate-400' };
             const accentClass = state.activeTab === 'standard' ? 'text-blue-600 border-blue-100 focus:border-blue-500' : 'text-orange-600 border-orange-100 focus:border-orange-500';
+            const btnColor = state.activeTab === 'standard' ? 'hover:bg-blue-50 text-blue-600' : 'hover:bg-orange-50 text-orange-600';
 
             container.innerHTML = ['A', 'B', 'C', 'D', 'E'].map(grade => `
                 <div class="flex items-center justify-between">
@@ -379,11 +362,21 @@
                         <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-xs ${colors[grade]}">${grade}</div>
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Grade ${grade}</span>
                     </div>
-                    <input type="number" step="0.1" value="${data[grade]}" 
-                        oninput="handleMultiplierChange('${grade}', this.value)"
-                        class="w-14 px-2 py-1.5 bg-slate-50 border-b-2 font-bold text-right focus:outline-none transition-all ${accentClass}">
+                    
+                    <div class="flex items-center bg-slate-50 rounded-xl border border-slate-100 p-0.5">
+                        <button onclick="adjustMultiplier('${grade}', -0.1)" class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${btnColor}">
+                            <i data-lucide="minus" size="14"></i>
+                        </button>
+                        <input type="number" step="0.1" min="0" max="2" value="${data[grade]}" 
+                            onchange="handleMultiplierChange('${grade}', this.value)"
+                            class="w-10 bg-transparent font-bold text-center text-xs focus:outline-none ${state.activeTab === 'standard' ? 'text-blue-600' : 'text-orange-600'}">
+                        <button onclick="adjustMultiplier('${grade}', 0.1)" class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${btnColor}">
+                            <i data-lucide="plus" size="14"></i>
+                        </button>
+                    </div>
                 </div>
             `).join('');
+            refreshIcons();
         }
 
         function renderBrandFilters() {
@@ -458,7 +451,6 @@
             updateStats();
         }
 
-        // Initialize
         window.onload = () => {
             fetchData();
             refreshIcons();
