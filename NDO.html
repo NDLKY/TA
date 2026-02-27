@@ -56,6 +56,7 @@ const App = () => {
     setLoading(true);
     setError(null);
     try {
+      // 加上時間戳防止緩存
       const response = await fetch(`${CSV_URL}&t=${Date.now()}`);
       if (!response.ok) throw new Error('連線失敗，請檢查 Google Sheet 發佈設定。');
       const text = await response.text();
@@ -67,6 +68,7 @@ const App = () => {
       if (headerLine.charCodeAt(0) === 0xFEFF) headerLine = headerLine.substr(1);
       
       const parsed = rows.slice(1).map((row, index) => {
+        // 使用正則處理可能包含逗號的引號內容
         const values = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
         
         return {
@@ -166,7 +168,7 @@ const App = () => {
         <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
         <Database className="w-4 h-4 text-blue-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
       </div>
-      <p className="font-bold text-slate-500 animate-pulse">正在同步數據...</p>
+      <p className="font-bold text-slate-500 animate-pulse font-sans">正在讀取 Google Sheet 數據...</p>
     </div>
   );
 
@@ -200,6 +202,7 @@ const App = () => {
       <main className="max-w-7xl mx-auto p-6 md:p-8">
         {/* Filters */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
+          {/* Brand Selector */}
           <div className="lg:col-span-5 relative" ref={brandRef}>
             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">品牌篩選 (可多選)</label>
             <div 
@@ -233,6 +236,7 @@ const App = () => {
             )}
           </div>
 
+          {/* Type Selector */}
           <div className="lg:col-span-3">
             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">類型篩選</label>
             <div className="flex items-center gap-3 bg-white px-4 py-3.5 rounded-2xl border border-slate-200 shadow-sm">
@@ -243,6 +247,7 @@ const App = () => {
             </div>
           </div>
 
+          {/* Scenario Selector */}
           <div className="lg:col-span-4">
             <label className="block text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2 px-1">檢視方案</label>
             <div className="flex items-center gap-3 bg-white px-4 py-3.5 rounded-2xl border-2 border-blue-100 shadow-sm">
@@ -255,7 +260,7 @@ const App = () => {
           </div>
         </section>
 
-        {/* Tags */}
+        {/* Selected Brand Tags */}
         {!selectedBrands.includes('All') && (
           <div className="mb-8 flex flex-wrap gap-2 items-center">
             {selectedBrands.map(b => (
@@ -266,38 +271,38 @@ const App = () => {
           </div>
         )}
 
-        {/* Dashboard Banner */}
+        {/* Dashboard Stats Banner */}
         <div className="mb-10 bg-slate-900 rounded-[2.5rem] p-8 md:p-10 text-white shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex items-center gap-6 relative z-10">
             <div className="p-4 bg-white/10 rounded-3xl border border-white/20">
               <PieChart className="w-8 h-8 text-blue-400" />
             </div>
             <div>
-              <h2 className="text-3xl font-black tracking-tighter">數據匯總概覽</h2>
+              <h2 className="text-3xl font-black tracking-tighter text-white">數據匯總概覽</h2>
               <p className="text-slate-400 text-sm font-medium mt-1">
                 {selectedBrands.includes('All') ? '全品牌數據集' : `已篩選 ${selectedBrands.length} 個品牌範圍`}
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-8 border-t md:border-t-0 md:border-l border-white/10 pt-8 md:pt-0 md:pl-16 w-full md:w-auto relative z-10">
+          <div className="grid grid-cols-2 gap-8 border-t md:border-t-0 md:border-l border-white/10 pt-8 md:pt-0 md:pl-16 w-full md:w-auto relative z-10 text-white">
             <div>
               <div className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] mb-2 text-center md:text-left">統計人數</div>
-              <div className="text-4xl font-black text-center md:text-left">{displayScenarios[0]?.headcount || 0} <span className="text-lg font-normal text-slate-500">人</span></div>
+              <div className="text-4xl font-black text-center md:text-left text-white">{displayScenarios[0]?.headcount || 0} <span className="text-lg font-normal text-slate-500">人</span></div>
             </div>
             <div>
               <div className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-2 text-center md:text-left">類別總數</div>
-              <div className="text-4xl font-black text-center md:text-left">{allBrands.length} <span className="text-lg font-normal text-slate-500">個</span></div>
+              <div className="text-4xl font-black text-center md:text-left text-white">{allBrands.length} <span className="text-lg font-normal text-slate-500">個</span></div>
             </div>
           </div>
         </div>
 
-        {/* Cards Grid */}
+        {/* Scenarios Cards Grid */}
         <div className={`grid grid-cols-1 ${activeScenarioId === 'All' ? 'md:grid-cols-2 lg:grid-cols-3' : 'max-w-3xl mx-auto'} gap-8`}>
           {displayScenarios.map((res) => (
             <div key={res.id} className="group bg-white rounded-[3rem] border border-slate-200 p-8 md:p-10 hover:border-blue-500 hover:shadow-2xl transition-all duration-500 relative overflow-hidden flex flex-col h-full shadow-sm">
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-8">
-                  <span className="px-4 py-1.5 bg-blue-50 text-blue-700 text-[10px] font-black rounded-full uppercase tracking-widest border border-blue-100">方案 {res.id}</span>
+                  <span className="px-4 py-1.5 bg-blue-50 text-blue-700 text-[10px] font-black rounded-full uppercase tracking-widest border border-blue-100 font-sans">方案 {res.id}</span>
                   <BarChart3 size={28} className="text-slate-200 group-hover:text-blue-500 transition-all duration-500 transform group-hover:scale-110" />
                 </div>
                 <h3 className="text-2xl font-black text-slate-800 mb-2 leading-tight h-16 flex items-center group-hover:text-blue-900 transition-colors">{res.title}</h3>
@@ -311,8 +316,8 @@ const App = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-end">
                       <span className="text-xs font-black text-slate-500 uppercase tracking-widest">受惠人數概況</span>
-                      <div className="text-right">
-                        <span className="text-lg font-black text-slate-800">{res.eligibleCount}</span>
+                      <div className="text-right text-slate-900">
+                        <span className="text-lg font-black">{res.eligibleCount}</span>
                         <span className="text-xs font-bold text-slate-400 mx-1">/</span>
                         <span className="text-xs font-bold text-slate-400">{res.headcount} 人</span>
                       </div>
@@ -333,8 +338,8 @@ const App = () => {
         {/* Footer */}
         <footer className="mt-32 py-12 border-t border-slate-200 text-center flex flex-col items-center gap-4">
           <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.5em]">Aggregate Budget Analysis System v4.0</p>
-          <p className="text-slate-300 text-[9px] max-w-md leading-relaxed">
-            此系統專為預算對比設計，數據分析結果為即時模擬計算。
+          <p className="text-slate-300 text-[9px] max-w-md leading-relaxed font-sans">
+            此系統專為預算對比設計，數據分析結果為即時模擬計算。所有對應關係鎖定為 B, C, K-P 欄位數據。
           </p>
         </footer>
       </main>
