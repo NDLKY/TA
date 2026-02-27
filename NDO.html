@@ -209,7 +209,6 @@
         let state = {
             rawData: [],
             activeTab: 'standard', 
-            // 根據圖片更新預設倍數
             multipliers: { A: 0.5, B: 0.5, C: 0.3, D: 0, E: 0 },
             decMultipliers: { A: 0.3, B: 0.3, C: 0, D: 0, E: 0 },
             selectedBrands: new Set(),
@@ -232,30 +231,42 @@
 
         // 密碼驗證邏輯
         async function verifyPassword() {
-            const input = document.getElementById('password-input').value;
+            const passwordField = document.getElementById('password-input');
+            const input = passwordField.value.trim(); // 使用 trim() 移除前後空格
             const errorMsg = document.getElementById('error-message');
             const loginScreen = document.getElementById('login-screen');
             const appContent = document.getElementById('app');
             const body = document.body;
             const btn = document.getElementById('unlock-btn');
 
+            if (!input) return;
+
             btn.disabled = true;
+            const originalText = btn.innerHTML;
             btn.innerHTML = '<span>驗證中...</span>';
 
-            const inputHash = await sha256(input);
+            try {
+                const inputHash = await sha256(input);
 
-            if (inputHash === PASSWORD_HASH) {
-                state.isAuthenticated = true;
-                loginScreen.classList.add('hidden');
-                appContent.classList.remove('hidden');
-                body.classList.remove('items-center', 'justify-center');
-                fetchData(); 
-            } else {
-                errorMsg.classList.remove('hidden');
-                loginScreen.classList.add('animate-shake');
-                setTimeout(() => loginScreen.classList.remove('animate-shake'), 400);
+                if (inputHash === PASSWORD_HASH) {
+                    state.isAuthenticated = true;
+                    loginScreen.classList.add('hidden');
+                    appContent.classList.remove('hidden');
+                    body.classList.remove('items-center', 'justify-center');
+                    fetchData(); 
+                } else {
+                    errorMsg.classList.remove('hidden');
+                    loginScreen.classList.add('animate-shake');
+                    setTimeout(() => loginScreen.classList.remove('animate-shake'), 400);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    passwordField.value = '';
+                    passwordField.focus();
+                }
+            } catch (err) {
+                console.error(err);
                 btn.disabled = false;
-                btn.innerHTML = '<span>解鎖系統</span>';
+                btn.innerHTML = originalText;
             }
         }
 
@@ -417,7 +428,7 @@
                 .sort((a, b) => {
                     const idxA = BRAND_ORDER.indexOf(a.name);
                     const idxB = BRAND_ORDER.indexOf(b.name);
-                    if (idxA !== -1 && idxB !== -1) return idxA - indexB;
+                    if (idxA !== -1 && idxB !== -1) return indexA - indexB;
                     if (idxA !== -1) return -1;
                     if (idxB !== -1) return 1;
                     return a.name.localeCompare(b.name);
