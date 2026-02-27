@@ -44,7 +44,7 @@
             text-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
         }
 
-        /* 數字清晰化處理與中心對齊 */
+        /* 數字清晰化與中心對齊 */
         .readable-nums {
             font-variant-numeric: tabular-nums;
             letter-spacing: 0;
@@ -56,7 +56,7 @@
             font-size: 16px !important;
         }
 
-        /* 表格排版基礎設定 */
+        /* 表格排版 */
         th, td {
             white-space: nowrap;
             padding: 1.25rem 1rem !important;
@@ -86,17 +86,17 @@
 
     <div class="max-w-7xl mx-auto text-left">
         <!-- 頂部標題 -->
-        <div class="flex flex-col md:flex-row justify-between items-center md:items-start mb-8 md:mb-12 gap-6 text-left">
+        <div class="flex flex-col md:flex-row justify-between items-center md:items-start mb-8 md:mb-12 gap-6 text-left text-left">
             <div class="w-full text-left">
-                <h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-2 md:mb-4 tracking-tight header-glow">
-                    推薦進度查詢 <span class="text-indigo-600 font-cyber text-2xl md:text-3xl uppercase">Dashboard</span>
+                <h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-2 md:mb-4 tracking-tight header-glow text-left">
+                    推薦進度查詢 <span class="text-indigo-600 font-cyber text-2xl md:text-3xl uppercase text-left">Dashboard</span>
                 </h1>
-                <p class="text-slate-800 font-bold text-sm md:text-lg flex items-center bg-white/60 px-4 py-2 rounded-full w-fit shadow-sm border border-white/80">
+                <p class="text-slate-800 font-bold text-sm md:text-lg flex items-center bg-white/60 px-4 py-2 rounded-full w-fit shadow-sm border border-white/80 text-left">
                     <svg class="w-4 h-4 md:w-5 md:h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="filter: drop-shadow(0 0 2px #6366f1);"><path stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     範圍：2025/12/15 之後記錄 (排除 LSL/Hipo E1)
                 </p>
             </div>
-            <div class="cyber-card px-6 py-4 border-l-4 md:border-l-8 border-indigo-500 text-indigo-900 font-black text-sm md:text-base shadow-md w-full md:w-auto" id="lastUpdateDisplay">
+            <div class="cyber-card px-6 py-4 border-l-4 md:border-l-8 border-indigo-500 text-indigo-900 font-black text-sm md:text-base shadow-md w-full md:w-auto text-left" id="lastUpdateDisplay">
                 試算表狀態：連線中...
             </div>
         </div>
@@ -105,14 +105,14 @@
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8 md:mb-12">
             <!-- 01: 手動查詢 -->
             <div class="lg:col-span-1 cyber-card p-6 md:p-8">
-                <h3 class="text-indigo-950 font-black mb-5 md:mb-6 flex items-center uppercase tracking-widest text-sm">
+                <h3 class="text-indigo-950 font-black mb-5 md:mb-6 flex items-center uppercase tracking-widest text-sm text-left">
                     手動查詢 <span class="ml-auto opacity-20 font-cyber text-lg text-right">01</span>
                 </h3>
                 <div class="space-y-4 md:space-y-6 text-left">
                     <div>
-                        <label for="staffId" class="block text-[10px] md:text-xs font-black text-slate-600 mb-1 md:mb-2 uppercase tracking-widest">Staff ID</label>
+                        <label for="staffId" class="block text-[10px] md:text-xs font-black text-slate-600 mb-1 md:mb-2 uppercase tracking-widest text-left">Staff ID</label>
                         <input type="text" id="staffId" placeholder="例如: 11852" 
-                               class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-indigo-100 bg-white focus:ring-4 focus:ring-indigo-200 outline-none transition-all text-slate-900 font-bold">
+                               class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-indigo-50 bg-white focus:ring-4 focus:ring-indigo-200 outline-none transition-all text-slate-900 font-bold">
                     </div>
                     <button onclick="manualSearch()" 
                             class="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black rounded-xl transition shadow-lg active:scale-[0.98] uppercase tracking-widest">
@@ -121,30 +121,33 @@
                 </div>
             </div>
 
-            <!-- 02: 快速篩選 -->
-            <div class="lg:col-span-2 cyber-card p-6 md:p-8">
+            <!-- 02: 快速篩選 (三級聯動) -->
+            <div class="lg:col-span-2 cyber-card p-6 md:p-8 text-left">
                 <h3 class="text-violet-950 font-black mb-5 md:mb-6 flex items-center uppercase tracking-widest text-sm text-left">
                     快速篩選 <span class="ml-auto opacity-20 font-cyber text-lg text-right">02</span>
                 </h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-left">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
                     <div>
-                        <label class="block text-[10px] md:text-xs font-black text-slate-600 mb-1 md:mb-2 uppercase tracking-widest">Brand</label>
-                        <select id="filterBrand" onchange="updateFloorFilter()" class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-violet-50 bg-white focus:ring-4 outline-none text-slate-900 font-bold appearance-none cursor-pointer">
-                            <option value="">請選擇 Brand</option>
+                        <label class="block text-[10px] md:text-xs font-black text-slate-600 mb-1 md:mb-2 uppercase tracking-widest text-left">Brand</label>
+                        <select id="filterBrand" onchange="updateFloorFilter()" class="w-full px-3 py-3 md:py-4 rounded-xl border-2 border-violet-50 bg-white focus:ring-4 outline-none text-slate-900 font-bold appearance-none cursor-pointer">
+                            <option value="">請選擇品牌</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[10px] md:text-xs font-black text-slate-600 mb-1 md:mb-2 uppercase tracking-widest">Floor</label>
-                        <select id="filterFloor" onchange="updateNameFilter()" disabled class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-violet-50 bg-white focus:ring-4 outline-none text-slate-900 font-bold appearance-none cursor-pointer">
+                        <label class="block text-[10px] md:text-xs font-black text-slate-600 mb-1 md:mb-2 uppercase tracking-widest text-left">Floor</label>
+                        <select id="filterFloor" onchange="updateNameFilter()" disabled class="w-full px-3 py-3 md:py-4 rounded-xl border-2 border-violet-50 bg-white focus:ring-4 outline-none text-slate-900 font-bold appearance-none cursor-pointer">
                             <option value="">請選擇 Floor</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[10px] md:text-xs font-black text-slate-600 mb-1 md:mb-2 uppercase tracking-widest">Name</label>
-                        <select id="filterName" onchange="searchByFilter()" disabled class="w-full px-4 py-3 md:py-4 rounded-xl border-2 border-violet-50 bg-white focus:ring-4 outline-none text-slate-900 font-bold appearance-none cursor-pointer">
+                        <label class="block text-[10px] md:text-xs font-black text-slate-600 mb-1 md:mb-2 uppercase tracking-widest text-left">Name</label>
+                        <select id="filterName" onchange="searchByFilter()" disabled class="w-full px-3 py-3 md:py-4 rounded-xl border-2 border-violet-50 bg-white focus:ring-4 outline-none text-slate-900 font-bold appearance-none cursor-pointer">
                             <option value="">請選擇姓名</option>
                         </select>
                     </div>
+                </div>
+                <div class="mt-4 flex justify-end">
+                    <button onclick="resetFilters()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition text-xs">重設篩選</button>
                 </div>
             </div>
 
@@ -153,7 +156,7 @@
                 <h3 class="text-rose-950 font-black mb-4 flex items-center uppercase tracking-widest text-sm text-left">
                     未推薦檢查 <span class="ml-auto opacity-20 font-cyber text-lg text-right">03</span>
                 </h3>
-                <div class="grid grid-cols-1 gap-2 text-left">
+                <div class="grid grid-cols-1 gap-2">
                     <button onclick="checkInactiveByDays(14)" 
                             class="btn-inactive py-2.5 px-4 bg-white border-2 border-rose-100 hover:border-rose-300 text-rose-800 font-bold rounded-xl text-xs text-left flex items-center justify-between">
                         最近 2 星期無推薦
@@ -169,7 +172,6 @@
                         最近 2 個月無推薦
                         <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
                     </button>
-                    <p class="text-[10px] text-slate-400 italic px-1 mt-1 text-left text-left">* 排除 Hipo E1 / 特定人員 (LSL)</p>
                 </div>
             </div>
         </div>
@@ -177,30 +179,30 @@
         <!-- 數據統計卡片 -->
         <div id="statsArea" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8 md:mb-10 hidden">
             <div class="cyber-card p-4 md:p-8 border-l-4 md:border-l-8 border-blue-500 text-center">
-                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1">總推薦</p>
+                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1 text-center">總推薦</p>
                 <p id="totalCount" class="text-2xl md:text-5xl font-black text-slate-900 readable-nums text-center">0</p>
             </div>
             <div class="cyber-card p-4 md:p-8 border-l-4 md:border-l-8 border-emerald-500 text-center">
-                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1">已入職</p>
+                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1 text-center">已入職</p>
                 <p id="joinedCount" class="text-2xl md:text-5xl font-black text-emerald-600 readable-nums text-center">0</p>
             </div>
             <div class="cyber-card p-4 md:p-8 border-l-4 md:border-l-8 border-rose-500 text-center">
-                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1">Drop</p>
+                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1 text-center">Drop</p>
                 <p id="withdrawCount" class="text-2xl md:text-5xl font-black text-rose-600 readable-nums text-center">0</p>
             </div>
             <div class="cyber-card p-4 md:p-8 border-l-4 md:border-l-8 border-amber-500 text-center">
-                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1">處理中</p>
+                <p class="text-[10px] md:text-sm text-slate-500 font-black uppercase tracking-widest mb-1 text-center">處理中</p>
                 <p id="pendingCount" class="text-2xl md:text-5xl font-black text-amber-600 readable-nums text-center">0</p>
             </div>
         </div>
 
         <!-- 動態推薦追蹤資訊列 -->
         <div id="referralTrackingInfo" class="hidden mb-10 px-6 py-4 rounded-2xl summary-accent bg-white/40 text-left">
-            <p id="trackingText" class="text-lg md:text-xl font-black text-indigo-900 tracking-tight"></p>
+            <p id="trackingText" class="text-lg md:text-xl font-black text-indigo-900 tracking-tight text-left"></p>
         </div>
 
         <!-- 推薦明細區塊 -->
-        <div id="resultArea" class="hidden space-y-12 mb-16">
+        <div id="resultArea" class="hidden space-y-12 mb-16 text-left">
             <div id="sectionRJ">
                 <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-indigo-600 pl-4 tracking-wider uppercase text-left">
                     RJ 推薦明細 <span class="font-cyber text-indigo-500 ml-2">Referral Join</span>
@@ -217,7 +219,7 @@
                                     <th class="text-center">最終標記</th>
                                 </tr>
                             </thead>
-                            <tbody id="resultTableBodyRJ" class="divide-y divide-slate-200 text-center"></tbody>
+                            <tbody id="resultTableBodyRJ" class="divide-y divide-slate-200 text-center text-center"></tbody>
                         </table>
                     </div>
                 </div>
@@ -239,25 +241,25 @@
                                     <th class="text-center">最終標記</th>
                                 </tr>
                             </thead>
-                            <tbody id="resultTableBodyNJ" class="divide-y divide-slate-200 text-center"></tbody>
+                            <tbody id="resultTableBodyNJ" class="divide-y divide-slate-200 text-center text-center"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 相關資訊 (單人查詢結果) -->
-        <div id="resultAreaSheet2" class="hidden mb-16">
-            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-sky-600 pl-4 tracking-wider uppercase text-left">
-                相關資訊 <span class="font-cyber text-sky-500 ml-2">REFERENCE INFO</span>
+        <!-- 相關資訊 -->
+        <div id="resultAreaSheet2" class="hidden mb-16 text-left text-left">
+            <h2 id="resultAreaSheet2Title" class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-sky-600 pl-4 tracking-wider uppercase text-left text-left">
+                相關資訊 <span class="font-cyber text-sky-500 ml-2 text-left">REFERENCE INFO</span>
             </h2>
-            <div class="cyber-card overflow-hidden text-center">
+            <div class="cyber-card overflow-hidden text-center text-center text-center">
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="w-full border-collapse">
-                        <thead class="bg-sky-50 text-sky-950 border-b-2 border-sky-100 font-black uppercase text-sm">
+                        <thead class="bg-sky-50 text-sky-950 border-b-2 border-sky-100 font-black uppercase text-sm text-center">
                             <tr>
                                 <th class="text-left border-r border-sky-100">Name</th>
-                                <th class="text-center border-r border-sky-100">1月+2月<br>Resign No</th>
+                                <th class="text-center border-r border-sky-100 leading-tight">1月+2月<br>Resign No</th>
                                 <th class="text-center border-r border-sky-100 leading-tight">Total Offer <br><span class="text-[10px] block opacity-60 font-bold">(已減無返工Offer)</span></th>
                                 <th class="text-center border-r border-sky-100 leading-tight">Should<br>on Board</th>
                                 <th class="text-center border-r border-sky-100">On board</th>
@@ -265,19 +267,19 @@
                                 <th class="text-center">NJ Offer</th>
                             </tr>
                         </thead>
-                        <tbody id="sheet2TableBody" class="divide-y divide-slate-200 text-lg readable-nums font-bold"></tbody>
+                        <tbody id="sheet2TableBody" class="divide-y divide-slate-200 text-lg readable-nums font-bold text-center"></tbody>
                     </table>
                 </div>
             </div>
-            <div class="mt-4 p-4 md:p-6 bg-white/70 rounded-2xl border-2 border-white shadow-inner text-left">
-                <p id="dynamicLogicFormula" class="text-base md:text-xl text-slate-900 font-black italic mb-2 readable-nums leading-relaxed text-left"></p>
-                <p class="text-[10px] md:text-sm text-slate-500 italic font-bold uppercase tracking-widest text-left">
-                    * Formula: Target (2) + Resign No. - Total Offer = Gap (HI-PO excluded)
+            <div id="dynamicLogicFormulaBox" class="mt-4 p-4 md:p-6 bg-white/70 rounded-2xl border-2 border-white shadow-inner text-left text-left text-left">
+                <p id="dynamicLogicFormula" class="text-base md:text-xl text-slate-900 font-black italic mb-2 readable-nums leading-relaxed text-left text-left text-left"></p>
+                <p class="text-[10px] md:text-sm text-slate-500 italic font-bold uppercase tracking-widest text-left text-left text-left">
+                    * Formula: Target (2) + Resign No. - Total Offer = Gap (Excluded LSL/Hipo E1)
                 </p>
             </div>
         </div>
 
-        <!-- 非活躍推薦人清單 (按品牌分開列出) -->
+        <!-- 非活躍名單 -->
         <div id="inactiveResultArea" class="hidden mb-16 text-left space-y-10 text-left">
             <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-rose-600 pl-4 tracking-wider uppercase text-left">
                 非活躍推薦名單 <span id="inactiveTitleSpan" class="font-cyber text-rose-500 ml-2"></span>
@@ -285,8 +287,8 @@
             <div id="inactiveBrandContainer" class="space-y-10 text-left"></div>
         </div>
 
-        <!-- Brand Summary (全局) -->
-        <div id="brandSummaryArea" class="mb-16 text-left hidden text-left">
+        <!-- Brand Summary -->
+        <div id="brandSummaryArea" class="hidden mb-16 text-left text-left">
             <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-emerald-600 pl-4 tracking-wider uppercase text-left">
                 Brand Summary <span class="font-cyber text-emerald-500 ml-2">GLOBAL DATA</span>
             </h2>
@@ -309,15 +311,15 @@
             </div>
         </div>
 
-        <!-- PIC Summary (全局) -->
-        <div id="picSummaryArea" class="mb-24 text-left hidden text-left text-left">
+        <!-- PIC Summary -->
+        <div id="picSummaryArea" class="hidden mb-24 text-left text-left text-left">
             <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-blue-600 pl-4 tracking-wider uppercase text-left">
                 PIC Summary <span class="font-cyber text-blue-500 ml-2">BY PERSON</span>
             </h2>
             <div class="cyber-card overflow-hidden">
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="w-full border-collapse">
-                        <thead class="bg-blue-50 text-blue-950 border-b-2 border-blue-100 font-black uppercase text-xs md:text-sm">
+                        <thead class="bg-blue-50 text-blue-950 border-b-2 border-blue-100 font-black uppercase text-xs md:text-sm text-center">
                             <tr>
                                 <th class="text-left border-r border-blue-100">Brand</th>
                                 <th class="text-left border-r border-blue-100">PIC</th>
@@ -337,14 +339,13 @@
         </div>
 
         <!-- 狀態顯示 -->
-        <div id="loadingStatus" class="text-center py-10 text-indigo-700 font-black flex flex-col items-center justify-center gap-4">
+        <div id="loadingStatus" class="text-center py-10 text-indigo-700 font-black flex flex-col items-center justify-center gap-4 text-center">
             <svg class="animate-spin h-8 w-8 text-indigo-600" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            <span class="tracking-[0.2em] uppercase font-cyber text-sm">Synchronizing Database...</span>
+            <span class="tracking-[0.2em] uppercase font-cyber text-sm text-center text-center">Synchronizing Database...</span>
         </div>
 
         <div id="noResult" class="hidden text-center py-20 cyber-card mx-2 text-center text-center">
-            <p class="text-slate-500 text-xl font-black uppercase font-cyber text-center">NO RECORD FOUND</p>
-            <p class="text-slate-500 text-lg mt-4 font-bold text-center">請檢查編號或日期範圍 (2025/12/15+)</p>
+            <p class="text-slate-500 text-xl font-black uppercase font-cyber text-center text-center text-center">NO RECORD FOUND</p>
         </div>
 
         <div id="initialPrompt" class="text-center py-32 md:py-48 opacity-20 uppercase font-cyber text-2xl text-center text-center">
@@ -374,10 +375,8 @@
                 Papa.parse(t1, { header: true, complete: res => { dataS1 = res.data; headersS1 = res.meta.fields; } });
                 Papa.parse(t2, { header: true, complete: res => { 
                     const rawData = res.data;
-                    const posIndex = 3; 
-                    const nameIndex = 5; 
-                    
-                    // 全局過濾名單
+                    const posIndex = 3; // Column D
+                    const nameIndex = 5; // Column F
                     const excludedNames = ['jennifer.tokf', 'milk.yungcy', 'abel.wongyw', 'lavina.chan'];
                     
                     dataS2 = rawData.filter(row => {
@@ -387,175 +386,128 @@
                     });
                     
                     headersS2 = res.meta.fields; 
-                    populateFilters(); 
+                    populateBrandFilter(); 
                     calculateSummaries(); 
                     document.getElementById('loadingStatus').classList.add('hidden');
                 } });
             } catch (e) { console.error(e); }
         }
 
-        // --- 匯總計算 ---
-        function calculateSummaries() {
-            const brands = ['DERMES', 'ELYZE', 'REENEX'];
-            const sumBody = document.getElementById('brandSummaryBody');
-            const picBody = document.getElementById('picSummaryBody');
-            sumBody.innerHTML = ''; picBody.innerHTML = '';
-            let grandTotal = { offer: 0, should: 0, onBoard: 0, gap: 0, njOffer: 0 };
-
-            brands.forEach(brand => {
-                const brandRecords = dataS2.filter(i => (i[headersS2[0]]||"").toUpperCase() === brand && !(i[headersS2[5]]||"").toUpperCase().includes("TOTAL"));
-                let bs = { offer: 0, should: 0, onBoard: 0, gap: 0, njOffer: 0 };
-                
-                brandRecords.forEach(i => {
-                    bs.offer += parseFloat((i[headersS2[13]]||"0").replace(/,/g,'')) || 0;
-                    bs.should += parseFloat((i[headersS2[15]]||"0").replace(/,/g,'')) || 0;
-                    bs.onBoard += parseFloat((i[headersS2[14]]||"0").replace(/,/g,'')) || 0;
-                    bs.gap += parseFloat((i[headersS2[17]]||"0").replace(/,/g,'')) || 0;
-                    bs.njOffer += parseFloat((i[headersS2[21]]||"0").replace(/,/g,'')) || 0;
-                });
-                grandTotal.offer += bs.offer; grandTotal.should += bs.should; grandTotal.onBoard += bs.onBoard; grandTotal.gap += bs.gap; grandTotal.njOffer += bs.njOffer;
-                sumBody.innerHTML += `<tr class="hover:bg-emerald-50/70 transition duration-300"><td class="px-10 py-5 font-black text-slate-900 text-left text-left text-left text-left">${brand}</td><td class="px-10 py-5 text-slate-800 text-center text-center text-center text-center">${bs.offer.toLocaleString()}</td><td class="px-10 py-5 text-slate-800 text-center text-center text-center text-center">${bs.should.toLocaleString()}</td><td class="px-10 py-5 text-emerald-800 font-black text-2xl text-center text-center text-center text-center">${bs.onBoard.toLocaleString()}</td><td class="px-10 py-5 text-center text-center text-center text-center ${bs.gap < 0 ? 'text-rose-700 font-black' : 'text-slate-800'} text-center text-center">${bs.gap.toLocaleString()}</td><td class="px-10 py-5 text-slate-800 text-center text-center text-center text-center">${bs.njOffer.toLocaleString()}</td></tr>`;
-                const uniquePICs = [...new Set(brandRecords.map(i => i[headersS2[2]]).filter(v => v))];
-                uniquePICs.forEach(picName => {
-                    const picRecords = brandRecords.filter(i => i[headersS2[2]] === picName);
-                    let ps = { offer: 0, res: 0, should: 0, onBoard: 0, gap: 0, njOffer: 0 };
-                    picRecords.forEach(i => {
-                        const offer = parseFloat((i[headersS2[13]]||"0").replace(/,/g,'')) || 0;
-                        ps.offer += offer;
-                        ps.res += (parseFloat(i[headersS2[9]])||0) + (parseFloat(i[headersS2[10]])||0);
-                        ps.should += parseFloat((i[headersS2[15]]||"0").replace(/,/g,'')) || 0;
-                        ps.onBoard += parseFloat((i[headersS2[14]]||"0").replace(/,/g,'')) || 0;
-                        ps.gap += parseFloat((i[headersS2[17]]||"0").replace(/,/g,'')) || 0;
-                        ps.njOffer += parseFloat((i[headersS2[21]]||"0").replace(/,/g,'')) || 0;
-                    });
-                    picBody.innerHTML += `<tr class="hover:bg-blue-50/50 transition duration-300"><td class="px-6 py-5 border-r border-blue-50 text-slate-600 text-left text-left text-left text-left text-left">${brand}</td><td class="px-6 py-5 border-r border-blue-50 font-black text-slate-900 text-left text-left text-left text-left text-left">${picName}</td><td class="px-6 py-5 border-r border-blue-50 text-slate-800 text-center text-center text-center text-center">${ps.offer.toLocaleString()}</td><td class="px-6 py-5 border-r border-blue-50 text-rose-700 font-black text-center text-center text-center text-center">${ps.res.toLocaleString()}</td><td class="px-6 py-5 border-r border-blue-50 text-slate-800 text-center text-center text-center text-center">${ps.offer.toLocaleString()}</td><td class="px-6 py-5 border-r border-blue-50 text-slate-800 text-center text-center text-center text-center">${ps.should.toLocaleString()}</td><td class="px-6 py-5 border-r border-blue-50 text-emerald-800 font-black text-lg text-center text-center text-center text-center">${ps.onBoard.toLocaleString()}</td><td class="px-6 py-5 border-r border-blue-50 text-center text-center text-center text-center text-center ${ps.gap < 0 ? 'text-rose-700 font-black' : 'text-slate-900'} text-center text-center">${ps.gap.toLocaleString()}</td><td class="px-6 py-5 text-slate-800 text-center text-center text-center text-center text-center text-center">${ps.njOffer.toLocaleString()}</td></tr>`;
-                });
-            });
-            sumBody.innerHTML += `<tr class="bg-slate-100 font-black border-t-2 border-slate-300"><td class="px-10 py-6 text-indigo-900 text-left text-left text-left text-left">GRAND TOTAL</td><td class="px-10 py-6 text-slate-950 text-center text-center text-center text-center text-center">${grandTotal.offer.toLocaleString()}</td><td class="px-10 py-6 text-slate-950 text-center text-center text-center text-center text-center">${grandTotal.should.toLocaleString()}</td><td class="px-10 py-6 text-emerald-900 text-2xl text-center text-center text-center text-center text-center">${grandTotal.onBoard.toLocaleString()}</td><td class="px-10 py-6 text-center text-center text-center text-center text-center ${grandTotal.gap < 0 ? 'text-rose-800' : ''} text-center text-center">${grandTotal.gap.toLocaleString()}</td><td class="px-10 py-6 text-slate-950 text-center text-center text-center text-center text-center text-center">${grandTotal.njOffer.toLocaleString()}</td></tr>`;
-            document.getElementById('brandSummaryArea').classList.remove('hidden'); document.getElementById('picSummaryArea').classList.remove('hidden');
-        }
-
-        // --- 無推薦檢查 (按品牌分組 + 職位過濾) ---
-        function checkInactiveByDays(days) {
-            document.getElementById('initialPrompt').classList.add('hidden');
-            document.getElementById('resultArea').classList.add('hidden');
-            document.getElementById('resultAreaSheet2').classList.add('hidden');
-            document.getElementById('referralTrackingInfo').classList.add('hidden');
-            document.getElementById('statsArea').classList.add('hidden');
-            document.getElementById('noResult').classList.add('hidden');
-
-            const now = new Date();
-            const cutoffDate = new Date(); cutoffDate.setDate(now.getDate() - days);
-            const inactiveTitleSpan = document.getElementById('inactiveTitleSpan');
-            
-            if (days === 14) inactiveTitleSpan.innerText = "最近 2 星期無推薦";
-            else if (days === 30) inactiveTitleSpan.innerText = "最近 1 個月無推薦";
-            else inactiveTitleSpan.innerText = "最近 2 個月無推薦";
-
-            const lastActivityMap = new Map();
-            dataS1.forEach(i => {
-                const sId = (i[headersS1[9]]||"").trim(); if (!sId) return;
-                const bD = parseDate(i[headersS1[1]]), cD = parseDate(i[headersS1[2]]), dD = parseDate(i[headersS1[3]]);
-                const latest = new Date(Math.max(...[bD, cD, dD].filter(d => d).map(d => d.getTime())));
-                if (latest && !isNaN(latest.getTime())) {
-                    if (!lastActivityMap.has(sId) || latest > lastActivityMap.get(sId)) lastActivityMap.set(sId, latest);
-                }
-            });
-
-            // 核心過濾：排除職位 HIPO E1, CM, DM (位於 Column D)
-            const inactiveList = dataS2.filter(i => {
-                const sId = (i[headersS2[4]]||"").trim(), name = (i[headersS2[5]]||"").trim();
-                const pos = (i[headersS2[3]]||"").trim().toUpperCase();
-                if (!sId || name.toUpperCase().includes("TOTAL") || pos === 'HIPO E1' || pos === 'CM' || pos === 'DM') return false;
-                const lastDate = lastActivityMap.get(sId);
-                return !lastDate || lastDate < cutoffDate;
-            });
-
-            const container = document.getElementById('inactiveBrandContainer');
-            container.innerHTML = '';
-            ['DERMES', 'ELYZE', 'REENEX'].forEach(brandName => {
-                const brandList = inactiveList.filter(i => (i[headersS2[0]]||"").toUpperCase() === brandName);
-                if (brandList.length > 0) {
-                    container.innerHTML += `
-                        <div class="space-y-4 text-left text-left">
-                            <h3 class="text-lg font-black text-slate-800 flex items-center bg-white/40 px-4 py-2 rounded-xl w-fit border border-white text-left">
-                                <span class="w-3 h-3 bg-rose-500 rounded-full mr-3 text-left"></span>
-                                ${brandName} <span class="ml-3 text-rose-600 font-cyber text-sm text-left">Total: ${brandList.length}</span>
-                            </h3>
-                            <div class="cyber-card overflow-hidden text-center text-center">
-                                <div class="overflow-x-auto custom-scrollbar">
-                                    <table class="w-full border-collapse">
-                                        <thead class="bg-rose-50/50 border-b-2 border-rose-100 text-rose-950 font-black text-sm">
-                                            <tr>
-                                                <th class="text-left border-r border-rose-50">PIC</th>
-                                                <th class="text-left border-r border-rose-50">姓名 (Name)</th>
-                                                <th class="text-left border-r border-rose-50">職位 (Position)</th>
-                                                <th class="text-center border-r border-rose-50">最後比名日期</th>
-                                                <th class="text-center">距離今日</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-slate-100 font-bold text-lg text-center text-center">
-                                            ${brandList.map(i => {
-                                                const sId = (i[headersS2[4]]||"").trim();
-                                                const lastDate = lastActivityMap.get(sId);
-                                                const daysDiff = lastDate ? Math.floor((now - lastDate) / (1000 * 60 * 60 * 24)) + " 天前" : "從無記錄";
-                                                return `<tr>
-                                                    <td class="text-slate-600 text-left border-r border-rose-50 text-left text-left text-left">${i[headersS2[2]]||"-"}</td>
-                                                    <td class="text-slate-900 font-black text-left border-r border-rose-50 text-left text-left text-left">${i[headersS2[5]]||"-"}</td>
-                                                    <td class="text-slate-600 text-left border-r border-rose-50 text-left italic text-left text-left text-left">${i[headersS2[3]]||"-"}</td>
-                                                    <td class="text-slate-700 text-center border-r border-rose-50 text-center text-center text-center">${lastDate ? lastDate.toLocaleDateString('zh-HK') : "-"}</td>
-                                                    <td class="text-rose-700 font-black text-center text-center text-center text-center text-center text-center">${daysDiff}</td>
-                                                </tr>`;
-                                            }).join('')}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>`;
-                }
-            });
-            document.getElementById('inactiveResultArea').classList.remove('hidden');
-            window.scrollTo({ top: document.getElementById('inactiveResultArea').offsetTop - 30, behavior: 'smooth' });
-        }
-
-        // --- 核心工具 ---
-        function populateFilters() {
+        // --- 篩選器聯動 (恢復三級篩選) ---
+        function populateBrandFilter() {
             const bSel = document.getElementById('filterBrand');
             const uniqueBrands = [...new Set(dataS2.map(i => i[headersS2[0]]).filter(v => v && !v.toUpperCase().includes("TOTAL")))].sort();
+            bSel.innerHTML = '<option value="">請選擇品牌以篩選</option>';
             uniqueBrands.forEach(b => bSel.innerHTML += `<option value="${b}">${b}</option>`);
         }
+
         function updateFloorFilter() {
-            const b = document.getElementById('filterBrand').value, fSel = document.getElementById('filterFloor'), nSel = document.getElementById('filterName');
-            fSel.innerHTML = '<option value="">請選擇 Floor</option>'; nSel.innerHTML = '<option value="">請選擇姓名</option>'; nSel.disabled = true;
-            if (!b) return fSel.disabled = true;
-            const floors = [...new Set(dataS2.filter(i => i[headersS2[0]] === b).map(i => i[headersS2[1]]).filter(v => v))].sort();
-            floors.forEach(f => fSel.innerHTML += `<option value="${f}">${f}</option>`); fSel.disabled = false;
-        }
-        function updateNameFilter() {
-            const b = document.getElementById('filterBrand').value, f = document.getElementById('filterFloor').value, nSel = document.getElementById('filterName');
+            const brand = document.getElementById('filterBrand').value;
+            const fSel = document.getElementById('filterFloor');
+            const nSel = document.getElementById('filterName');
+            
+            fSel.innerHTML = '<option value="">請選擇 Floor</option>';
             nSel.innerHTML = '<option value="">請選擇姓名</option>';
-            if (!f) return nSel.disabled = true;
-            dataS2.filter(i => i[headersS2[0]] === b && i[headersS2[1]] === f).forEach(i => nSel.innerHTML += `<option value="${i[headersS2[5]]}">${i[headersS2[5]]}</option>`); nSel.disabled = false;
-        }
-        function searchByFilter() {
-            const n = document.getElementById('filterName').value, b = document.getElementById('filterBrand').value, f = document.getElementById('filterFloor').value;
-            if (!n) return;
-            const staff = dataS2.find(i => i[headersS2[5]] === n && i[headersS2[0]] === b && i[headersS2[1]] === f);
-            if (staff) { document.getElementById('staffId').value = staff[headersS2[4]]; executeSearch(staff[headersS2[4]]); }
-        }
-        function manualSearch() { const id = document.getElementById('staffId').value.trim(); if (id) executeSearch(id); }
-        
-        function executeSearch(staffId) {
-            document.getElementById('initialPrompt').classList.add('hidden'); 
+            nSel.disabled = true;
+
+            if (!brand) {
+                fSel.disabled = true;
+                return resetFilters();
+            }
+
+            // 顯示該品牌全名單數據
+            document.getElementById('initialPrompt').classList.add('hidden');
+            document.getElementById('statsArea').classList.add('hidden');
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('referralTrackingInfo').classList.add('hidden');
             document.getElementById('inactiveResultArea').classList.add('hidden');
+
+            const brandRecords = dataS2.filter(i => (i[headersS2[0]]||"").toUpperCase() === brand.toUpperCase());
+            document.getElementById('resultAreaSheet2Title').innerHTML = `${brand} 品牌全名單數據 <span class="text-sm font-bold ml-2">Total: ${brandRecords.length}</span>`;
+            document.getElementById('dynamicLogicFormulaBox').classList.add('hidden');
+            renderS2(brandRecords, true);
+
+            const floors = [...new Set(brandRecords.map(i => i[headersS2[1]]).filter(v => v))].sort();
+            floors.forEach(f => fSel.innerHTML += `<option value="${f}">${f}</option>`);
+            fSel.disabled = false;
+        }
+
+        function updateNameFilter() {
+            const brand = document.getElementById('filterBrand').value;
+            const floor = document.getElementById('filterFloor').value;
+            const nSel = document.getElementById('filterName');
+            nSel.innerHTML = '<option value="">請選擇姓名</option>';
+
+            if (!floor) {
+                nSel.disabled = true;
+                return updateFloorFilter(); // 回到品牌檢視
+            }
+
+            const floorRecords = dataS2.filter(i => 
+                (i[headersS2[0]]||"").toUpperCase() === brand.toUpperCase() && 
+                (i[headersS2[1]]||"").toString() === floor.toString()
+            );
+
+            document.getElementById('resultAreaSheet2Title').innerHTML = `${brand} - ${floor} 數據 <span class="text-sm font-bold ml-2">Total: ${floorRecords.length}</span>`;
+            renderS2(floorRecords, true);
+
+            floorRecords.forEach(i => nSel.innerHTML += `<option value="${i[headersS2[5]]}">${i[headersS2[5]]}</option>`);
+            nSel.disabled = false;
+        }
+
+        function searchByFilter() {
+            const name = document.getElementById('filterName').value;
+            const brand = document.getElementById('filterBrand').value;
+            const floor = document.getElementById('filterFloor').value;
+            if (!name) return updateNameFilter();
+
+            const staff = dataS2.find(i => 
+                (i[headersS2[5]]||"").trim() === name.trim() && 
+                (i[headersS2[0]]||"").toUpperCase() === brand.toUpperCase() &&
+                (i[headersS2[1]]||"").toString() === floor.toString()
+            );
+
+            if (staff) {
+                const staffId = (staff[headersS2[4]]||"").trim();
+                document.getElementById('staffId').value = staffId;
+                executeSearch(staffId);
+            }
+        }
+
+        function resetFilters() {
+            document.getElementById('filterBrand').value = '';
+            document.getElementById('filterFloor').innerHTML = '<option value="">請選擇 Floor</option>';
+            document.getElementById('filterFloor').disabled = true;
+            document.getElementById('filterName').innerHTML = '<option value="">請選擇姓名</option>';
+            document.getElementById('filterName').disabled = true;
+            document.getElementById('staffId').value = '';
+            showNone();
+            document.getElementById('initialPrompt').classList.remove('hidden');
+        }
+
+        function manualSearch() {
+            const id = document.getElementById('staffId').value.trim();
+            if (id) executeSearch(id);
+        }
+
+        function executeSearch(staffId) {
+            document.getElementById('initialPrompt').classList.add('hidden');
+            document.getElementById('inactiveResultArea').classList.add('hidden');
+            document.getElementById('resultAreaSheet2Title').innerText = "相關資訊 REFERENCE INFO";
+            document.getElementById('dynamicLogicFormulaBox').classList.remove('hidden');
+
             const personInS2 = dataS2.find(i => (i[headersS2[4]]||"").trim() === staffId);
             const f1 = dataS1.filter(i => (i[headersS1[9]]||"").trim() === staffId && (parseDate(i[headersS1[1]]) > DATE_LIMIT || parseDate(i[headersS1[2]]) > DATE_LIMIT));
             const f2 = dataS2.filter(i => (i[headersS2[4]]||"").trim() === staffId);
             
             if (personInS2 || f1.length || f2.length) {
-                renderS1(f1); renderS2(f2); renderTrackingInfo(staffId, personInS2);
+                renderS1(f1);
+                renderS2(f2, false);
+                renderTrackingInfo(staffId, personInS2);
                 document.getElementById('noResult').classList.add('hidden');
-            } else { showNone(); }
+            } else {
+                showNone();
+            }
         }
 
         function renderTrackingInfo(staffId, personInS2) {
@@ -577,6 +529,121 @@
                 trackingText.innerHTML = `${name} 最後介紹同事 (從無記錄)!`;
             }
             infoBox.classList.remove('hidden');
+        }
+
+        // --- 匯總計算 ---
+        function calculateSummaries() {
+            const brands = ['DERMES', 'ELYZE', 'REENEX'];
+            const sumBody = document.getElementById('brandSummaryBody');
+            const picBody = document.getElementById('picSummaryBody');
+            sumBody.innerHTML = ''; picBody.innerHTML = '';
+            let grandTotal = { offer: 0, should: 0, onBoard: 0, gap: 0, njOffer: 0 };
+
+            brands.forEach(brand => {
+                const brandRecords = dataS2.filter(i => (i[headersS2[0]]||"").toUpperCase() === brand && !(i[headersS2[5]]||"").toUpperCase().includes("TOTAL"));
+                let bs = { offer: 0, should: 0, onBoard: 0, gap: 0, njOffer: 0 };
+                brandRecords.forEach(i => {
+                    bs.offer += parseFloat((i[headersS2[13]]||"0").replace(/,/g,'')) || 0;
+                    bs.should += parseFloat((i[headersS2[15]]||"0").replace(/,/g,'')) || 0;
+                    bs.onBoard += parseFloat((i[headersS2[14]]||"0").replace(/,/g,'')) || 0;
+                    bs.gap += parseFloat((i[headersS2[17]]||"0").replace(/,/g,'')) || 0;
+                    bs.njOffer += parseFloat((i[headersS2[21]]||"0").replace(/,/g,'')) || 0;
+                });
+                grandTotal.offer += bs.offer; grandTotal.should += bs.should; grandTotal.onBoard += bs.onBoard; grandTotal.gap += bs.gap; grandTotal.njOffer += bs.njOffer;
+                sumBody.innerHTML += `<tr class="hover:bg-emerald-50/70 transition duration-300 font-bold"><td class="text-left px-10">${brand}</td><td class="text-center">${bs.offer.toLocaleString()}</td><td class="text-center">${bs.should.toLocaleString()}</td><td class="text-emerald-800 text-2xl text-center">${bs.onBoard.toLocaleString()}</td><td class="text-center ${bs.gap < 0 ? 'text-rose-700 font-black' : 'text-slate-800'} text-center">${bs.gap.toLocaleString()}</td><td class="text-center">${bs.njOffer.toLocaleString()}</td></tr>`;
+                const uniquePICs = [...new Set(brandRecords.map(i => i[headersS2[2]]).filter(v => v))];
+                uniquePICs.forEach(picName => {
+                    const picRecords = brandRecords.filter(i => i[headersS2[2]] === picName);
+                    let ps = { offer: 0, res: 0, should: 0, onBoard: 0, gap: 0, njOffer: 0 };
+                    picRecords.forEach(i => {
+                        const offer = parseFloat((i[headersS2[13]]||"0").replace(/,/g,'')) || 0;
+                        ps.offer += offer; ps.res += (parseFloat(i[headersS2[9]])||0) + (parseFloat(i[headersS2[10]])||0);
+                        ps.should += parseFloat((i[headersS2[15]]||"0").replace(/,/g,'')) || 0;
+                        ps.onBoard += parseFloat((i[headersS2[14]]||"0").replace(/,/g,'')) || 0;
+                        ps.gap += parseFloat((i[headersS2[17]]||"0").replace(/,/g,'')) || 0;
+                        ps.njOffer += parseFloat((i[headersS2[21]]||"0").replace(/,/g,'')) || 0;
+                    });
+                    picBody.innerHTML += `<tr class="hover:bg-blue-50/50 transition duration-300 font-bold"><td class="text-left border-r border-blue-50">${brand}</td><td class="text-left border-r border-blue-50">${picName}</td><td class="text-center border-r border-blue-50">${ps.offer.toLocaleString()}</td><td class="text-rose-700 font-black text-center border-r border-blue-50">${ps.res.toLocaleString()}</td><td class="text-center border-r border-blue-50 text-slate-800">${ps.offer.toLocaleString()}</td><td class="text-center border-r border-blue-50 text-slate-800">${ps.should.toLocaleString()}</td><td class="text-emerald-800 font-black text-lg text-center border-r border-blue-50">${ps.onBoard.toLocaleString()}</td><td class="text-center border-r border-blue-50 ${ps.gap < 0 ? 'text-rose-700 font-black' : 'text-slate-900'}">${ps.gap.toLocaleString()}</td><td class="text-center text-slate-800 text-center">${ps.njOffer.toLocaleString()}</td></tr>`;
+                });
+            });
+            sumBody.innerHTML += `<tr class="bg-slate-100 font-black border-t-2 border-slate-300"><td class="text-left px-10 text-indigo-900">GRAND TOTAL</td><td class="text-center">${grandTotal.offer.toLocaleString()}</td><td class="text-center">${grandTotal.should.toLocaleString()}</td><td class="text-emerald-900 text-2xl text-center">${grandTotal.onBoard.toLocaleString()}</td><td class="text-center ${grandTotal.gap < 0 ? 'text-rose-800' : ''}">${grandTotal.gap.toLocaleString()}</td><td class="text-center">${grandTotal.njOffer.toLocaleString()}</td></tr>`;
+            document.getElementById('brandSummaryArea').classList.remove('hidden'); document.getElementById('picSummaryArea').classList.remove('hidden');
+        }
+
+        // --- 無推薦檢查 ---
+        function checkInactiveByDays(days) {
+            document.getElementById('initialPrompt').classList.add('hidden');
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('resultAreaSheet2').classList.add('hidden');
+            document.getElementById('referralTrackingInfo').classList.add('hidden');
+            document.getElementById('statsArea').classList.add('hidden');
+            document.getElementById('noResult').classList.add('hidden');
+
+            const now = new Date();
+            const cutoffDate = new Date(); cutoffDate.setDate(now.getDate() - days);
+            const inactiveTitleSpan = document.getElementById('inactiveTitleSpan');
+            inactiveTitleSpan.innerText = days === 14 ? "最近 2 星期無推薦" : days === 30 ? "最近 1 個月無推薦" : "最近 2 個月無推薦";
+
+            const lastActivityMap = new Map();
+            dataS1.forEach(i => {
+                const sId = (i[headersS1[9]]||"").trim(); if (!sId) return;
+                const bD = parseDate(i[headersS1[1]]), cD = parseDate(i[headersS1[2]]), dD = parseDate(i[headersS1[3]]);
+                const latest = new Date(Math.max(...[bD, cD, dD].filter(d => d).map(d => d.getTime())));
+                if (latest && !isNaN(latest.getTime())) { if (!lastActivityMap.has(sId) || latest > lastActivityMap.get(sId)) lastActivityMap.set(sId, latest); }
+            });
+
+            const inactiveList = dataS2.filter(i => {
+                const sId = (i[headersS2[4]]||"").trim();
+                const pos = (i[headersS2[3]]||"").trim().toUpperCase();
+                if (!sId || i[headersS2[5]].toUpperCase().includes("TOTAL") || pos === 'HIPO E1' || pos === 'CM' || pos === 'DM') return false;
+                const lastDate = lastActivityMap.get(sId);
+                return !lastDate || lastDate < cutoffDate;
+            });
+
+            const container = document.getElementById('inactiveBrandContainer');
+            container.innerHTML = '';
+            ['DERMES', 'ELYZE', 'REENEX'].forEach(brandName => {
+                const brandList = inactiveList.filter(i => (i[headersS2[0]]||"").toUpperCase() === brandName);
+                if (brandList.length > 0) {
+                    container.innerHTML += `
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-black text-slate-800 flex items-center bg-white/40 px-4 py-2 rounded-xl w-fit border border-white">
+                                <span class="w-3 h-3 bg-rose-500 rounded-full mr-3"></span>
+                                ${brandName} <span class="ml-3 text-rose-600 font-cyber text-sm">Total: ${brandList.length}</span>
+                            </h3>
+                            <div class="cyber-card overflow-hidden">
+                                <div class="overflow-x-auto custom-scrollbar">
+                                    <table class="w-full border-collapse">
+                                        <thead class="bg-rose-50/50 border-b-2 border-rose-100 text-rose-950 font-black text-sm">
+                                            <tr>
+                                                <th class="text-left border-r border-rose-50 text-left">PIC</th>
+                                                <th class="text-left border-r border-rose-50 text-left">姓名 (Name)</th>
+                                                <th class="text-left border-r border-rose-50 text-left">職位 (Position)</th>
+                                                <th class="text-center border-r border-rose-50 text-center">最後日期</th>
+                                                <th class="text-center">距離今日</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100 font-bold text-lg">
+                                            ${brandList.map(i => {
+                                                const lastDate = lastActivityMap.get((i[headersS2[4]]||"").trim());
+                                                const daysDiff = lastDate ? Math.floor((now - lastDate) / (1000 * 60 * 60 * 24)) + " 天前" : "從無記錄";
+                                                return `<tr>
+                                                    <td class="text-slate-600 text-left border-r border-rose-50">${i[headersS2[2]]||"-"}</td>
+                                                    <td class="text-slate-900 font-black text-left border-r border-rose-50">${i[headersS2[5]]||"-"}</td>
+                                                    <td class="text-slate-600 text-left border-r border-rose-50 italic text-sm">${i[headersS2[3]]||"-"}</td>
+                                                    <td class="text-slate-700 text-center border-r border-rose-50">${lastDate ? lastDate.toLocaleDateString('zh-HK') : "-"}</td>
+                                                    <td class="text-rose-700 font-black text-center">${daysDiff}</td>
+                                                </tr>`;
+                                            }).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>`;
+                }
+            });
+            document.getElementById('inactiveResultArea').classList.remove('hidden');
+            window.scrollTo({ top: document.getElementById('inactiveResultArea').offsetTop - 30, behavior: 'smooth' });
         }
 
         function parseDate(d) {
@@ -605,24 +672,22 @@
                 const fullObD = [tV, uV, vV].filter(v => v && v !== '-').join(' ') || "-";
                 const status = i[headersS1[22]]||"-", z = i[headersS1[25]]||"PENDING";
                 if (z.toUpperCase().includes('ONBOARD')) c.joined++; else if (z.toUpperCase().includes('WITHDRAW') || status.toUpperCase().includes('WITHDRAW')) c.drop++; else c.wait++;
-                const tr = `<tr><td class="px-4 md:px-8 py-5 md:py-6 font-black text-slate-950 text-base md:text-xl text-left text-left text-left text-left">${name}</td><td class="px-4 md:px-8 py-5 md:py-6 text-slate-800 text-[10px] md:text-sm font-bold bg-slate-50/50 text-center text-center text-center text-center text-center">${cleanD}</td><td class="px-4 md:px-8 py-5 md:py-6 text-slate-800 text-sm md:text-lg text-center text-center text-center text-center text-center text-center">${status}</td><td class="px-4 md:px-8 py-5 md:py-6 text-slate-600 text-sm md:text-base readable-nums text-center text-center text-center text-center text-center text-center text-center text-center">${fullObD}</td><td class="px-4 md:px-8 py-5 md:py-6 text-center text-center text-center text-center text-center text-center text-center text-center text-center"><span class="px-3 md:px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm ${getZColumnClass(z)} text-center text-center text-center text-center">${z}</span></td></tr>`;
+                const tr = `<tr class="hover:bg-slate-50 transition"><td class="text-left font-black text-base md:text-xl text-slate-900">${name}</td><td class="text-center text-[10px] md:text-sm font-bold bg-slate-50/50">${cleanD}</td><td class="text-center text-sm md:text-lg">${status}</td><td class="text-center text-sm md:text-base readable-nums">${fullObD}</td><td class="text-center"><span class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm ${getZColumnClass(z)}">${z}</span></td></tr>`;
                 if (rjnj.includes('RJ')) rbRJ.innerHTML += tr; else rbNJ.innerHTML += tr;
             });
-            if (!rbRJ.innerHTML) rbRJ.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-400 italic text-center text-center text-center">No Data</td></tr>';
-            if (!rbNJ.innerHTML) rbNJ.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-400 italic text-center text-center text-center">No Data</td></tr>';
             document.getElementById('totalCount').innerText = c.total; document.getElementById('joinedCount').innerText = c.joined; document.getElementById('withdrawCount').innerText = c.drop; document.getElementById('pendingCount').innerText = c.wait;
             document.getElementById('statsArea').classList.remove('hidden'); document.getElementById('resultArea').classList.remove('hidden');
         }
 
-        function renderS2(list) {
+        function renderS2(list, isListView) {
             const rb = document.getElementById('sheet2TableBody'), fm = document.getElementById('dynamicLogicFormula');
             rb.innerHTML = '';
             list.forEach(i => {
                 const isAS = (i[headersS2[3]]||"").toUpperCase().includes('AS') || (i[headersS2[3]]||"").toUpperCase() === 'S';
                 let rVal = isAS ? (parseFloat(i[headersS2[9]])||0) + (parseFloat(i[headersS2[10]])||0) : 0;
                 let offer = parseFloat((i[headersS2[13]]||"0").replace(/,/g,'')) || 0, gap = parseFloat((i[headersS2[17]]||"0").replace(/,/g,'')) || 0, njo = parseFloat((i[headersS2[21]]||"0").replace(/,/g,'')) || 0;
-                rb.innerHTML += `<tr class="hover:bg-sky-50 transition duration-300 font-bold"><td class="px-4 md:px-8 py-6 md:py-7 text-slate-950 font-black text-base md:text-xl border-r border-sky-50 text-left text-left text-left text-left text-left text-left text-left">${i[headersS2[5]]}</td><td class="px-4 md:px-8 py-6 md:py-7 text-slate-800 border-r border-sky-50 bg-sky-50/50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center">${isAS ? rVal : '-'}</td><td class="px-4 md:px-8 py-6 md:py-7 text-slate-700 border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center text-center">${offer}</td><td class="px-4 md:px-8 py-6 md:py-7 text-slate-700 border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center text-center">${i[headersS2[15]]}</td><td class="px-4 md:px-8 py-6 md:py-7 text-slate-700 border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center text-center">${i[headersS2[14]]}</td><td class="px-4 md:px-8 py-6 md:py-7 text-xl md:text-3xl font-black text-center border-r border-sky-50 text-center text-center text-center text-center text-center text-center text-center text-center ${gap < 0 ? 'bg-rose-100 text-rose-900 shadow-inner text-center text-center text-center' : ''}">${gap}</td><td class="px-4 md:px-8 py-6 md:py-7 text-slate-700 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center">${njo}</td></tr>`;
-                fm.innerHTML = `Formula Trace: 2 + Resign (<span class="text-indigo-700">${rVal}</span>) - Offer (<span class="text-slate-900">${offer}</span>) = Gap (<span class="${gap < 0 ? 'text-rose-700 underline' : ''}">${gap}</span>)`;
+                rb.innerHTML += `<tr class="hover:bg-sky-50 transition duration-300 font-bold"><td class="text-left border-r border-sky-50 text-base md:text-xl text-slate-950">${i[headersS2[5]]}</td><td class="text-center border-r border-sky-50 bg-sky-50/50">${isAS ? rVal : '-'}</td><td class="text-center border-r border-sky-50">${offer}</td><td class="text-center border-r border-sky-50">${i[headersS2[15]]}</td><td class="text-center border-r border-sky-50">${i[headersS2[14]]}</td><td class="text-center border-r border-sky-50 text-xl md:text-3xl font-black ${gap < 0 ? 'bg-rose-100 text-rose-900 shadow-inner' : ''}">${gap}</td><td class="text-center text-slate-700">${njo}</td></tr>`;
+                if (!isListView) fm.innerHTML = `Formula Trace: 2 + Resign (<span class="text-indigo-700">${rVal}</span>) - Offer (<span class="text-slate-900">${offer}</span>) = Gap (<span class="${gap < 0 ? 'text-rose-700 underline' : ''}">${gap}</span>)`;
             });
             document.getElementById('resultAreaSheet2').classList.remove('hidden');
         }
