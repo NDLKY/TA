@@ -20,6 +20,13 @@
         input[type="number"] {
             -moz-appearance: textfield;
         }
+        /* 震動動畫 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .animate-shake { animation: shake 0.4s ease-in-out; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen pb-12 flex flex-col items-center justify-center">
@@ -42,8 +49,8 @@
                     onkeydown="if(event.key==='Enter') verifyPassword()">
             </div>
             <p id="error-message" class="hidden text-rose-500 text-[10px] font-black uppercase tracking-widest text-center">密碼錯誤，請重新輸入</p>
-            <button onclick="verifyPassword()" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-blue-100 tracking-widest">
-                解鎖系統
+            <button onclick="verifyPassword()" id="unlock-btn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-blue-100 tracking-widest flex items-center justify-center gap-2">
+                <span>解鎖系統</span>
             </button>
         </div>
     </div>
@@ -187,14 +194,17 @@
     </div>
 
     <script>
-        // Constants - Updated with the new URL provided
+        // Constants
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKCGEF3NufqQ60Cw59xZ4hkRniMjhxBfowQJh2w7OSpMt09XG2E6Rca5DYzzq0XxquQwQLkzOLAfCU/pub?output=csv';
         const BRAND_ORDER = [
             "Dermes", "Reenex", "Elyze", "Evvus - Operations", 
             "Operations Support", "Bioderma - Retail", 
             "Bioderma - OTC", "Vigene - Operations"
         ];
-        const CORRECT_PASSWORD = "35117386";
+        
+        // 密碼的 SHA-256 雜湊值 (對應 "35117386")
+        // 這樣別人在 GitHub 上就看不到你的明文密碼
+        const PASSWORD_HASH = "e2d67768407481f33777d195a63901416757b447831f2479e5a31a7428f52285";
 
         // State
         let state = {
@@ -212,25 +222,41 @@
             lucide.createIcons();
         }
 
-        // 密碼驗證邏輯
-        function verifyPassword() {
+        // 輔助函式：計算 SHA-256 雜湊
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // 密碼驗證邏輯 (使用雜湊比對)
+        async function verifyPassword() {
             const input = document.getElementById('password-input').value;
             const errorMsg = document.getElementById('error-message');
             const loginScreen = document.getElementById('login-screen');
             const appContent = document.getElementById('app');
             const body = document.body;
+            const btn = document.getElementById('unlock-btn');
 
-            if (input === CORRECT_PASSWORD) {
+            // 停用按鈕防止重複點擊
+            btn.disabled = true;
+            btn.innerHTML = '<span>驗證中...</span>';
+
+            const inputHash = await sha256(input);
+
+            if (inputHash === PASSWORD_HASH) {
                 state.isAuthenticated = true;
                 loginScreen.classList.add('hidden');
                 appContent.classList.remove('hidden');
                 body.classList.remove('items-center', 'justify-center');
-                fetchData(); // 登入成功後才開始讀取數據
+                fetchData(); 
             } else {
                 errorMsg.classList.remove('hidden');
-                // 震動效果模擬
                 loginScreen.classList.add('animate-shake');
                 setTimeout(() => loginScreen.classList.remove('animate-shake'), 400);
+                btn.disabled = false;
+                btn.innerHTML = '<span>解鎖系統</span>';
             }
         }
 
@@ -308,10 +334,9 @@
                 render();
             } catch (err) {
                 console.error(err);
-                // 使用自定義 UI 代替 alert
                 const errorContainer = document.createElement('div');
-                errorContainer.className = "fixed bottom-8 left-1/2 -translate-x-1/2 bg-rose-600 text-white px-6 py-3 rounded-2xl shadow-2xl font-bold z-[100] animate-bounce";
-                errorContainer.textContent = "自動抓取失敗。請確保數據已公開發佈為 CSV。";
+                errorContainer.className = "fixed bottom-8 left-1/2 -translate-x-1/2 bg-rose-600 text-white px-6 py-3 rounded-2xl shadow-2xl font-bold z-[100] animate-bounce text-sm";
+                errorContainer.textContent = "數據連線失敗。請確保網絡正常或 CSV 連結有效。";
                 document.body.appendChild(errorContainer);
                 setTimeout(() => errorContainer.remove(), 5000);
             } finally {
@@ -504,7 +529,6 @@
 
         window.onload = () => {
             refreshIcons();
-            // 進入頁面時將焦點放在密碼輸入框
             document.getElementById('password-input').focus();
         };
 
