@@ -21,12 +21,12 @@ import {
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKCGEF3NufqQ60Cw59xZ4hkRniMjhxBfowQJh2w7OSpMt09XG2E6Rca5DYzzq0XxquQwQLkzOLAfCU/pub?output=csv';
 
 const SCENARIO_CONFIG = [
-  { id: 1, title: '1. 全員 0.5個月', desc: '對應 Excel 第 K 欄 (Index 10)' },
-  { id: 2, title: '2. 全員 0.5 (已領者無)', desc: '對應 Excel 第 L 欄 (Index 11)' },
-  { id: 3, title: '3. 全員 0.5 (已領者0.3)', desc: '對應 Excel 第 M 欄 (Index 12)' },
-  { id: 4, title: '4. A/B級 0.5個月', desc: '對應 Excel 第 N 欄 (Index 13)' },
-  { id: 5, title: '5. A/B級 0.5 (已領者無)', desc: '對應 Excel 第 O 欄 (Index 14)' },
-  { id: 6, title: '6. A/B級 0.5 (已領者0.3)', desc: '對應 Excel 第 P 欄 (Index 15)' },
+  { id: 1, title: '1. 全員 0.5個月', desc: '不論職等與領取紀錄，統一發放 0.5 個月獎金' },
+  { id: 2, title: '2. 全員 0.5 (已領者無)', desc: '發放 0.5 個月，但先前已領取者則不額外發放' },
+  { id: 3, title: '3. 全員 0.5 (已領者0.3)', desc: '發放 0.5 個月，先前已領取者調整為 0.3 個月' },
+  { id: 4, title: '4. A/B級 0.5個月', desc: '僅限 A 與 B 職等員工發放 0.5 個月獎金' },
+  { id: 5, title: '5. A/B級 0.5 (已領者無)', desc: '僅 A/B 職等發放 0.5 個月，已領取者不發放' },
+  { id: 6, title: '6. A/B級 0.5 (已領者0.3)', desc: 'A/B 職等發放 0.5 個月，已領取者調整為 0.3 個月' },
 ];
 
 const App = () => {
@@ -36,8 +36,8 @@ const App = () => {
   
   // 篩選狀態：品牌多選，方案單選
   const [selectedBrands, setSelectedBrands] = useState(['All']);
-  const [typeFilter, setTypeFilter] = useState('All'); // C 欄類型
-  const [activeScenarioId, setActiveScenarioId] = useState('All'); // 方案 1-6 或 All
+  const [typeFilter, setTypeFilter] = useState('All'); 
+  const [activeScenarioId, setActiveScenarioId] = useState('All'); 
   
   // UI 狀態
   const [isBrandOpen, setIsBrandOpen] = useState(false);
@@ -173,26 +173,26 @@ const App = () => {
   return (
     <div className="min-h-screen bg-[#f4f7fa] font-sans text-slate-900 selection:bg-blue-100">
       {/* Navbar */}
-      <nav className="sticky top-0 z-[100] bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-4">
+      <nav className="sticky top-0 z-[100] bg-white/80 backdrop-blur-md border-b border-slate-200 px-6 py-4 shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-600 rounded-xl shadow-lg">
+            <div className="p-2 bg-blue-600 rounded-xl shadow-lg shadow-blue-200">
               <LayoutDashboard className="text-white w-6 h-6" />
             </div>
             <div>
               <h1 className="text-xl font-black tracking-tight text-slate-800">獎金方案對比儀表板</h1>
               <div className="flex items-center gap-2 mt-0.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                Live System Ready
+                系統運作正常
               </div>
             </div>
           </div>
           <button 
             onClick={fetchData} 
-            className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all rounded-xl border border-slate-200 bg-white shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-all rounded-xl border border-slate-200 bg-white shadow-sm font-bold"
           >
             <RefreshCw size={16} />
-            <span className="text-sm font-bold">刷新數據</span>
+            <span className="text-sm">刷新數據</span>
           </button>
         </div>
       </nav>
@@ -201,7 +201,7 @@ const App = () => {
         {/* Filters */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
           <div className="lg:col-span-5 relative" ref={brandRef}>
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">品牌篩選 (B 欄 - 多選)</label>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">品牌篩選 (可多選)</label>
             <div 
               onClick={() => setIsBrandOpen(!isBrandOpen)}
               className="flex items-center justify-between bg-white px-5 py-3.5 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:border-blue-400 transition-all"
@@ -215,7 +215,7 @@ const App = () => {
               <ChevronDown size={18} className={`text-slate-400 transition-transform duration-300 ${isBrandOpen ? 'rotate-180' : ''}`} />
             </div>
             {isBrandOpen && (
-              <div className="absolute z-[110] mt-3 w-full bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden p-2">
+              <div className="absolute z-[110] mt-3 w-full bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden p-2 animate-in fade-in zoom-in duration-200">
                 <div onClick={() => toggleBrand('All')} className="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-blue-50 cursor-pointer">
                   <span className={`text-sm ${selectedBrands.includes('All') ? 'font-black text-blue-600' : 'text-slate-600'}`}>顯示所有品牌</span>
                   {selectedBrands.includes('All') && <Check size={18} className="text-blue-600" />}
@@ -223,7 +223,7 @@ const App = () => {
                 <div className="h-px bg-slate-100 my-2 mx-2"></div>
                 <div className="max-h-60 overflow-y-auto">
                   {allBrands.map(brand => (
-                    <div key={brand} onClick={() => toggleBrand(brand)} className="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-slate-50 cursor-pointer">
+                    <div key={brand} onClick={() => toggleBrand(brand)} className="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors">
                       <span className={`text-sm ${selectedBrands.includes(brand) ? 'font-black text-blue-600' : 'text-slate-600'}`}>{brand}</span>
                       {selectedBrands.includes(brand) && <Check size={18} className="text-blue-600" />}
                     </div>
@@ -234,7 +234,7 @@ const App = () => {
           </div>
 
           <div className="lg:col-span-3">
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">類型篩選 (C 欄)</label>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">類型篩選</label>
             <div className="flex items-center gap-3 bg-white px-4 py-3.5 rounded-2xl border border-slate-200 shadow-sm">
               <Tag size={18} className="text-indigo-500 shrink-0" />
               <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="text-sm font-bold text-slate-700 bg-transparent outline-none w-full cursor-pointer appearance-none">
@@ -244,7 +244,7 @@ const App = () => {
           </div>
 
           <div className="lg:col-span-4">
-            <label className="block text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2 px-1">檢視方案 (K-P 欄)</label>
+            <label className="block text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2 px-1">檢視方案</label>
             <div className="flex items-center gap-3 bg-white px-4 py-3.5 rounded-2xl border-2 border-blue-100 shadow-sm">
               <Target size={18} className="text-blue-600 shrink-0" />
               <select value={activeScenarioId} onChange={(e) => setActiveScenarioId(e.target.value)} className="text-sm font-black text-blue-700 bg-transparent outline-none w-full cursor-pointer appearance-none">
@@ -273,20 +273,20 @@ const App = () => {
               <PieChart className="w-8 h-8 text-blue-400" />
             </div>
             <div>
-              <h2 className="text-3xl font-black tracking-tighter">當前匯總概覽</h2>
+              <h2 className="text-3xl font-black tracking-tighter">數據匯總概覽</h2>
               <p className="text-slate-400 text-sm font-medium mt-1">
-                {selectedBrands.includes('All') ? '全品牌數據集' : `已篩選 ${selectedBrands.length} 個特定品牌`}
+                {selectedBrands.includes('All') ? '全品牌數據集' : `已篩選 ${selectedBrands.length} 個品牌範圍`}
               </p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-8 border-t md:border-t-0 md:border-l border-white/10 pt-8 md:pt-0 md:pl-16 w-full md:w-auto relative z-10">
             <div>
-              <div className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] mb-2">統計人數</div>
-              <div className="text-4xl font-black">{displayScenarios[0]?.headcount || 0} <span className="text-lg font-normal text-slate-500">人</span></div>
+              <div className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] mb-2 text-center md:text-left">統計人數</div>
+              <div className="text-4xl font-black text-center md:text-left">{displayScenarios[0]?.headcount || 0} <span className="text-lg font-normal text-slate-500">人</span></div>
             </div>
             <div>
-              <div className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-2">類別總數</div>
-              <div className="text-4xl font-black">{allBrands.length} <span className="text-lg font-normal text-slate-500">個</span></div>
+              <div className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-2 text-center md:text-left">類別總數</div>
+              <div className="text-4xl font-black text-center md:text-left">{allBrands.length} <span className="text-lg font-normal text-slate-500">個</span></div>
             </div>
           </div>
         </div>
@@ -294,15 +294,15 @@ const App = () => {
         {/* Cards Grid */}
         <div className={`grid grid-cols-1 ${activeScenarioId === 'All' ? 'md:grid-cols-2 lg:grid-cols-3' : 'max-w-3xl mx-auto'} gap-8`}>
           {displayScenarios.map((res) => (
-            <div key={res.id} className="group bg-white rounded-[3rem] border border-slate-200 p-8 md:p-10 hover:border-blue-500 hover:shadow-2xl transition-all duration-500 relative overflow-hidden flex flex-col h-full">
+            <div key={res.id} className="group bg-white rounded-[3rem] border border-slate-200 p-8 md:p-10 hover:border-blue-500 hover:shadow-2xl transition-all duration-500 relative overflow-hidden flex flex-col h-full shadow-sm">
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-8">
                   <span className="px-4 py-1.5 bg-blue-50 text-blue-700 text-[10px] font-black rounded-full uppercase tracking-widest border border-blue-100">方案 {res.id}</span>
-                  <BarChart3 size={28} className="text-slate-200 group-hover:text-blue-500 transition-all duration-500" />
+                  <BarChart3 size={28} className="text-slate-200 group-hover:text-blue-500 transition-all duration-500 transform group-hover:scale-110" />
                 </div>
                 <h3 className="text-2xl font-black text-slate-800 mb-2 leading-tight h-16 flex items-center group-hover:text-blue-900 transition-colors">{res.title}</h3>
                 <p className="text-xs text-slate-400 font-medium leading-relaxed mb-8">{res.desc}</p>
-                <div className="space-y-8">
+                <div className="space-y-8 mt-auto">
                   <div className="bg-slate-50 rounded-[2.5rem] p-6 border border-slate-100 group-hover:bg-white group-hover:border-blue-100 transition-all shadow-inner">
                     <div className="text-[10px] uppercase font-bold text-slate-400 mb-2 tracking-[0.1em]">預計發放總額</div>
                     <div className="text-4xl font-black text-blue-600 tracking-tighter drop-shadow-sm">{formatCurrency(res.totalCost)}</div>
@@ -310,7 +310,7 @@ const App = () => {
                   </div>
                   <div className="space-y-4">
                     <div className="flex justify-between items-end">
-                      <span className="text-xs font-black text-slate-500 uppercase tracking-widest">受惠人數</span>
+                      <span className="text-xs font-black text-slate-500 uppercase tracking-widest">受惠人數概況</span>
                       <div className="text-right">
                         <span className="text-lg font-black text-slate-800">{res.eligibleCount}</span>
                         <span className="text-xs font-bold text-slate-400 mx-1">/</span>
@@ -333,12 +333,17 @@ const App = () => {
         {/* Footer */}
         <footer className="mt-32 py-12 border-t border-slate-200 text-center flex flex-col items-center gap-4">
           <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.5em]">Aggregate Budget Analysis System v4.0</p>
-          <p className="text-slate-300 text-[9px] max-w-md leading-relaxed">此系統專為預算對比設計，自動解析 Google Sheet 結構並對應 B, C, K-P 欄位數據。</p>
+          <p className="text-slate-300 text-[9px] max-w-md leading-relaxed">
+            此系統專為預算對比設計，數據分析結果為即時模擬計算。
+          </p>
         </footer>
       </main>
 
       <style>{`
         @keyframes shimmer { 0% { background-position: 0 0; } 100% { background-position: 40px 0; } }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
       `}</style>
     </div>
   );
