@@ -11,16 +11,12 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-        /* 移除原生 number input 的上下箭頭 */
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
-        input[type="number"] {
-            -moz-appearance: textfield;
-        }
-        /* 震動動畫 */
+        input[type="number"] { -moz-appearance: textfield; }
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-5px); }
@@ -32,7 +28,7 @@
 <body class="bg-slate-50 text-slate-900 min-h-screen pb-12 flex flex-col items-center justify-center">
 
     <!-- 登入畫面 -->
-    <div id="login-screen" class="w-full max-w-md p-8 bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 space-y-8 animate-in fade-in zoom-in duration-300">
+    <div id="login-screen" class="w-full max-w-md p-8 bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 space-y-8">
         <div class="text-center space-y-4">
             <div class="inline-flex p-4 bg-blue-600 text-white rounded-3xl shadow-lg shadow-blue-200">
                 <i data-lucide="lock" size="32"></i>
@@ -44,8 +40,8 @@
         <div class="space-y-4">
             <div class="relative group">
                 <i data-lucide="key-round" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size="20"></i>
-                <input type="password" id="password-input" placeholder="請輸入 8 位數密碼" 
-                    class="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:outline-none transition-all font-bold tracking-[0.2em] placeholder:tracking-normal placeholder:font-normal"
+                <input type="password" id="password-input" placeholder="請輸入密碼" 
+                    class="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:outline-none transition-all font-bold tracking-[0.2em]"
                     onkeydown="if(event.key==='Enter') verifyPassword()">
             </div>
             <p id="error-message" class="hidden text-rose-500 text-[10px] font-black uppercase tracking-widest text-center">密碼錯誤，請重新輸入</p>
@@ -55,8 +51,8 @@
         </div>
     </div>
 
-    <!-- 主程式介面 (預設隱藏) -->
-    <div id="app" class="hidden w-full max-w-7xl mx-auto p-4 md:p-8 space-y-6">
+    <!-- 主程式介面 -->
+    <div id="app" class="hidden w-full max-w-7xl mx-auto p-4 md:p-8 space-y-6 opacity-0 transition-opacity duration-500">
         <!-- Header -->
         <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
             <div class="flex items-center gap-4">
@@ -72,14 +68,12 @@
                     </p>
                 </div>
             </div>
-            <div class="flex gap-2">
-                <button onclick="fetchData()" class="flex items-center gap-2 px-6 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all shadow-sm">
-                    <i data-lucide="refresh-cw" size="16"></i> 重新整理
-                </button>
-            </div>
+            <button onclick="fetchData()" class="flex items-center gap-2 px-6 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all shadow-sm">
+                <i data-lucide="refresh-cw" size="16"></i> 重新整理
+            </button>
         </header>
 
-        <!-- Stats Cards -->
+        <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-blue-600 p-8 rounded-3xl text-white shadow-xl shadow-blue-200 relative overflow-hidden">
                 <i data-lucide="dollar-sign" class="absolute -right-4 -top-4 w-32 h-32 opacity-10 text-white"></i>
@@ -89,7 +83,6 @@
                     <i data-lucide="check-circle-2" size="14"></i> 數據已根據 Grade 倍數及品牌篩選自動更新
                 </div>
             </div>
-            
             <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-center">
                 <p class="text-slate-400 text-xs font-bold mb-4 tracking-[0.2em] uppercase">領取狀態分佈 (篩選後)</p>
                 <div class="flex items-center gap-12">
@@ -113,27 +106,17 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <!-- Sidebar -->
             <div class="lg:col-span-1 space-y-6">
                 <section class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                     <div class="flex items-center gap-2 mb-6">
                         <i data-lucide="settings-2" size="16" class="text-blue-500"></i>
                         <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">倍數設定 (Multipliers)</h3>
                     </div>
-                    
-                    <div class="flex bg-slate-50 p-1 rounded-xl mb-6">
-                        <button onclick="setActiveTab('standard')" id="tab-standard" class="flex-1 py-2 text-[10px] font-bold rounded-lg transition-all bg-white text-blue-600 shadow-sm border border-slate-100">
-                            標準人員
-                        </button>
-                        <button onclick="setActiveTab('decPaid')" id="tab-decPaid" class="flex-1 py-2 text-[10px] font-bold rounded-lg transition-all text-slate-400">
-                            12月已領
-                        </button>
+                    <div class="flex bg-slate-50 p-1 rounded-xl mb-6 border border-slate-100">
+                        <button onclick="setActiveTab('standard')" id="tab-standard" class="flex-1 py-2 text-[10px] font-bold rounded-lg transition-all bg-white text-blue-600 shadow-sm">標準人員</button>
+                        <button onclick="setActiveTab('decPaid')" id="tab-decPaid" class="flex-1 py-2 text-[10px] font-bold rounded-lg transition-all text-slate-400">12月已領</button>
                     </div>
-
-                    <div id="multipliers-inputs" class="space-y-4 border-b border-slate-50 pb-6 mb-6">
-                        <!-- Inputs generated by JS -->
-                    </div>
-
+                    <div id="multipliers-inputs" class="space-y-4 border-b border-slate-50 pb-6 mb-6"></div>
                     <div class="relative group">
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" size="16"></i>
                         <input oninput="handleSearch(this.value)" type="text" placeholder="搜尋品牌列表..." class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-transparent rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none placeholder:text-slate-300">
@@ -141,11 +124,8 @@
                 </section>
             </div>
 
-            <!-- Content Area -->
             <div class="lg:col-span-3 space-y-6">
                 <div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
-                    
-                    <!-- Brand Filter Area -->
                     <div class="p-8 border-b border-slate-50 bg-slate-50/30">
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center gap-2">
@@ -153,16 +133,12 @@
                                 <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">選擇包含品牌 (Brand Selection)</h3>
                             </div>
                             <div class="flex gap-4">
-                                <button onclick="selectAllBrands()" class="text-[10px] font-bold text-blue-600 hover:underline underline-offset-4">全選 (All)</button>
-                                <button onclick="deselectAllBrands()" class="text-[10px] font-bold text-slate-400 hover:text-slate-600 transition-colors">取消全選 (None)</button>
+                                <button onclick="selectAllBrands()" class="text-[10px] font-bold text-blue-600 hover:underline underline-offset-4">全選</button>
+                                <button onclick="deselectAllBrands()" class="text-[10px] font-bold text-slate-400 hover:text-slate-600 transition-colors">取消全選</button>
                             </div>
                         </div>
-                        <div id="brand-filters" class="flex flex-wrap gap-2">
-                            <!-- Buttons generated by JS -->
-                        </div>
+                        <div id="brand-filters" class="flex flex-wrap gap-2"></div>
                     </div>
-
-                    <!-- Table Area -->
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
@@ -170,43 +146,47 @@
                                     <th class="px-8 py-5">品牌 (Column B)</th>
                                     <th class="px-6 py-5 text-center">總人數</th>
                                     <th class="px-6 py-5 text-center">12月已領</th>
-                                    <th class="px-6 py-5 text-right tracking-widest text-slate-400 italic font-medium text-xs">去年總數 (J)</th>
+                                    <th class="px-6 py-5 text-right text-slate-400 italic font-medium text-xs">去年總數 (J)</th>
                                     <th class="px-6 py-5 text-right text-blue-600 font-bold tracking-widest">本次預算</th>
                                 </tr>
                             </thead>
-                            <tbody id="data-table-body" class="divide-y divide-slate-50">
-                                <!-- Table rows generated by JS -->
-                            </tbody>
+                            <tbody id="data-table-body" class="divide-y divide-slate-50"></tbody>
                         </table>
                     </div>
-                    <div id="empty-state" class="hidden p-12 text-center text-slate-400 text-sm font-medium">
-                        請選擇至少一個品牌進行分析
-                    </div>
+                    <div id="empty-state" class="hidden p-12 text-center text-slate-400 text-sm font-medium">請選擇至少一個品牌</div>
                 </div>
-                <div class="flex items-center gap-2 p-4 bg-slate-100/50 rounded-2xl border border-slate-200">
-                    <i data-lucide="info" size="16" class="text-slate-400"></i>
+                <div class="p-4 bg-slate-100/50 rounded-2xl border border-slate-200">
                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-loose">
-                        註：表格已按照 Dermes, Reenex... 等指定品牌順序排列。所有計算基於 Column F (Salary) 乘以等級對應的 Multiplier。
+                        註：表格已按照指定品牌順序排列。所有計算基於 Column F (Salary) 乘以等級對應的 Multiplier。
                     </p>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // Constants
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKCGEF3NufqQ60Cw59xZ4hkRniMjhxBfowQJh2w7OSpMt09XG2E6Rca5DYzzq0XxquQwQLkzOLAfCU/pub?output=csv';
-        const BRAND_ORDER = [
-            "Dermes", "Reenex", "Elyze", "Evvus - Operations", 
-            "Operations Support", "Bioderma - Retail", 
-            "Bioderma - OTC", "Vigene - Operations"
-        ];
-        
-        // 使用 Base64 編碼密碼，確保在 GitHub 原始碼中不會直接看到明文
-        // 此字串解碼後為 "35117386"
-        const ENCODED_PW = "MzUxMTczODY=";
+    <!-- 備用數據輸入視窗 (僅在失敗時顯示) -->
+    <div id="fallback-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-[2rem] p-8 shadow-2xl space-y-6">
+            <div class="flex items-center gap-4 text-amber-600">
+                <i data-lucide="alert-triangle" size="32"></i>
+                <div>
+                    <h3 class="text-xl font-bold">數據載入中斷</h3>
+                    <p class="text-sm text-slate-500">由於網絡或安全限制，無法自動抓取。請貼上 CSV 數據以繼續。</p>
+                </div>
+            </div>
+            <textarea id="fallback-input" class="w-full h-48 p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none" placeholder="在此處貼上 CSV 內容..."></textarea>
+            <div class="flex gap-4">
+                <button onclick="document.getElementById('fallback-modal').classList.add('hidden')" class="flex-1 py-3 text-slate-500 font-bold">取消</button>
+                <button onclick="handleFallbackSubmit()" class="flex-2 px-12 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700">套用數據</button>
+            </div>
+        </div>
+    </div>
 
-        // State
+    <script>
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKCGEF3NufqQ60Cw59xZ4hkRniMjhxBfowQJh2w7OSpMt09XG2E6Rca5DYzzq0XxquQwQLkzOLAfCU/pub?output=csv';
+        const BRAND_ORDER = ["Dermes", "Reenex", "Elyze", "Evvus - Operations", "Operations Support", "Bioderma - Retail", "Bioderma - OTC", "Vigene - Operations"];
+        const PW_VAL = "MzUxMTczODY="; // Base64 of 35117386
+
         let state = {
             rawData: [],
             activeTab: 'standard', 
@@ -218,120 +198,73 @@
             isAuthenticated: false
         };
 
-        function refreshIcons() {
-            lucide.createIcons();
-        }
-
-        // 密碼驗證邏輯 (改用更穩定的同步驗證)
         function verifyPassword() {
-            const passwordField = document.getElementById('password-input');
-            const input = passwordField.value.trim(); 
-            const errorMsg = document.getElementById('error-message');
-            const loginScreen = document.getElementById('login-screen');
-            const appContent = document.getElementById('app');
-            const body = document.body;
-            const btn = document.getElementById('unlock-btn');
+            const field = document.getElementById('password-input');
+            const input = field.value.trim();
+            const error = document.getElementById('error-message');
+            const login = document.getElementById('login-screen');
+            const app = document.getElementById('app');
 
-            if (!input) return;
-
-            // 使用 btoa 進行比對，避免依賴異步的 crypto API
-            if (btoa(input) === ENCODED_PW) {
+            if (btoa(input) === PW_VAL) {
                 state.isAuthenticated = true;
-                loginScreen.classList.add('hidden');
-                appContent.classList.remove('hidden');
-                body.classList.remove('items-center', 'justify-center');
-                fetchData(); 
+                login.classList.add('hidden');
+                app.classList.remove('hidden');
+                setTimeout(() => app.style.opacity = '1', 50);
+                document.body.classList.remove('items-center', 'justify-center');
+                fetchData();
             } else {
-                errorMsg.classList.remove('hidden');
-                loginScreen.classList.add('animate-shake');
-                setTimeout(() => loginScreen.classList.remove('animate-shake'), 400);
-                passwordField.value = '';
-                passwordField.focus();
+                error.classList.remove('hidden');
+                field.parentElement.classList.add('animate-shake');
+                setTimeout(() => field.parentElement.classList.remove('animate-shake'), 400);
             }
         }
 
         function parseCSV(csvText) {
             try {
-                const lines = csvText.split(/\r?\n/);
-                const rows = lines.map(line => {
-                    const result = [];
-                    let cur = '';
-                    let inQuote = false;
+                const rows = csvText.split(/\r?\n/).map(line => {
+                    const result = []; let cur = ''; let inQuote = false;
                     for (let i = 0; i < line.length; i++) {
                         let char = line[i];
                         if (char === '"') inQuote = !inQuote;
-                        else if (char === ',' && !inQuote) {
-                            result.push(cur);
-                            cur = '';
-                        } else cur += char;
+                        else if (char === ',' && !inQuote) { result.push(cur); cur = ''; }
+                        else cur += char;
                     }
-                    result.push(cur);
-                    return result;
+                    result.push(cur); return result;
                 });
-
-                const dataRows = rows.slice(1).filter(row => row.length > 1 && row[0] !== "");
-
-                const parsed = dataRows.map((row, index) => {
-                    const cleanNum = (val) => {
-                        if (!val) return 0;
-                        return parseFloat(String(val).replace(/[$,]/g, '')) || 0;
-                    };
-                    const grade = (row[7] || '').trim().toUpperCase();
-                    const lastYearValue = cleanNum(row[9]);
-
-                    return {
-                        id: row[0] || `ID-${index}`,
-                        brand: (row[1] || 'Unknown').trim(),
-                        salary: cleanNum(row[5]),
-                        grade: grade,
-                        lastYear: lastYearValue,
-                        isDecPaid: lastYearValue > 0 
-                    };
+                const parsed = rows.slice(1).filter(r => r.length > 1 && r[0] !== "").map((r, i) => {
+                    const cleanNum = v => parseFloat(String(v).replace(/[$,]/g, '')) || 0;
+                    return { id: r[0] || i, brand: (r[1] || 'Unknown').trim(), salary: cleanNum(r[5]), grade: (r[7] || '').trim().toUpperCase(), lastYear: cleanNum(r[9]), isDecPaid: cleanNum(r[9]) > 0 };
                 });
-
-                const brands = Array.from(new Set(parsed.map(item => item.brand))).sort((a, b) => {
-                    const indexA = BRAND_ORDER.indexOf(a);
-                    const indexB = BRAND_ORDER.indexOf(b);
-                    if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-                    if (indexA !== -1) return -1;
-                    if (indexB !== -1) return 1;
-                    return a.localeCompare(b);
+                const brands = Array.from(new Set(parsed.map(i => i.brand))).sort((a, b) => {
+                    const ia = BRAND_ORDER.indexOf(a), ib = BRAND_ORDER.indexOf(b);
+                    if (ia !== -1 && ib !== -1) return ia - ib;
+                    return ia !== -1 ? -1 : (ib !== -1 ? 1 : a.localeCompare(b));
                 });
-
                 state.allAvailableBrands = brands;
-                if (state.selectedBrands.size === 0) {
-                    state.selectedBrands = new Set(brands);
-                }
+                if (state.selectedBrands.size === 0) state.selectedBrands = new Set(brands);
                 return parsed;
-            } catch (e) {
-                console.error("CSV Parsing Error:", e);
-                return [];
-            }
+            } catch (e) { return []; }
         }
 
         async function fetchData() {
             if (!state.isAuthenticated) return;
-
-            const headerText = document.querySelector('header h1');
-            const originalTitle = headerText.textContent;
-            headerText.textContent = "數據載入中...";
-            
             try {
                 const response = await fetch(CSV_URL);
-                if (!response.ok) throw new Error('Network Error');
-                const csvText = await response.text();
-                state.rawData = parseCSV(csvText);
+                if (!response.ok) throw new Error();
+                const text = await response.text();
+                state.rawData = parseCSV(text);
                 render();
             } catch (err) {
-                console.error(err);
-                const errorContainer = document.createElement('div');
-                errorContainer.className = "fixed bottom-8 left-1/2 -translate-x-1/2 bg-rose-600 text-white px-6 py-3 rounded-2xl shadow-2xl font-bold z-[100] animate-bounce text-sm";
-                errorContainer.textContent = "數據連線失敗。請檢查網絡或 CSV 連結。";
-                document.body.appendChild(errorContainer);
-                setTimeout(() => errorContainer.remove(), 5000);
-            } finally {
-                headerText.textContent = originalTitle;
-                updateStats();
+                document.getElementById('fallback-modal').classList.remove('hidden');
+            }
+        }
+
+        function handleFallbackSubmit() {
+            const text = document.getElementById('fallback-input').value;
+            if (text) {
+                state.rawData = parseCSV(text);
+                document.getElementById('fallback-modal').classList.add('hidden');
+                render();
             }
         }
 
@@ -343,186 +276,95 @@
         }
 
         function handleMultiplierChange(grade, value) {
-            let val = parseFloat(value) || 0;
-            if (val > 2) val = 2;
-            if (val < 0) val = 0;
-            val = Math.round(val * 10) / 10;
-
+            let val = Math.max(0, Math.min(2, Math.round((parseFloat(value) || 0) * 10) / 10));
             if (state.activeTab === 'standard') state.multipliers[grade] = val;
             else state.decMultipliers[grade] = val;
             render();
         }
 
         function adjustMultiplier(grade, delta) {
-            const currentData = state.activeTab === 'standard' ? state.multipliers : state.decMultipliers;
-            const newVal = (currentData[grade] || 0) + delta;
-            handleMultiplierChange(grade, newVal);
+            const cur = state.activeTab === 'standard' ? state.multipliers : state.decMultipliers;
+            handleMultiplierChange(grade, (cur[grade] || 0) + delta);
         }
 
-        function handleSearch(val) {
-            state.searchTerm = val.toLowerCase();
-            renderTable();
-        }
-
-        function toggleBrand(brand) {
-            if (state.selectedBrands.has(brand)) state.selectedBrands.delete(brand);
-            else state.selectedBrands.add(brand);
-            render();
-        }
-
-        function selectAllBrands() {
-            state.selectedBrands = new Set(state.allAvailableBrands);
-            render();
-        }
-
-        function deselectAllBrands() {
-            state.selectedBrands = new Set();
-            render();
-        }
-
-        function calculateSummary() {
-            const summary = {};
-            const filteredData = state.rawData.filter(item => state.selectedBrands.has(item.brand));
-
-            filteredData.forEach(item => {
-                if (!summary[item.brand]) {
-                    summary[item.brand] = {
-                        name: item.brand, headcount: 0, decPaidCount: 0,
-                        totalSalary: 0, totalLastYear: 0, currentBudget: 0
-                    };
-                }
-
-                const mSet = item.isDecPaid ? state.decMultipliers : state.multipliers;
-                const multiplier = mSet[item.grade] || 0;
-                const budget = item.salary * multiplier;
-
-                summary[item.brand].headcount++;
-                if (item.isDecPaid) summary[item.brand].decPaidCount++;
-                summary[item.brand].totalSalary += item.salary;
-                summary[item.brand].totalLastYear += item.lastYear;
-                summary[item.brand].currentBudget += budget;
-            });
-
-            return Object.values(summary)
-                .filter(b => b.name.toLowerCase().includes(state.searchTerm))
-                .sort((a, b) => {
-                    const idxA = BRAND_ORDER.indexOf(a.name);
-                    const idxB = BRAND_ORDER.indexOf(b.name);
-                    if (idxA !== -1 && idxB !== -1) return indexA - indexB;
-                    if (idxA !== -1) return -1;
-                    if (idxB !== -1) return 1;
-                    return a.name.localeCompare(b.name);
-                });
-        }
+        function handleSearch(val) { state.searchTerm = val.toLowerCase(); renderTable(); }
+        function toggleBrand(b) { if (state.selectedBrands.has(b)) state.selectedBrands.delete(b); else state.selectedBrands.add(b); render(); }
+        function selectAllBrands() { state.selectedBrands = new Set(state.allAvailableBrands); render(); }
+        function deselectAllBrands() { state.selectedBrands = new Set(); render(); }
 
         function renderMultipliers() {
             const container = document.getElementById('multipliers-inputs');
             const data = state.activeTab === 'standard' ? state.multipliers : state.decMultipliers;
             const colors = { A: 'bg-rose-500', B: 'bg-orange-500', C: 'bg-amber-500', D: 'bg-blue-500', E: 'bg-slate-400' };
-            const accentClass = state.activeTab === 'standard' ? 'text-blue-600' : 'text-orange-600';
-            const btnColor = state.activeTab === 'standard' ? 'hover:bg-blue-50 text-blue-600' : 'hover:bg-orange-50 text-orange-600';
+            const accent = state.activeTab === 'standard' ? 'text-blue-600' : 'text-orange-600';
+            const btn = state.activeTab === 'standard' ? 'hover:bg-blue-50 text-blue-600' : 'hover:bg-orange-50 text-orange-600';
 
-            container.innerHTML = ['A', 'B', 'C', 'D', 'E'].map(grade => `
+            container.innerHTML = ['A', 'B', 'C', 'D', 'E'].map(g => `
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-xs ${colors[grade]}">${grade}</div>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Grade ${grade}</span>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-xs ${colors[g]}">${g}</div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Grade ${g}</span>
                     </div>
-                    
-                    <div class="flex items-center bg-slate-50 rounded-xl border border-slate-100 p-0.5">
-                        <button onclick="adjustMultiplier('${grade}', -0.1)" class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${btnColor}">
-                            <i data-lucide="minus" size="14"></i>
-                        </button>
-                        <input type="number" step="0.1" min="0" max="2" value="${data[grade].toFixed(1)}" 
-                            onchange="handleMultiplierChange('${grade}', this.value)"
-                            class="w-10 bg-transparent font-bold text-center text-xs focus:outline-none ${accentClass}">
-                        <button onclick="adjustMultiplier('${grade}', 0.1)" class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${btnColor}">
-                            <i data-lucide="plus" size="14"></i>
-                        </button>
+                    <div class="flex items-center bg-slate-50 rounded-xl border border-slate-100 p-0.5 shadow-inner">
+                        <button onclick="adjustMultiplier('${g}', -0.1)" class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${btn}"><i data-lucide="minus" size="14"></i></button>
+                        <input type="number" step="0.1" value="${data[g].toFixed(1)}" onchange="handleMultiplierChange('${g}', this.value)" class="w-10 bg-transparent font-bold text-center text-xs focus:outline-none ${accent}">
+                        <button onclick="adjustMultiplier('${g}', 0.1)" class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${btn}"><i data-lucide="plus" size="14"></i></button>
                     </div>
                 </div>
             `).join('');
-            refreshIcons();
+            lucide.createIcons();
         }
 
         function renderBrandFilters() {
             const container = document.getElementById('brand-filters');
-            container.innerHTML = state.allAvailableBrands.map(brand => {
-                const isSelected = state.selectedBrands.has(brand);
-                return `
-                    <button onclick="toggleBrand('${brand}')" 
-                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all border ${isSelected ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-300'}">
-                        ${isSelected ? '<i data-lucide="check" style="width:12px; height:12px;"></i>' : ''}
-                        ${brand}
-                    </button>
-                `;
+            container.innerHTML = state.allAvailableBrands.map(b => {
+                const s = state.selectedBrands.has(b);
+                return `<button onclick="toggleBrand('${b}')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all border ${s ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-300'}">${s ? '<i data-lucide="check" size="12"></i>' : ''}${b}</button>`;
             }).join('');
-            refreshIcons();
+            lucide.createIcons();
         }
 
         function renderTable() {
-            const summary = calculateSummary();
+            const data = state.rawData.filter(i => state.selectedBrands.has(i.brand));
+            const summary = {};
+            data.forEach(i => {
+                if (!summary[i.brand]) summary[i.brand] = { name: i.brand, count: 0, paid: 0, ly: 0, budget: 0 };
+                const m = (i.isDecPaid ? state.decMultipliers : state.multipliers)[i.grade] || 0;
+                summary[i.brand].count++;
+                if (i.isDecPaid) summary[i.brand].paid++;
+                summary[i.brand].ly += i.lastYear;
+                summary[i.brand].budget += i.salary * m;
+            });
+            const list = Object.values(summary).filter(b => b.name.toLowerCase().includes(state.searchTerm)).sort((a,b) => {
+                const ia = BRAND_ORDER.indexOf(a.name), ib = BRAND_ORDER.indexOf(b.name);
+                if (ia !== -1 && ib !== -1) return ia - ib;
+                return ia !== -1 ? -1 : (ib !== -1 ? 1 : 0);
+            });
             const body = document.getElementById('data-table-body');
-            const empty = document.getElementById('empty-state');
-
-            if (summary.length === 0) {
-                body.innerHTML = '';
-                empty.classList.remove('hidden');
-                return;
-            }
-
-            empty.classList.add('hidden');
-            body.innerHTML = summary.map(brand => `
+            body.innerHTML = list.map(b => `
                 <tr class="group hover:bg-slate-50/50 transition-all text-sm">
-                    <td class="px-8 py-6">
-                        <div class="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">${brand.name}</div>
-                    </td>
-                    <td class="px-6 py-6 text-center">
-                        <span class="px-2.5 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-500">${brand.headcount}</span>
-                    </td>
-                    <td class="px-6 py-6 text-center">
-                        <span class="px-2.5 py-1 bg-orange-50 rounded-lg text-[10px] font-bold text-orange-600">
-                            ${brand.decPaidCount > 0 ? brand.decPaidCount : '-'}
-                        </span>
-                    </td>
-                    <td class="px-6 py-6 text-right text-slate-300 font-mono italic text-xs">
-                        $${brand.totalLastYear.toLocaleString(undefined, {maximumFractionDigits: 0})}
-                    </td>
-                    <td class="px-6 py-6 text-right font-black text-blue-600 font-mono tracking-tight text-base">
-                        $${brand.currentBudget.toLocaleString(undefined, {maximumFractionDigits: 0})}
-                    </td>
+                    <td class="px-8 py-6 font-bold text-slate-800">${b.name}</td>
+                    <td class="px-6 py-6 text-center"><span class="px-2.5 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-500">${b.count}</span></td>
+                    <td class="px-6 py-6 text-center"><span class="px-2.5 py-1 bg-orange-50 rounded-lg text-[10px] font-bold text-orange-600">${b.paid || '-'}</span></td>
+                    <td class="px-6 py-6 text-right text-slate-300 font-mono italic text-xs">$${b.ly.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                    <td class="px-6 py-6 text-right font-black text-blue-600 font-mono text-base">$${b.budget.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
                 </tr>
             `).join('');
+            document.getElementById('empty-state').classList.toggle('hidden', list.length > 0);
+            updateStats(list);
         }
 
-        function updateStats() {
-            const summary = calculateSummary();
-            const totals = summary.reduce((acc, curr) => ({
-                bonus: acc.bonus + curr.currentBudget,
-                count: acc.count + curr.headcount,
-                decPaidCount: acc.decPaidCount + curr.decPaidCount
-            }), { bonus: 0, count: 0, decPaidCount: 0 });
-
-            // 更新 Header 與看板數據
-            document.getElementById('header-total-count').textContent = `${totals.count} 人`;
-            document.getElementById('header-dec-paid').textContent = `${totals.decPaidCount} 人`;
-            document.getElementById('total-budget').textContent = `$${totals.bonus.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
-            document.getElementById('unpaid-count').textContent = totals.count - totals.decPaidCount;
-            document.getElementById('paid-count').textContent = totals.decPaidCount;
+        function updateStats(list) {
+            const t = list.reduce((a, c) => ({ b: a.b + c.budget, c: a.c + c.count, p: a.p + c.paid }), { b:0, c:0, p:0 });
+            document.getElementById('header-total-count').textContent = `${t.c} 人`;
+            document.getElementById('header-dec-paid').textContent = `${t.p} 人`;
+            document.getElementById('total-budget').textContent = `$${t.b.toLocaleString(undefined, {maximumFractionDigits:0})}`;
+            document.getElementById('unpaid-count').textContent = t.c - t.p;
+            document.getElementById('paid-count').textContent = t.p;
         }
 
-        function render() {
-            renderMultipliers();
-            renderBrandFilters();
-            renderTable();
-            updateStats();
-        }
-
-        window.onload = () => {
-            refreshIcons();
-            document.getElementById('password-input').focus();
-        };
-
+        function render() { renderMultipliers(); renderBrandFilters(); renderTable(); }
+        window.onload = () => { lucide.createIcons(); document.getElementById('password-input').focus(); };
     </script>
 </body>
 </html>
