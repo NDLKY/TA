@@ -1,502 +1,469 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Calculator, 
-  Users, 
-  DollarSign, 
-  Search, 
-  Settings2,
-  BarChart3,
-  RefreshCw,
-  AlertCircle,
-  FileSpreadsheet,
-  Info,
-  CheckCircle2,
-  ClipboardList,
-  Filter,
-  Check
-} from 'lucide-react';
-
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKCGEF3NufqQ60Cw59xZ4hkRniMjhxBfowQJh2w7OSpMt09XG2E6Rca5DYzzq0XxquQwQLkzOLAfCU/pub?gid=0&single=true&output=csv';
-
-// 定義指定的品牌排序
-const BRAND_ORDER = [
-  "Dermes",
-  "Reenex",
-  "Elyze",
-  "Evvus - Operations",
-  "Operations Support",
-  "Bioderma - Retail",
-  "Bioderma - OTC",
-  "Vigene - Operations"
-];
-
-const App = () => {
-  const [rawData, setRawData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('standard'); 
-  const [showManualInput, setShowManualInput] = useState(false);
-  const [manualCsv, setManualCsv] = useState('');
-  
-  // 品牌篩選狀態
-  const [selectedBrands, setSelectedBrands] = useState(new Set());
-  const [allAvailableBrands, setAllAvailableBrands] = useState([]);
-
-  // 標準倍數預設值 (A=0.5, B=0.5, C=0.3, D=0, E=0)
-  const [multipliers, setMultipliers] = useState({
-    A: 0.5,
-    B: 0.5,
-    C: 0.3,
-    D: 0.0,
-    E: 0.0
-  });
-
-  // 12月已領取人員倍數預設值 (A=0.3, B=0.3, C=0, D=0, E=0)
-  const [decMultipliers, setDecMultipliers] = useState({
-    A: 0.3,
-    B: 0.3,
-    C: 0.0,
-    D: 0.0,
-    E: 0.0
-  });
-
-  const [searchTerm, setSearchTerm] = useState('');
-
-  // 解析 CSV 字符串的通用函數
-  const parseCSV = (csvText) => {
-    try {
-      const rows = csvText.split(/\r?\n/).map(line => {
-        const result = [];
-        let cur = '';
-        let inQuote = false;
-        for (let i = 0; i < line.length; i++) {
-          let char = line[i];
-          if (char === '"') inQuote = !inQuote;
-          else if (char === ',' && !inQuote) {
-            result.push(cur);
-            cur = '';
-          } else cur += char;
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>獎金預算模擬器 (雙重倍數版)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
-        result.push(cur);
-        return result;
-      });
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen pb-12">
 
-      const dataRows = rows.slice(1).filter(row => row.length > 1 && row[0] !== "");
-
-      const parsed = dataRows.map((row, index) => {
-        const cleanNum = (val) => {
-          if (!val) return 0;
-          return parseFloat(String(val).replace(/[$,]/g, '')) || 0;
-        };
-        const grade = (row[7] || '').trim().toUpperCase();
-        const lastYearValue = cleanNum(row[9]);
-
-        return {
-          id: row[0] || `ID-${index}`,
-          brand: (row[1] || 'Unknown').trim(),
-          salary: cleanNum(row[5]),
-          grade: grade,
-          lastYear: lastYearValue,
-          isDecPaid: lastYearValue > 0 
-        };
-      });
-
-      // 提取所有唯一品牌
-      const brands = Array.from(new Set(parsed.map(item => item.brand))).sort((a, b) => {
-        const indexA = BRAND_ORDER.indexOf(a);
-        const indexB = BRAND_ORDER.indexOf(b);
-        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-        if (indexA !== -1) return -1;
-        if (indexB !== -1) return 1;
-        return a.localeCompare(b);
-      });
-      
-      setAllAvailableBrands(brands);
-      setSelectedBrands(new Set(brands)); // 預設全選
-
-      return parsed;
-    } catch (e) {
-      console.error("CSV Parsing Error:", e);
-      return [];
-    }
-  };
-
-  const fetchData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(CSV_URL, { mode: 'cors' });
-      if (!response.ok) throw new Error('無法存取試算表。這通常是由於跨來源限制 (CORS)。');
-      const csvText = await response.text();
-      const parsed = parseCSV(csvText);
-      setRawData(parsed);
-      setShowManualInput(false);
-    } catch (err) {
-      console.error(err);
-      setError('自動抓取失敗 (CORS 限制)。請點擊下方按鈕手動貼上 CSV 數據以繼續。');
-      setShowManualInput(true);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleManualSubmit = () => {
-    if (!manualCsv.trim()) return;
-    const parsed = parseCSV(manualCsv);
-    if (parsed.length > 0) {
-      setRawData(parsed);
-      setShowManualInput(false);
-      setError(null);
-    } else {
-      setError('無法解析貼上的數據，請確保格式正確。');
-    }
-  };
-
-  const toggleBrand = (brand) => {
-    const newSelected = new Set(selectedBrands);
-    if (newSelected.has(brand)) {
-      newSelected.delete(brand);
-    } else {
-      newSelected.add(brand);
-    }
-    setSelectedBrands(newSelected);
-  };
-
-  const selectAllBrands = () => setSelectedBrands(new Set(allAvailableBrands));
-  const deselectAllBrands = () => setSelectedBrands(new Set());
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const brandSummary = useMemo(() => {
-    const summary = {};
-
-    // 只處理被選中的品牌
-    const filteredRawData = rawData.filter(item => selectedBrands.has(item.brand));
-
-    filteredRawData.forEach(item => {
-      if (!summary[item.brand]) {
-        summary[item.brand] = {
-          name: item.brand,
-          headcount: 0,
-          decPaidCount: 0,
-          totalSalary: 0,
-          totalLastYear: 0,
-          currentBudget: 0,
-          grades: { A: 0, B: 0, C: 0, D: 0, E: 0, Others: 0 }
-        };
-      }
-
-      const targetMultipliers = item.isDecPaid ? decMultipliers : multipliers;
-      const multiplier = targetMultipliers[item.grade] || 0;
-      const calculatedBudget = item.salary * multiplier;
-
-      summary[item.brand].headcount += 1;
-      if (item.isDecPaid) summary[item.brand].decPaidCount += 1;
-      summary[item.brand].totalSalary += item.salary;
-      summary[item.brand].totalLastYear += item.lastYear;
-      summary[item.brand].currentBudget += calculatedBudget;
-      
-      if (['A', 'B', 'C', 'D', 'E'].includes(item.grade)) {
-        summary[item.brand].grades[item.grade]++;
-      } else {
-        summary[item.brand].grades.Others++;
-      }
-    });
-
-    return Object.values(summary)
-      .filter(brand => brand.name.toLowerCase().includes(searchTerm.toLowerCase()))
-      .sort((a, b) => {
-        const indexA = BRAND_ORDER.indexOf(a.name);
-        const indexB = BRAND_ORDER.indexOf(b.name);
-        
-        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-        if (indexA !== -1) return -1;
-        if (indexB !== -1) return 1;
-        return b.currentBudget - a.currentBudget;
-      });
-  }, [rawData, multipliers, decMultipliers, searchTerm, selectedBrands]);
-
-  const totals = useMemo(() => {
-    return brandSummary.reduce((acc, curr) => ({
-      bonus: acc.bonus + curr.currentBudget,
-      lastYear: acc.lastYear + curr.totalLastYear,
-      salary: acc.salary + curr.totalSalary,
-      count: acc.count + curr.headcount,
-      decPaidCount: acc.decPaidCount + curr.decPaidCount
-    }), { bonus: 0, lastYear: 0, salary: 0, count: 0, decPaidCount: 0 });
-  }, [brandSummary]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
-        <RefreshCw className="w-12 h-12 text-blue-600 animate-spin mb-4" />
-        <p className="text-slate-600 font-medium font-sans tracking-tight text-lg italic">正在連線至 Google Sheets...</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans text-slate-900">
-      <div className="max-w-7xl mx-auto space-y-6">
-        
-        {/* Header */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-          <div className="flex items-center gap-4">
-            <div className="bg-blue-600 p-3 rounded-xl text-white shadow-lg">
-              <Calculator size={28} />
+    <div id="app" class="max-w-7xl mx-auto p-4 md:p-8 space-y-6">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex items-center gap-4">
+                <div class="bg-blue-600 p-3 rounded-xl text-white shadow-lg">
+                    <i data-lucide="calculator" size="28"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">獎金預算模擬器 (雙重倍數版)</h1>
+                    <p class="text-slate-500 text-sm flex items-center gap-2">
+                        篩選後人數：<span id="header-count" class="font-bold text-blue-600">0 人</span> 
+                        <span class="text-slate-300">|</span>
+                        12月已領取：<span id="header-dec-paid" class="font-bold text-orange-600">0 人</span>
+                    </p>
+                </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-800">獎金預算模擬器 (雙重倍數版)</h1>
-              <p className="text-slate-500 text-sm flex items-center gap-2">
-                篩選後人數：<span className="font-bold text-blue-600">{totals.count || 0} 人</span> 
-                <span className="text-slate-300">|</span>
-                12月已領取：<span className="font-bold text-orange-600">{totals.decPaidCount} 人</span>
-              </p>
+            <div class="flex gap-2">
+                <button onclick="toggleManualInput()" class="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-xl text-sm font-bold transition-all border border-amber-200">
+                    <i data-lucide="clipboard-list" size="16"></i> 手動更新
+                </button>
+                <button onclick="fetchData()" class="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all shadow-sm">
+                    <i data-lucide="refresh-cw" size="16"></i> 重新讀取
+                </button>
             </div>
-          </div>
-          <div className="flex gap-2">
-            <button 
-              onClick={() => setShowManualInput(!showManualInput)}
-              className="flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-xl text-sm font-bold transition-all border border-amber-200"
-            >
-              <ClipboardList size={16} /> 手動更新
-            </button>
-            <button 
-              onClick={fetchData} 
-              className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all shadow-sm"
-            >
-              <RefreshCw size={16} /> 重新讀取
-            </button>
-          </div>
         </header>
 
-        {/* 錯誤與手動輸入區域 */}
-        {(error || showManualInput) && (
-          <div className="bg-white p-6 rounded-2xl border border-amber-200 shadow-sm space-y-4">
-            <div className="flex items-start gap-3 text-amber-700">
-              <AlertCircle className="shrink-0 mt-0.5" size={20} />
-              <div className="text-sm">
-                <p className="font-bold mb-1">{error || '手動數據更新模式'}</p>
-                <p className="opacity-80">
-                  由於瀏覽器安全限制，如果無法自動抓取，請到 Google Sheets 選擇檔案 &gt; 共用 &gt; 發佈到網路，確保格式為 CSV。
-                  或者直接貼上 CSV 內容到下方文字框。
-                </p>
-              </div>
+        <!-- Manual Input Box -->
+        <div id="manual-input-box" class="hidden bg-white p-6 rounded-2xl border border-amber-200 shadow-sm space-y-4">
+            <div class="flex items-start gap-3 text-amber-700">
+                <i data-lucide="alert-circle" class="shrink-0 mt-0.5" size="20"></i>
+                <div class="text-sm">
+                    <p class="font-bold mb-1">手動數據更新模式</p>
+                    <p class="opacity-80">請貼上從 Google Sheets 導出的 CSV 內容。確保包含所有欄位。</p>
+                </div>
             </div>
-            <textarea
-              className="w-full h-32 p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="在此貼上 CSV 數據..."
-              value={manualCsv}
-              onChange={(e) => setManualCsv(e.target.value)}
-            />
-            <button 
-              onClick={handleManualSubmit}
-              className="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
-            >
-              套用數據
+            <textarea id="manual-csv-text" class="w-full h-32 p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="在此貼上 CSV 數據..."></textarea>
+            <button onclick="handleManualSubmit()" class="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
+                套用數據
             </button>
-          </div>
-        )}
-
-        {/* 核心數據看板 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-blue-600 p-8 rounded-3xl text-white shadow-xl shadow-blue-200 relative overflow-hidden">
-            <DollarSign className="absolute -right-4 -top-4 w-32 h-32 opacity-10 text-white" />
-            <p className="text-blue-100 text-xs font-bold mb-2 tracking-[0.2em] uppercase">當前篩選總預算</p>
-            <div className="text-5xl font-black">${totals.bonus.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
-            <div className="mt-6 flex items-center gap-2 text-xs text-blue-100 font-bold bg-blue-700/50 w-fit px-3 py-1.5 rounded-full">
-              <CheckCircle2 size={14} /> 數據已根據 Grade 倍數及品牌篩選自動更新
-            </div>
-          </div>
-          
-          <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-center">
-            <p className="text-slate-400 text-xs font-bold mb-4 tracking-[0.2em] uppercase">領取狀態分佈 (篩選後)</p>
-            <div className="flex items-center gap-12">
-              <div className="flex-1">
-                <div className="text-4xl font-black text-slate-800 tracking-tight">{totals.count - totals.decPaidCount}</div>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">12 月未領</span>
-                </div>
-              </div>
-              <div className="w-px h-16 bg-slate-100"></div>
-              <div className="flex-1">
-                <div className="text-4xl font-black text-orange-500 tracking-tight">{totals.decPaidCount}</div>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">12 月已領</span>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* 左側設定 */}
-          <div className="lg:col-span-1 space-y-6">
-            <section className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-              <div className="flex items-center gap-2 mb-6">
-                <Settings2 size={16} className="text-blue-500" />
-                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">倍數設定 (Multipliers)</h3>
-              </div>
-              
-              <div className="flex bg-slate-50 p-1 rounded-xl mb-6">
-                <button 
-                  onClick={() => setActiveTab('standard')}
-                  className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${activeTab === 'standard' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'}`}
-                >
-                  標準人員
-                </button>
-                <button 
-                  onClick={() => setActiveTab('decPaid')}
-                  className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${activeTab === 'decPaid' ? 'bg-white text-orange-600 shadow-sm' : 'text-slate-400'}`}
-                >
-                  12月已領
-                </button>
-              </div>
-
-              <div className="space-y-4 border-b border-slate-50 pb-6 mb-6">
-                {['A', 'B', 'C', 'D', 'E'].map(grade => (
-                  <div key={grade} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-xs ${
-                        grade === 'A' ? 'bg-rose-500' : 
-                        grade === 'B' ? 'bg-orange-500' : 
-                        grade === 'C' ? 'bg-amber-500' : 
-                        grade === 'D' ? 'bg-blue-500' : 'bg-slate-400'
-                      }`}>
-                        {grade}
-                      </div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Grade {grade}</span>
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-blue-600 p-8 rounded-3xl text-white shadow-xl shadow-blue-200 relative overflow-hidden">
+                <i data-lucide="dollar-sign" class="absolute -right-4 -top-4 w-32 h-32 opacity-10 text-white"></i>
+                <p class="text-blue-100 text-xs font-bold mb-2 tracking-[0.2em] uppercase">當前篩選總預算</p>
+                <div id="total-budget" class="text-5xl font-black">$0</div>
+                <div class="mt-6 flex items-center gap-2 text-xs text-blue-100 font-bold bg-blue-700/50 w-fit px-3 py-1.5 rounded-full">
+                    <i data-lucide="check-circle-2" size="14"></i> 數據已根據 Grade 倍數及品牌篩選自動更新
+                </div>
+            </div>
+            
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-center">
+                <p class="text-slate-400 text-xs font-bold mb-4 tracking-[0.2em] uppercase">領取狀態分佈 (篩選後)</p>
+                <div class="flex items-center gap-12">
+                    <div class="flex-1">
+                        <div id="unpaid-count" class="text-4xl font-black text-slate-800 tracking-tight">0</div>
+                        <div class="flex items-center gap-2 mt-1">
+                            <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">12 月未領</span>
+                        </div>
                     </div>
-                    <input 
-                      type="number" 
-                      step="0.1"
-                      value={activeTab === 'standard' ? multipliers[grade] : decMultipliers[grade]}
-                      onChange={(e) => {
-                        const val = parseFloat(e.target.value) || 0;
-                        if (activeTab === 'standard') setMultipliers({...multipliers, [grade]: val});
-                        else setDecMultipliers({...decMultipliers, [grade]: val});
-                      }}
-                      className={`w-14 px-2 py-1.5 bg-slate-50 border-b-2 font-bold text-right focus:outline-none transition-all ${activeTab === 'standard' ? 'text-blue-600 border-blue-100 focus:border-blue-500' : 'text-orange-600 border-orange-100 focus:border-orange-500'}`}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <div className="relative group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" size={16} />
-                <input 
-                  type="text" 
-                  placeholder="搜尋品牌列表..." 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-transparent rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none placeholder:text-slate-300"
-                />
-              </div>
-            </section>
-          </div>
-
-          {/* 右側表格與品牌篩選 */}
-          <div className="lg:col-span-3 space-y-6">
-            <div className="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
-              
-              {/* 品牌選擇區域 (新增) */}
-              <div className="p-8 border-b border-slate-50 bg-slate-50/30">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <Filter size={16} className="text-blue-600" />
-                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">選擇包含品牌 (Brand Selection)</h3>
-                  </div>
-                  <div className="flex gap-4">
-                    <button 
-                      onClick={selectAllBrands}
-                      className="text-[10px] font-bold text-blue-600 hover:underline underline-offset-4"
-                    >
-                      全選 (All)
-                    </button>
-                    <button 
-                      onClick={deselectAllBrands}
-                      className="text-[10px] font-bold text-slate-400 hover:text-slate-600 transition-colors"
-                    >
-                      取消全選 (None)
-                    </button>
-                  </div>
+                    <div class="w-px h-16 bg-slate-100"></div>
+                    <div class="flex-1">
+                        <div id="paid-count" class="text-4xl font-black text-orange-500 tracking-tight">0</div>
+                        <div class="flex items-center gap-2 mt-1">
+                            <div class="w-2 h-2 rounded-full bg-orange-500"></div>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">12 月已領</span>
+                        </div>
+                    </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {allAvailableBrands.map(brand => (
-                    <button
-                      key={brand}
-                      onClick={() => toggleBrand(brand)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all border ${
-                        selectedBrands.has(brand)
-                          ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                          : 'bg-white text-slate-400 border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      {selectedBrands.has(brand) && <Check size={12} />}
-                      {brand}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 數據表格 */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50/50 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
-                      <th className="px-8 py-5">品牌 (Column B)</th>
-                      <th className="px-6 py-5 text-center">總人數</th>
-                      <th className="px-6 py-5 text-center">12月已領</th>
-                      <th className="px-6 py-5 text-right tracking-widest text-slate-400 italic font-medium">去年總數 (J)</th>
-                      <th className="px-6 py-5 text-right text-blue-600 font-bold tracking-widest">本次預算</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {brandSummary.map(brand => (
-                      <tr key={brand.name} className="group hover:bg-slate-50/50 transition-all text-sm">
-                        <td className="px-8 py-6">
-                          <div className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{brand.name}</div>
-                        </td>
-                        <td className="px-6 py-6 text-center">
-                          <span className="px-2.5 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-500">{brand.headcount}</span>
-                        </td>
-                        <td className="px-6 py-6 text-center">
-                          <span className="px-2.5 py-1 bg-orange-50 rounded-lg text-[10px] font-bold text-orange-600">
-                            {brand.decPaidCount > 0 ? brand.decPaidCount : '-'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-6 text-right text-slate-300 font-mono italic text-xs">
-                          ${brand.totalLastYear.toLocaleString(undefined, {maximumFractionDigits: 0})}
-                        </td>
-                        <td className="px-6 py-6 text-right font-black text-blue-600 font-mono tracking-tight text-base">
-                          ${brand.currentBudget.toLocaleString(undefined, {maximumFractionDigits: 0})}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              {brandSummary.length === 0 && (
-                <div className="p-12 text-center">
-                  <p className="text-slate-400 text-sm font-medium">請選擇至少一個品牌進行分析</p>
-                </div>
-              )}
             </div>
-            <div className="mt-4 flex items-center gap-2 p-4 bg-slate-100/50 rounded-2xl border border-slate-200">
-               <Info size={16} className="text-slate-400" />
-               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-loose">
-                 註：表格已按照 Dermes, Reenex... 等指定品牌順序排列。所有計算基於 Column F (Salary) 乘以等級對應的 Multiplier。
-               </p>
-            </div>
-          </div>
         </div>
-      </div>
-    </div>
-  );
-};
 
-export default App;
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 space-y-6">
+                <section class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <div class="flex items-center gap-2 mb-6">
+                        <i data-lucide="settings-2" size="16" class="text-blue-500"></i>
+                        <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">倍數設定 (Multipliers)</h3>
+                    </div>
+                    
+                    <div class="flex bg-slate-50 p-1 rounded-xl mb-6">
+                        <button onclick="setActiveTab('standard')" id="tab-standard" class="flex-1 py-2 text-[10px] font-bold rounded-lg transition-all bg-white text-blue-600 shadow-sm">
+                            標準人員
+                        </button>
+                        <button onclick="setActiveTab('decPaid')" id="tab-decPaid" class="flex-1 py-2 text-[10px] font-bold rounded-lg transition-all text-slate-400">
+                            12月已領
+                        </button>
+                    </div>
+
+                    <div id="multipliers-inputs" class="space-y-4 border-b border-slate-50 pb-6 mb-6">
+                        <!-- Inputs generated by JS -->
+                    </div>
+
+                    <div class="relative group">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" size="16"></i>
+                        <input oninput="handleSearch(this.value)" type="text" placeholder="搜尋品牌列表..." class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-transparent rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none placeholder:text-slate-300">
+                    </div>
+                </section>
+            </div>
+
+            <!-- Content Area -->
+            <div class="lg:col-span-3 space-y-6">
+                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
+                    
+                    <!-- Brand Filter Area -->
+                    <div class="p-8 border-b border-slate-50 bg-slate-50/30">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="filter" size="16" class="text-blue-600"></i>
+                                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">選擇包含品牌 (Brand Selection)</h3>
+                            </div>
+                            <div class="flex gap-4">
+                                <button onclick="selectAllBrands()" class="text-[10px] font-bold text-blue-600 hover:underline underline-offset-4">全選 (All)</button>
+                                <button onclick="deselectAllBrands()" class="text-[10px] font-bold text-slate-400 hover:text-slate-600 transition-colors">取消全選 (None)</button>
+                            </div>
+                        </div>
+                        <div id="brand-filters" class="flex flex-wrap gap-2">
+                            <!-- Buttons generated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Table Area -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/50 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                                    <th class="px-8 py-5">品牌 (Column B)</th>
+                                    <th class="px-6 py-5 text-center">總人數</th>
+                                    <th class="px-6 py-5 text-center">12月已領</th>
+                                    <th class="px-6 py-5 text-right tracking-widest text-slate-400 italic font-medium">去年總數 (J)</th>
+                                    <th class="px-6 py-5 text-right text-blue-600 font-bold tracking-widest">本次預算</th>
+                                </tr>
+                            </thead>
+                            <tbody id="data-table-body" class="divide-y divide-slate-50">
+                                <!-- Table rows generated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="empty-state" class="hidden p-12 text-center text-slate-400 text-sm font-medium">
+                        請選擇至少一個品牌進行分析
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 p-4 bg-slate-100/50 rounded-2xl border border-slate-200">
+                    <i data-lucide="info" size="16" class="text-slate-400"></i>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-loose">
+                        註：表格已按照 Dermes, Reenex... 等指定品牌順序排列。所有計算基於 Column F (Salary) 乘以等級對應的 Multiplier。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constants
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKCGEF3NufqQ60Cw59xZ4hkRniMjhxBfowQJh2w7OSpMt09XG2E6Rca5DYzzq0XxquQwQLkzOLAfCU/pub?gid=0&single=true&output=csv';
+        const BRAND_ORDER = [
+            "Dermes", "Reenex", "Elyze", "Evvus - Operations", 
+            "Operations Support", "Bioderma - Retail", 
+            "Bioderma - OTC", "Vigene - Operations"
+        ];
+
+        // State
+        let state = {
+            rawData: [],
+            activeTab: 'standard', // 'standard' or 'decPaid'
+            multipliers: { A: 0.5, B: 0.5, C: 0.3, D: 0, E: 0 },
+            decMultipliers: { A: 0.3, B: 0.3, C: 0, D: 0, E: 0 },
+            selectedBrands: new Set(),
+            allAvailableBrands: [],
+            searchTerm: ''
+        };
+
+        // Initialize Lucide Icons
+        function refreshIcons() {
+            lucide.createIcons();
+        }
+
+        // CSV Parsing
+        function parseCSV(csvText) {
+            try {
+                const lines = csvText.split(/\r?\n/);
+                const rows = lines.map(line => {
+                    const result = [];
+                    let cur = '';
+                    let inQuote = false;
+                    for (let i = 0; i < line.length; i++) {
+                        let char = line[i];
+                        if (char === '"') inQuote = !inQuote;
+                        else if (char === ',' && !inQuote) {
+                            result.push(cur);
+                            cur = '';
+                        } else cur += char;
+                    }
+                    result.push(cur);
+                    return result;
+                });
+
+                const dataRows = rows.slice(1).filter(row => row.length > 1 && row[0] !== "");
+
+                const parsed = dataRows.map((row, index) => {
+                    const cleanNum = (val) => {
+                        if (!val) return 0;
+                        return parseFloat(String(val).replace(/[$,]/g, '')) || 0;
+                    };
+                    const grade = (row[7] || '').trim().toUpperCase();
+                    const lastYearValue = cleanNum(row[9]);
+
+                    return {
+                        id: row[0] || `ID-${index}`,
+                        brand: (row[1] || 'Unknown').trim(),
+                        salary: cleanNum(row[5]),
+                        grade: grade,
+                        lastYear: lastYearValue,
+                        isDecPaid: lastYearValue > 0 
+                    };
+                });
+
+                // Extract unique brands
+                const brands = Array.from(new Set(parsed.map(item => item.brand))).sort((a, b) => {
+                    const indexA = BRAND_ORDER.indexOf(a);
+                    const indexB = BRAND_ORDER.indexOf(b);
+                    if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+                    if (indexA !== -1) return -1;
+                    if (indexB !== -1) return 1;
+                    return a.localeCompare(b);
+                });
+
+                state.allAvailableBrands = brands;
+                state.selectedBrands = new Set(brands);
+                return parsed;
+            } catch (e) {
+                console.error("CSV Parsing Error:", e);
+                return [];
+            }
+        }
+
+        // Fetch Data
+        async function fetchData() {
+            const header = document.querySelector('p.text-slate-500');
+            const originalText = header.innerHTML;
+            header.innerHTML = "正在連線數據中...";
+            
+            try {
+                const response = await fetch(CSV_URL);
+                if (!response.ok) throw new Error('CORS Error');
+                const csvText = await response.text();
+                state.rawData = parseCSV(csvText);
+                render();
+            } catch (err) {
+                console.error(err);
+                alert("自動抓取失敗，請使用手動更新貼上數據。");
+                document.getElementById('manual-input-box').classList.remove('hidden');
+            } finally {
+                header.innerHTML = originalText;
+                updateStats();
+            }
+        }
+
+        // Event Handlers
+        function toggleManualInput() {
+            document.getElementById('manual-input-box').classList.toggle('hidden');
+        }
+
+        function handleManualSubmit() {
+            const text = document.getElementById('manual-csv-text').value;
+            if (text.trim()) {
+                state.rawData = parseCSV(text);
+                document.getElementById('manual-input-box').classList.add('hidden');
+                render();
+            }
+        }
+
+        function setActiveTab(tab) {
+            state.activeTab = tab;
+            document.getElementById('tab-standard').className = `flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${tab === 'standard' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400'}`;
+            document.getElementById('tab-decPaid').className = `flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${tab === 'decPaid' ? 'bg-white text-orange-600 shadow-sm' : 'text-slate-400'}`;
+            renderMultipliers();
+        }
+
+        function handleMultiplierChange(grade, value) {
+            const val = parseFloat(value) || 0;
+            if (state.activeTab === 'standard') state.multipliers[grade] = val;
+            else state.decMultipliers[grade] = val;
+            render();
+        }
+
+        function handleSearch(val) {
+            state.searchTerm = val.toLowerCase();
+            renderTable();
+        }
+
+        function toggleBrand(brand) {
+            if (state.selectedBrands.has(brand)) state.selectedBrands.delete(brand);
+            else state.selectedBrands.add(brand);
+            render();
+        }
+
+        function selectAllBrands() {
+            state.selectedBrands = new Set(state.allAvailableBrands);
+            render();
+        }
+
+        function deselectAllBrands() {
+            state.selectedBrands = new Set();
+            render();
+        }
+
+        // Calculation
+        function calculateSummary() {
+            const summary = {};
+            const filteredData = state.rawData.filter(item => state.selectedBrands.has(item.brand));
+
+            filteredData.forEach(item => {
+                if (!summary[item.brand]) {
+                    summary[item.brand] = {
+                        name: item.brand, headcount: 0, decPaidCount: 0,
+                        totalSalary: 0, totalLastYear: 0, currentBudget: 0
+                    };
+                }
+
+                const mSet = item.isDecPaid ? state.decMultipliers : state.multipliers;
+                const multiplier = mSet[item.grade] || 0;
+                const budget = item.salary * multiplier;
+
+                summary[item.brand].headcount++;
+                if (item.isDecPaid) summary[item.brand].decPaidCount++;
+                summary[item.brand].totalSalary += item.salary;
+                summary[item.brand].totalLastYear += item.lastYear;
+                summary[item.brand].currentBudget += budget;
+            });
+
+            return Object.values(summary)
+                .filter(b => b.name.toLowerCase().includes(state.searchTerm))
+                .sort((a, b) => {
+                    const idxA = BRAND_ORDER.indexOf(a.name);
+                    const idxB = BRAND_ORDER.indexOf(b.name);
+                    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+                    if (idxA !== -1) return -1;
+                    if (idxB !== -1) return 1;
+                    return b.currentBudget - a.currentBudget;
+                });
+        }
+
+        // Rendering Functions
+        function renderMultipliers() {
+            const container = document.getElementById('multipliers-inputs');
+            const data = state.activeTab === 'standard' ? state.multipliers : state.decMultipliers;
+            const colors = { A: 'bg-rose-500', B: 'bg-orange-500', C: 'bg-amber-500', D: 'bg-blue-500', E: 'bg-slate-400' };
+            const accentClass = state.activeTab === 'standard' ? 'text-blue-600 border-blue-100 focus:border-blue-500' : 'text-orange-600 border-orange-100 focus:border-orange-500';
+
+            container.innerHTML = ['A', 'B', 'C', 'D', 'E'].map(grade => `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-xs ${colors[grade]}">${grade}</div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Grade ${grade}</span>
+                    </div>
+                    <input type="number" step="0.1" value="${data[grade]}" 
+                        oninput="handleMultiplierChange('${grade}', this.value)"
+                        class="w-14 px-2 py-1.5 bg-slate-50 border-b-2 font-bold text-right focus:outline-none transition-all ${accentClass}">
+                </div>
+            `).join('');
+        }
+
+        function renderBrandFilters() {
+            const container = document.getElementById('brand-filters');
+            container.innerHTML = state.allAvailableBrands.map(brand => {
+                const isSelected = state.selectedBrands.has(brand);
+                return `
+                    <button onclick="toggleBrand('${brand}')" 
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all border ${isSelected ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-300'}">
+                        ${isSelected ? '<i data-lucide="check" style="width:12px; height:12px;"></i>' : ''}
+                        ${brand}
+                    </button>
+                `;
+            }).join('');
+            refreshIcons();
+        }
+
+        function renderTable() {
+            const summary = calculateSummary();
+            const body = document.getElementById('data-table-body');
+            const empty = document.getElementById('empty-state');
+
+            if (summary.length === 0) {
+                body.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            body.innerHTML = summary.map(brand => `
+                <tr class="group hover:bg-slate-50/50 transition-all text-sm">
+                    <td class="px-8 py-6">
+                        <div class="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">${brand.name}</div>
+                    </td>
+                    <td class="px-6 py-6 text-center">
+                        <span class="px-2.5 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-500">${brand.headcount}</span>
+                    </td>
+                    <td class="px-6 py-6 text-center">
+                        <span class="px-2.5 py-1 bg-orange-50 rounded-lg text-[10px] font-bold text-orange-600">
+                            ${brand.decPaidCount > 0 ? brand.decPaidCount : '-'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-6 text-right text-slate-300 font-mono italic text-xs">
+                        $${brand.totalLastYear.toLocaleString(undefined, {maximumFractionDigits: 0})}
+                    </td>
+                    <td class="px-6 py-6 text-right font-black text-blue-600 font-mono tracking-tight text-base">
+                        $${brand.currentBudget.toLocaleString(undefined, {maximumFractionDigits: 0})}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            const summary = calculateSummary();
+            const totals = summary.reduce((acc, curr) => ({
+                bonus: acc.bonus + curr.currentBudget,
+                count: acc.count + curr.headcount,
+                decPaidCount: acc.decPaidCount + curr.decPaidCount
+            }), { bonus: 0, count: 0, decPaidCount: 0 });
+
+            document.getElementById('header-count').textContent = `${totals.count} 人`;
+            document.getElementById('header-dec-paid').textContent = `${totals.decPaidCount} 人`;
+            document.getElementById('total-budget').textContent = `$${totals.bonus.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+            document.getElementById('unpaid-count').textContent = totals.count - totals.decPaidCount;
+            document.getElementById('paid-count').textContent = totals.decPaidCount;
+        }
+
+        function render() {
+            renderMultipliers();
+            renderBrandFilters();
+            renderTable();
+            updateStats();
+        }
+
+        // Initialize
+        window.onload = () => {
+            fetchData();
+            refreshIcons();
+        };
+
+    </script>
+</body>
+</html>
