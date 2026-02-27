@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>獎金預算模擬器 (自動同步版)</title>
+    <title>獎金預算模擬器 (穩定同步版)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -34,19 +34,19 @@
                 <i data-lucide="lock" size="32"></i>
             </div>
             <h2 class="text-2xl font-black text-slate-800 tracking-tight">存取受保護數據</h2>
-            <p class="text-slate-400 text-sm font-medium">請輸入密碼以自動同步預算數據</p>
+            <p class="text-slate-400 text-sm font-medium tracking-wide">請輸入 8 位數密碼以進入系統</p>
         </div>
         
         <div class="space-y-4">
             <div class="relative group">
                 <i data-lucide="key-round" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size="20"></i>
-                <input type="password" id="password-input" placeholder="請輸入 8 位數密碼" 
-                    class="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:outline-none transition-all font-bold tracking-[0.2em] placeholder:tracking-normal placeholder:font-normal"
+                <input type="password" id="password-input" placeholder="請輸入密碼" 
+                    class="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:outline-none transition-all font-bold tracking-[0.2em] placeholder:tracking-normal"
                     onkeydown="if(event.key==='Enter') verifyPassword()">
             </div>
-            <p id="error-message" class="hidden text-rose-500 text-[10px] font-black uppercase tracking-widest text-center">密碼錯誤，請重新輸入</p>
-            <button onclick="verifyPassword()" id="unlock-btn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-blue-100 tracking-widest flex items-center justify-center gap-2">
-                <span>解鎖並同步數據</span>
+            <p id="error-message" class="hidden text-rose-500 text-[10px] font-black uppercase tracking-widest text-center animate-pulse">密碼不正確，請重新輸入</p>
+            <button onclick="verifyPassword()" id="unlock-btn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-blue-100 tracking-widest">
+                解鎖並載入數據
             </button>
         </div>
     </div>
@@ -60,11 +60,11 @@
                     <i data-lucide="calculator" size="28"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-slate-800">獎金預算模擬器 (自動同步)</h1>
-                    <p class="text-slate-500 text-sm flex items-center gap-2">
-                        總人數：<span id="header-total-count" class="font-bold text-blue-600">0 人</span> 
+                    <h1 class="text-2xl font-bold text-slate-800">獎金預算模擬器 (雙重倍數版)</h1>
+                    <p class="text-slate-500 text-sm flex items-center gap-2 font-medium">
+                        總人數：<span id="header-total-count" class="font-black text-blue-600">0 人</span> 
                         <span class="text-slate-300">|</span>
-                        12月已領取：<span id="header-dec-paid" class="font-bold text-orange-600">0 人</span>
+                        12月已領取：<span id="header-dec-paid" class="font-black text-orange-600">0 人</span>
                     </p>
                 </div>
             </div>
@@ -85,13 +85,13 @@
             </div>
             
             <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 flex flex-col justify-center">
-                <p class="text-slate-400 text-xs font-bold mb-4 tracking-[0.2em] uppercase">領取狀態分佈</p>
+                <p class="text-slate-400 text-xs font-bold mb-4 tracking-[0.2em] uppercase">領取狀態分佈 (篩選後)</p>
                 <div class="flex items-center gap-12">
                     <div class="flex-1">
                         <div id="unpaid-count" class="text-4xl font-black text-slate-800 tracking-tight">0</div>
                         <div class="flex items-center gap-2 mt-1">
                             <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">12 月未領</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider text-nowrap">12 月未領</span>
                         </div>
                     </div>
                     <div class="w-px h-16 bg-slate-100"></div>
@@ -99,7 +99,7 @@
                         <div id="paid-count" class="text-4xl font-black text-orange-500 tracking-tight">0</div>
                         <div class="flex items-center gap-2 mt-1">
                             <div class="w-2 h-2 rounded-full bg-orange-500"></div>
-                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">12 月已領</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider text-nowrap">12 月已領</span>
                         </div>
                     </div>
                 </div>
@@ -124,20 +124,20 @@
 
                     <div class="relative group">
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition-colors" size="16"></i>
-                        <input oninput="handleSearch(this.value)" type="text" placeholder="搜尋品牌列表..." class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-transparent rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none placeholder:text-slate-300">
+                        <input oninput="handleSearch(this.value)" type="text" placeholder="搜尋品牌..." class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-transparent rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-100 transition-all outline-none placeholder:text-slate-300 font-medium">
                     </div>
                 </section>
             </div>
 
             <!-- Content Area -->
             <div class="lg:col-span-3 space-y-6">
-                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden min-h-[400px]">
-                    <!-- Brand Filter Area -->
+                <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden min-h-[400px]">
+                    <!-- Brand Selection -->
                     <div class="p-8 border-b border-slate-50 bg-slate-50/30">
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center justify-between mb-6">
                             <div class="flex items-center gap-2">
                                 <i data-lucide="filter" size="16" class="text-blue-600"></i>
-                                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">品牌選擇 (Brand)</h3>
+                                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">品牌選擇</h3>
                             </div>
                             <div class="flex gap-4">
                                 <button onclick="selectAllBrands()" class="text-[10px] font-bold text-blue-600 hover:underline underline-offset-4">全選</button>
@@ -152,23 +152,23 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-slate-50/50 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
-                                    <th class="px-8 py-5">品牌 (Column B)</th>
+                                    <th class="px-8 py-5">品牌名稱 (Column B)</th>
                                     <th class="px-6 py-5 text-center">總人數</th>
                                     <th class="px-6 py-5 text-center">12月已領</th>
-                                    <th class="px-6 py-5 text-right text-slate-400 italic font-medium text-xs text-xs">去年總數 (J)</th>
-                                    <th class="px-6 py-5 text-right text-blue-600 font-bold tracking-widest">本次預算</th>
+                                    <th class="px-6 py-5 text-right text-slate-300 italic font-bold text-xs tracking-wider">去年總數 (J)</th>
+                                    <th class="px-6 py-5 text-right text-blue-600 font-black tracking-widest">本次預算</th>
                                 </tr>
                             </thead>
                             <tbody id="data-table-body" class="divide-y divide-slate-50"></tbody>
                         </table>
                     </div>
-                    <div id="loading-state" class="hidden p-20 flex flex-col items-center justify-center space-y-4">
-                        <div class="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
-                        <p class="text-slate-400 text-sm font-bold uppercase tracking-widest italic">數據同步中...</p>
+                    <div id="loading-state" class="hidden p-24 flex flex-col items-center justify-center space-y-4">
+                        <div class="w-12 h-12 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin shadow-inner"></div>
+                        <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] italic">正在同步雲端數據...</p>
                     </div>
-                    <div id="empty-state" class="hidden p-12 text-center text-slate-400 text-sm font-medium">請選擇至少一個品牌進行分析</div>
+                    <div id="empty-state" class="hidden p-12 text-center text-slate-400 text-sm font-medium">請選擇至少一個品牌</div>
                 </div>
-                <div class="p-4 bg-slate-100/50 rounded-2xl border border-slate-200">
+                <div class="p-5 bg-slate-100/50 rounded-2xl border border-slate-200 shadow-inner">
                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-loose text-center">
                         註：數據自動對接 Google Sheets。計算基於 Column F (Salary) × Multiplier。
                     </p>
@@ -178,16 +178,17 @@
     </div>
 
     <script>
-        // 設定網址
+        // 設定
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKCGEF3NufqQ60Cw59xZ4hkRniMjhxBfowQJh2w7OSpMt09XG2E6Rca5DYzzq0XxquQwQLkzOLAfCU/pub?output=csv';
         const BRAND_ORDER = ["Dermes", "Reenex", "Elyze", "Evvus - Operations", "Operations Support", "Bioderma - Retail", "Bioderma - OTC", "Vigene - Operations"];
         
-        // 密碼驗證用 (35117386)
-        const __VERIFY_KEY = "MzUxMTczODY="; 
+        // 密碼：35117386
+        const __SEC = "MzUxMTczODY="; 
 
         let state = {
             rawData: [],
             activeTab: 'standard', 
+            // 預設倍數
             multipliers: { A: 0.5, B: 0.5, C: 0.3, D: 0, E: 0 },
             decMultipliers: { A: 0.3, B: 0.3, C: 0, D: 0, E: 0 },
             selectedBrands: new Set(),
@@ -196,55 +197,56 @@
             isAuthenticated: false
         };
 
+        // 直接同步驗證，解決不穩定問題
         function verifyPassword() {
-            const passwordField = document.getElementById('password-input');
-            const input = passwordField.value.trim();
+            const inputField = document.getElementById('password-input');
+            const input = inputField.value.trim();
             const errorMsg = document.getElementById('error-message');
-            const loginScreen = document.getElementById('login-screen');
-            const appContent = document.getElementById('app');
 
             if (!input) return;
 
-            if (btoa(input) === __VERIFY_KEY) {
+            // 比對 Base64
+            if (window.btoa(input) === __SEC) {
                 state.isAuthenticated = true;
-                loginScreen.classList.add('hidden');
-                appContent.classList.remove('hidden');
-                setTimeout(() => appContent.style.opacity = '1', 50);
+                document.getElementById('login-screen').classList.add('hidden');
+                const app = document.getElementById('app');
+                app.classList.remove('hidden');
+                setTimeout(() => app.style.opacity = '1', 50);
                 document.body.classList.remove('items-center', 'justify-center');
-                fetchData(); // 登入後自動抓取
+                fetchData(); 
             } else {
                 errorMsg.classList.remove('hidden');
-                passwordField.parentElement.classList.add('animate-shake');
-                setTimeout(() => passwordField.parentElement.classList.remove('animate-shake'), 400);
-                passwordField.value = '';
-                passwordField.focus();
+                inputField.parentElement.classList.add('animate-shake');
+                setTimeout(() => inputField.parentElement.classList.remove('animate-shake'), 400);
+                inputField.value = '';
+                inputField.focus();
             }
         }
 
         function parseCSV(csvText) {
             try {
                 const rows = csvText.split(/\r?\n/).map(line => {
-                    const result = []; let cur = ''; let inQuote = false;
+                    const res = []; let cur = ''; let q = false;
                     for (let i = 0; i < line.length; i++) {
-                        let char = line[i];
-                        if (char === '"') inQuote = !inQuote;
-                        else if (char === ',' && !inQuote) { result.push(cur); cur = ''; }
-                        else cur += char;
+                        let c = line[i];
+                        if (c === '"') q = !q;
+                        else if (c === ',' && !q) { res.push(cur); cur = ''; }
+                        else cur += c;
                     }
-                    result.push(cur); return result;
+                    res.push(cur); return res;
                 });
-                const parsed = rows.slice(1).filter(r => r.length > 1 && r[0] !== "").map((r, i) => {
-                    const cleanNum = v => {
-                        if (!v) return 0;
-                        return parseFloat(String(v).replace(/[$,]/g, '')) || 0;
+                const parsed = rows.slice(1).filter(r => r.length > 5 && r[0] !== "").map((r, i) => {
+                    const n = v => {
+                        const s = String(v || '').replace(/[$,]/g, '').trim();
+                        return parseFloat(s) || 0;
                     };
                     return { 
                         id: r[0] || i, 
                         brand: (r[1] || 'Unknown').trim(), 
-                        salary: cleanNum(r[5]), 
+                        salary: n(r[5]), 
                         grade: (r[7] || '').trim().toUpperCase(), 
-                        lastYear: cleanNum(r[9]), 
-                        isDecPaid: cleanNum(r[9]) > 0 
+                        lastYear: n(r[9]), 
+                        isDecPaid: n(r[9]) > 0 
                     };
                 });
 
@@ -257,39 +259,33 @@
                 state.allAvailableBrands = brands;
                 if (state.selectedBrands.size === 0) state.selectedBrands = new Set(brands);
                 return parsed;
-            } catch (e) { 
-                console.error("解析 CSV 時發生錯誤:", e);
-                return []; 
-            }
+            } catch (e) { return []; }
         }
 
         async function fetchData() {
             if (!state.isAuthenticated) return;
-            
-            const tableBody = document.getElementById('data-table-body');
             const loading = document.getElementById('loading-state');
-            const refreshBtn = document.getElementById('refresh-btn');
+            const table = document.getElementById('table-container');
+            const btn = document.getElementById('refresh-btn');
 
-            tableBody.innerHTML = '';
             loading.classList.remove('hidden');
-            refreshBtn.disabled = true;
-            refreshBtn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> 同步中...';
-            lucide.createIcons();
+            table.classList.add('opacity-30');
+            btn.disabled = true;
 
             try {
-                // 使用簡單的 fetch 獲取數據
-                const response = await fetch(CSV_URL);
-                if (!response.ok) throw new Error('連線失敗');
+                // 自動「食」CSV 連結
+                const response = await fetch(CSV_URL + '?t=' + Date.now()); // 防止緩存
+                if (!response.ok) throw new Error();
                 const text = await response.text();
                 state.rawData = parseCSV(text);
                 render();
             } catch (err) {
                 console.error(err);
-                alert("無法從 Google Sheets 自動同步。請確保連結正確並已發佈為 CSV 格式。");
+                alert("數據讀取失敗，請檢查 Google Sheets 連結權限。");
             } finally {
                 loading.classList.add('hidden');
-                refreshBtn.disabled = false;
-                refreshBtn.innerHTML = '<i data-lucide="refresh-cw"></i> 重新整理';
+                table.classList.remove('opacity-30');
+                btn.disabled = false;
                 lucide.createIcons();
             }
         }
@@ -345,7 +341,7 @@
             const container = document.getElementById('brand-filters');
             container.innerHTML = state.allAvailableBrands.map(b => {
                 const s = state.selectedBrands.has(b);
-                return `<button onclick="toggleBrand('${b}')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all border ${s ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-300'}">${s ? '<i data-lucide="check" size="12"></i>' : ''}${b}</button>`;
+                return `<button onclick="toggleBrand('${b}')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all border ${s ? 'bg-blue-600 text-white border-blue-600 shadow-md scale-105' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-300'}">${s ? '<i data-lucide="check" size="12"></i>' : ''}${b}</button>`;
             }).join('');
             lucide.createIcons();
         }
@@ -372,8 +368,8 @@
                     <td class="px-8 py-6 font-bold text-slate-800">${b.name}</td>
                     <td class="px-6 py-6 text-center"><span class="px-2.5 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-500">${b.count}</span></td>
                     <td class="px-6 py-6 text-center"><span class="px-2.5 py-1 bg-orange-50 rounded-lg text-[10px] font-bold text-orange-600">${b.paid || '-'}</span></td>
-                    <td class="px-6 py-6 text-right text-slate-300 font-mono italic text-xs">$${b.ly.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
-                    <td class="px-6 py-6 text-right font-black text-blue-600 font-mono text-base">$${b.budget.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                    <td class="px-6 py-6 text-right text-slate-300 font-mono italic font-bold text-xs">$${b.ly.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+                    <td class="px-6 py-6 text-right font-black text-blue-600 font-mono text-base tracking-tighter">$${b.budget.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
                 </tr>
             `).join('');
             document.getElementById('empty-state').classList.toggle('hidden', list.length > 0);
