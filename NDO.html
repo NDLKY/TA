@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>獎金預算模擬器 (穩定同步版)</title>
+    <title>獎金預算模擬器 (自動同步版)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -17,42 +17,13 @@
             margin: 0;
         }
         input[type="number"] { -moz-appearance: textfield; }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        .animate-shake { animation: shake 0.4s ease-in-out; }
+        .transition-opacity { transition: opacity 0.5s ease-in-out; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen pb-12 flex flex-col items-center justify-center transition-all duration-500">
-
-    <!-- 登入畫面 -->
-    <div id="login-screen" class="w-full max-w-md p-8 bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 space-y-8 animate-in fade-in zoom-in duration-300">
-        <div class="text-center space-y-4">
-            <div class="inline-flex p-4 bg-blue-600 text-white rounded-3xl shadow-lg shadow-blue-200">
-                <i data-lucide="lock" size="32"></i>
-            </div>
-            <h2 class="text-2xl font-black text-slate-800 tracking-tight">存取受保護數據</h2>
-            <p class="text-slate-400 text-sm font-medium tracking-wide">請輸入 8 位數密碼以進入系統</p>
-        </div>
-        
-        <div class="space-y-4">
-            <div class="relative group">
-                <i data-lucide="key-round" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors" size="20"></i>
-                <input type="password" id="password-input" placeholder="請輸入密碼" 
-                    class="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-600 focus:outline-none transition-all font-bold tracking-[0.2em] placeholder:tracking-normal"
-                    onkeydown="if(event.key==='Enter') verifyPassword()">
-            </div>
-            <p id="error-message" class="hidden text-rose-500 text-[10px] font-black uppercase tracking-widest text-center animate-pulse">密碼不正確，請重新輸入</p>
-            <button onclick="verifyPassword()" id="unlock-btn" class="w-full py-4 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-blue-100 tracking-widest">
-                解鎖並載入數據
-            </button>
-        </div>
-    </div>
+<body class="bg-slate-50 text-slate-900 min-h-screen pb-12">
 
     <!-- 主程式介面 -->
-    <div id="app" class="hidden w-full max-w-7xl mx-auto p-4 md:p-8 space-y-6 opacity-0 transition-opacity duration-500">
+    <div id="app" class="w-full max-w-7xl mx-auto p-4 md:p-8 space-y-6 opacity-0 transition-opacity duration-500">
         <!-- Header -->
         <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
             <div class="flex items-center gap-4">
@@ -60,16 +31,16 @@
                     <i data-lucide="calculator" size="28"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-slate-800">獎金預算模擬器 (雙重倍數版)</h1>
+                    <h1 class="text-2xl font-bold text-slate-800">獎金預算模擬器 (自動同步)</h1>
                     <p class="text-slate-500 text-sm flex items-center gap-2 font-medium">
-                        總人數：<span id="header-total-count" class="font-black text-blue-600">0 人</span> 
+                        總人數：<span id="header-total-count" class="font-black text-blue-600 tracking-tight">載入中...</span> 
                         <span class="text-slate-300">|</span>
-                        12月已領取：<span id="header-dec-paid" class="font-black text-orange-600">0 人</span>
+                        12月已領取：<span id="header-dec-paid" class="font-black text-orange-600 tracking-tight">載入中...</span>
                     </p>
                 </div>
             </div>
             <button onclick="fetchData()" id="refresh-btn" class="flex items-center gap-2 px-6 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-bold transition-all shadow-sm">
-                <i data-lucide="refresh-cw" size="16"></i> 重新整理
+                <i data-lucide="refresh-cw" size="16" id="refresh-icon"></i> 重新整理數據
             </button>
         </header>
 
@@ -91,7 +62,7 @@
                         <div id="unpaid-count" class="text-4xl font-black text-slate-800 tracking-tight">0</div>
                         <div class="flex items-center gap-2 mt-1">
                             <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider text-nowrap">12 月未領</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider text-nowrap">12 月未領人員</span>
                         </div>
                     </div>
                     <div class="w-px h-16 bg-slate-100"></div>
@@ -99,7 +70,7 @@
                         <div id="paid-count" class="text-4xl font-black text-orange-500 tracking-tight">0</div>
                         <div class="flex items-center gap-2 mt-1">
                             <div class="w-2 h-2 rounded-full bg-orange-500"></div>
-                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider text-nowrap">12 月已領</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider text-nowrap">12 月已領人員</span>
                         </div>
                     </div>
                 </div>
@@ -163,13 +134,13 @@
                         </table>
                     </div>
                     <div id="loading-state" class="hidden p-24 flex flex-col items-center justify-center space-y-4">
-                        <div class="w-12 h-12 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin shadow-inner"></div>
-                        <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] italic">正在同步雲端數據...</p>
+                        <div class="w-12 h-12 border-4 border-slate-100 border-t-blue-600 rounded-full animate-spin"></div>
+                        <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] italic">正在同步數據中...</p>
                     </div>
-                    <div id="empty-state" class="hidden p-12 text-center text-slate-400 text-sm font-medium">請選擇至少一個品牌</div>
+                    <div id="empty-state" class="hidden p-12 text-center text-slate-400 text-sm font-medium">請選擇至少一個品牌進行分析</div>
                 </div>
-                <div class="p-5 bg-slate-100/50 rounded-2xl border border-slate-200 shadow-inner">
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-loose text-center">
+                <div class="p-5 bg-slate-100/50 rounded-2xl border border-slate-200 text-center">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-loose">
                         註：數據自動對接 Google Sheets。計算基於 Column F (Salary) × Multiplier。
                     </p>
                 </div>
@@ -177,51 +148,38 @@
         </div>
     </div>
 
+    <!-- 備用手動數據貼上彈窗 -->
+    <div id="fallback-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-[2rem] p-8 shadow-2xl space-y-6 animate-in zoom-in duration-300">
+            <div class="flex items-center gap-4 text-amber-600">
+                <i data-lucide="alert-triangle" size="32"></i>
+                <div>
+                    <h3 class="text-xl font-bold">數據自動同步失敗</h3>
+                    <p class="text-sm text-slate-500">因網絡限制無法自動抓取數據，請從試算表複製所有內容並貼到下方。</p>
+                </div>
+            </div>
+            <textarea id="fallback-input" class="w-full h-48 p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none" placeholder="在此處貼上 CSV 內容..."></textarea>
+            <div class="flex gap-4">
+                <button onclick="document.getElementById('fallback-modal').classList.add('hidden')" class="flex-1 py-3 text-slate-500 font-bold hover:bg-slate-50 rounded-xl transition-colors">稍後再試</button>
+                <button onclick="handleFallbackSubmit()" class="flex-[2] py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all">套用貼上的數據</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // 設定
+        // 設定網址
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKCGEF3NufqQ60Cw59xZ4hkRniMjhxBfowQJh2w7OSpMt09XG2E6Rca5DYzzq0XxquQwQLkzOLAfCU/pub?output=csv';
         const BRAND_ORDER = ["Dermes", "Reenex", "Elyze", "Evvus - Operations", "Operations Support", "Bioderma - Retail", "Bioderma - OTC", "Vigene - Operations"];
-        
-        // 密碼：35117386
-        const __SEC = "MzUxMTczODY="; 
 
         let state = {
             rawData: [],
             activeTab: 'standard', 
-            // 預設倍數
             multipliers: { A: 0.5, B: 0.5, C: 0.3, D: 0, E: 0 },
             decMultipliers: { A: 0.3, B: 0.3, C: 0, D: 0, E: 0 },
             selectedBrands: new Set(),
             allAvailableBrands: [],
             searchTerm: '',
-            isAuthenticated: false
         };
-
-        // 直接同步驗證，解決不穩定問題
-        function verifyPassword() {
-            const inputField = document.getElementById('password-input');
-            const input = inputField.value.trim();
-            const errorMsg = document.getElementById('error-message');
-
-            if (!input) return;
-
-            // 比對 Base64
-            if (window.btoa(input) === __SEC) {
-                state.isAuthenticated = true;
-                document.getElementById('login-screen').classList.add('hidden');
-                const app = document.getElementById('app');
-                app.classList.remove('hidden');
-                setTimeout(() => app.style.opacity = '1', 50);
-                document.body.classList.remove('items-center', 'justify-center');
-                fetchData(); 
-            } else {
-                errorMsg.classList.remove('hidden');
-                inputField.parentElement.classList.add('animate-shake');
-                setTimeout(() => inputField.parentElement.classList.remove('animate-shake'), 400);
-                inputField.value = '';
-                inputField.focus();
-            }
-        }
 
         function parseCSV(csvText) {
             try {
@@ -263,37 +221,48 @@
         }
 
         async function fetchData() {
-            if (!state.isAuthenticated) return;
             const loading = document.getElementById('loading-state');
             const table = document.getElementById('table-container');
             const btn = document.getElementById('refresh-btn');
+            const icon = document.getElementById('refresh-icon');
 
             loading.classList.remove('hidden');
-            table.classList.add('opacity-30');
+            table.classList.add('opacity-20');
             btn.disabled = true;
+            icon.classList.add('animate-spin');
 
             try {
-                // 自動「食」CSV 連結
-                const response = await fetch(CSV_URL + '?t=' + Date.now()); // 防止緩存
+                // 自動「食」數據，加上時間戳防止快取
+                const response = await fetch(`${CSV_URL}&cachebuster=${Date.now()}`, { cache: 'no-store' });
                 if (!response.ok) throw new Error();
                 const text = await response.text();
                 state.rawData = parseCSV(text);
                 render();
             } catch (err) {
-                console.error(err);
-                alert("數據讀取失敗，請檢查 Google Sheets 連結權限。");
+                console.error("Fetch error:", err);
+                document.getElementById('fallback-modal').classList.remove('hidden');
             } finally {
                 loading.classList.add('hidden');
-                table.classList.remove('opacity-30');
+                table.classList.remove('opacity-20');
                 btn.disabled = false;
+                icon.classList.remove('animate-spin');
                 lucide.createIcons();
+            }
+        }
+
+        function handleFallbackSubmit() {
+            const text = document.getElementById('fallback-input').value;
+            if (text.trim()) {
+                state.rawData = parseCSV(text);
+                document.getElementById('fallback-modal').classList.add('hidden');
+                render();
             }
         }
 
         function setActiveTab(tab) {
             state.activeTab = tab;
-            document.getElementById('tab-standard').className = `flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${tab === 'standard' ? 'bg-white text-blue-600 shadow-sm border border-slate-100' : 'text-slate-400'}`;
-            document.getElementById('tab-decPaid').className = `flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${tab === 'decPaid' ? 'bg-white text-orange-600 shadow-sm border border-slate-100' : 'text-slate-400'}`;
+            document.getElementById('tab-standard').className = `flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${tab === 'standard' ? 'bg-white text-blue-600 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'}`;
+            document.getElementById('tab-decPaid').className = `flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${tab === 'decPaid' ? 'bg-white text-orange-600 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'}`;
             renderMultipliers();
         }
 
@@ -319,18 +288,23 @@
             const data = state.activeTab === 'standard' ? state.multipliers : state.decMultipliers;
             const colors = { A: 'bg-rose-500', B: 'bg-orange-500', C: 'bg-amber-500', D: 'bg-blue-500', E: 'bg-slate-400' };
             const accent = state.activeTab === 'standard' ? 'text-blue-600' : 'text-orange-600';
-            const btn = state.activeTab === 'standard' ? 'hover:bg-blue-50 text-blue-600' : 'hover:bg-orange-50 text-orange-600';
+            const btnClass = state.activeTab === 'standard' ? 'hover:bg-blue-50 text-blue-600' : 'hover:bg-orange-50 text-orange-600';
 
             container.innerHTML = ['A', 'B', 'C', 'D', 'E'].map(g => `
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between group">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-xs ${colors[g]}">${g}</div>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-xs ${colors[g]} shadow-sm">${g}</div>
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Grade ${g}</span>
                     </div>
                     <div class="flex items-center bg-slate-50 rounded-xl border border-slate-100 p-0.5 shadow-inner">
-                        <button onclick="adjustMultiplier('${g}', -0.1)" class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${btn}"><i data-lucide="minus" size="14"></i></button>
-                        <input type="number" step="0.1" value="${data[g].toFixed(1)}" onchange="handleMultiplierChange('${g}', this.value)" class="w-10 bg-transparent font-bold text-center text-xs focus:outline-none ${accent}">
-                        <button onclick="adjustMultiplier('${g}', 0.1)" class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${btn}"><i data-lucide="plus" size="14"></i></button>
+                        <button onclick="adjustMultiplier('${g}', -0.1)" class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${btnClass}">
+                            <i data-lucide="minus" size="14"></i>
+                        </button>
+                        <input type="number" step="0.1" value="${data[g].toFixed(1)}" onchange="handleMultiplierChange('${g}', this.value)" 
+                            class="w-10 bg-transparent font-black text-center text-xs focus:outline-none ${accent}">
+                        <button onclick="adjustMultiplier('${g}', 0.1)" class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors ${btnClass}">
+                            <i data-lucide="plus" size="14"></i>
+                        </button>
                     </div>
                 </div>
             `).join('');
@@ -378,15 +352,24 @@
 
         function updateStats(list) {
             const t = list.reduce((a, c) => ({ b: a.b + c.budget, c: a.c + c.count, p: a.p + c.paid }), { b:0, c:0, p:0 });
-            document.getElementById('header-total-count').textContent = `${t.c} 人`;
-            document.getElementById('header-dec-paid').textContent = `${t.p} 人`;
+            const allT = state.rawData.reduce((a, c) => ({ c: a.c + 1, p: a.p + (c.isDecPaid ? 1 : 0) }), { c:0, p:0 });
+            
+            document.getElementById('header-total-count').textContent = `${allT.c} 人`;
+            document.getElementById('header-dec-paid').textContent = `${allT.p} 人`;
             document.getElementById('total-budget').textContent = `$${t.b.toLocaleString(undefined, {maximumFractionDigits:0})}`;
             document.getElementById('unpaid-count').textContent = t.c - t.p;
             document.getElementById('paid-count').textContent = t.p;
         }
 
         function render() { renderMultipliers(); renderBrandFilters(); renderTable(); }
-        window.onload = () => { lucide.createIcons(); document.getElementById('password-input').focus(); };
+        
+        window.onload = () => { 
+            const app = document.getElementById('app');
+            app.classList.remove('hidden');
+            setTimeout(() => app.style.opacity = '1', 50);
+            lucide.createIcons(); 
+            fetchData(); 
+        };
     </script>
 </body>
 </html>
