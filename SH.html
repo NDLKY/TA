@@ -1,348 +1,335 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Clock, 
-  Info, 
-  AlertTriangle, 
-  CheckCircle2, 
-  UserCheck, 
-  CalendarDays, 
-  Printer, 
-  Menu, 
-  X,
-  Calendar,
-  ShieldCheck,
-  ChevronRight
-} from 'lucide-react';
-
-const App = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  // 滾動監聽以改變導航欄樣式
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const scheduleData = [
-    {
-      date: '4月3日 (五)',
-      title: '耶穌受難節',
-      tag: '公眾假期',
-      tagColor: 'bg-orange-500',
-      time: '12:00 - 18:00',
-      workRule: {
-        main: '上班沒有補假 (CPL)',
-        detail: ''
-      },
-      leaveRule: {
-        main: '需申請 1 日假期 (不可 0.5 日)',
-        detail: '必須事先取得 CIC 同意'
-      },
-      isStatutory: false
-    },
-    {
-      date: '4月4日 (六)',
-      title: '耶穌受難節翌日',
-      tag: '公眾假期',
-      tagColor: 'bg-orange-500',
-      time: '12:00 - 18:00',
-      workRule: {
-        main: '上班沒有補假 (CPL)',
-        detail: ''
-      },
-      leaveRule: {
-        main: '需申請 1 日假期 (不可 0.5 日)',
-        detail: '必須事先取得 CIC 同意'
-      },
-      isStatutory: false
-    },
-    {
-      date: '4月6日 (一)',
-      title: '清明節翌日或復活節星期一',
-      tag: '法定假期',
-      tagColor: 'bg-emerald-600',
-      time: '12:00 - 18:00',
-      workRule: {
-        main: '上班有補假',
-        detail: '(入職滿3個月: CPL / 未滿3個月: No Pay CPL)'
-      },
-      leaveRule: {
-        main: '不用申請假期 (自動放法定假)',
-        detail: '入職滿3個月: 有薪 / 未滿3個月: 無薪(No Pay CPL)'
-      },
-      isStatutory: true
-    },
-    {
-      date: '4月7日 (二)',
-      title: '復活節星期一翌日',
-      tag: '公眾假期 (補回4/5法定假)',
-      tagColor: 'bg-emerald-600',
-      time: '12:00 - 18:00',
-      workRule: {
-        main: '上班有補假',
-        detail: '(入職滿3個月: CPL / 未滿3個月: No Pay CPL)'
-      },
-      leaveRule: {
-        main: '不用申請假期 (自動放法定假)',
-        detail: '入職滿3個月: 有薪 / 未滿3個月: 無薪(No Pay CPL)'
-      },
-      isStatutory: true
-    }
-  ];
-
-  return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 selection:bg-indigo-100 selection:text-indigo-900">
-      
-      {/* 頂部導航欄 */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 print:hidden ${
-        scrolled ? 'bg-white/80 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-5'
-      }`}>
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="bg-slate-900 p-2 rounded-lg text-white">
-              <CalendarDays size={20} />
-            </div>
-            <span className="font-black text-xl tracking-tighter uppercase">Staff<span className="text-indigo-600">Portal</span></span>
-          </div>
-          
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#schedule" className="text-sm font-bold hover:text-indigo-600 transition-colors">假期安排</a>
-            <a href="#policy" className="text-sm font-bold hover:text-indigo-600 transition-colors">行政守則</a>
-            <button 
-              onClick={() => window.print()}
-              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-full font-bold shadow-md transition-all active:scale-95 text-sm"
-            >
-              <Printer size={16} /> 列印告示
-            </button>
-          </div>
-
-          <button className="md:hidden text-slate-900" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
-        </div>
-      </nav>
-
-      {/* 手機選單 */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 bg-white z-40 md:hidden pt-24 px-6 animate-in fade-in slide-in-from-top-4">
-          <div className="flex flex-col gap-6">
-            <a href="#schedule" onClick={() => setIsMenuOpen(false)} className="text-2xl font-black border-b pb-4">假期安排</a>
-            <a href="#policy" onClick={() => setIsMenuOpen(false)} className="text-2xl font-black border-b pb-4">行政守則</a>
-            <button onClick={() => window.print()} className="w-full flex justify-center items-center gap-2 bg-indigo-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-indigo-100">
-              <Printer size={20} /> 列印紙本告示
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Hero 區塊 */}
-      <header className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 overflow-hidden bg-slate-900 text-white print:bg-white print:text-slate-900 print:pt-10 print:pb-10">
-        <div className="absolute inset-0 opacity-10 print:hidden">
-          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_20%,rgba(79,70,229,0.3),transparent_70%)]"></div>
-        </div>
-        
-        <div className="max-w-5xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 bg-indigo-500/20 text-indigo-300 px-4 py-1.5 rounded-full text-[10px] font-black mb-6 border border-indigo-500/30 uppercase tracking-[0.2em] print:hidden">
-            重要行政公告 • 重要行政公告
-          </div>
-          <h1 className="text-4xl md:text-7xl font-black mb-6 tracking-tight leading-tight">
-            4月假期營業及<br/>
-            <span className="text-indigo-400 italic">行政指南 📋</span>
-          </h1>
-          <p className="text-slate-400 text-lg md:text-xl font-medium max-w-2xl mx-auto mb-10 leading-relaxed print:text-slate-600">
-            致全體 Operations, CIC 及前台同事：<br/>
-            請查閱以下關於清明節及復活節假期期間的中心安排及補假守則。
-          </p>
-          
-          <div className="flex flex-col md:flex-row justify-center gap-4 print:hidden">
-            <div className="bg-white/5 backdrop-blur-md border border-white/10 px-8 py-5 rounded-[2rem]">
-              <div className="text-indigo-400 font-black text-3xl mb-1">12:00 - 18:00</div>
-              <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">假期中心營業時間</div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* 假期列表 */}
-      <main className="max-w-7xl mx-auto px-6 py-20" id="schedule">
-        <div className="flex items-center gap-4 mb-12">
-          <div className="h-px bg-slate-200 flex-grow"></div>
-          <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.3em]">假期詳情 Schedule</h2>
-          <div className="h-px bg-slate-200 flex-grow"></div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24">
-          {scheduleData.map((item, index) => (
-            <div key={index} className="group bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-indigo-100 transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between print:shadow-none print:border-2 print:border-slate-100">
-              <div className="mb-8">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="text-[10px] font-black text-slate-400 tracking-widest uppercase">{item.date}</div>
-                  <span className={`px-3 py-1 rounded-lg text-[9px] font-black text-white shadow-sm ${item.tagColor}`}>
-                    {item.tag}
-                  </span>
-                </div>
-                <h3 className="text-2xl font-black text-slate-900 leading-tight mb-4 group-hover:text-indigo-600 transition-colors">
-                  {item.title}
-                </h3>
-                
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <UserCheck size={18} className="text-indigo-500 shrink-0 mt-1" />
-                    <div>
-                      <div className="text-[10px] font-black text-slate-400 uppercase mb-0.5">當日上班：</div>
-                      <div className="font-black text-slate-800 text-sm">{item.workRule.main}</div>
-                      {item.workRule.detail && <div className="text-[10px] text-slate-500 font-bold mt-1">{item.workRule.detail}</div>}
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <Info size={18} className="text-rose-500 shrink-0 mt-1" />
-                    <div>
-                      <div className="text-[10px] font-black text-slate-400 uppercase mb-0.5">當日放假：</div>
-                      <div className="font-black text-rose-800 text-sm leading-tight">{item.leaveRule.main}</div>
-                      {item.leaveRule.detail && <div className="text-[10px] text-rose-500 font-bold mt-1 leading-tight">{item.leaveRule.detail}</div>}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {!item.isStatutory && (
-                <div className="flex items-center gap-2 text-[10px] font-black text-orange-600 bg-orange-50 p-3 rounded-2xl border border-orange-100">
-                  <AlertTriangle size={14} className="shrink-0" />
-                  <span>必須事先取得 CIC 同意</span>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* 行政政策區塊 */}
-        <section id="policy" className="bg-white rounded-[3rem] shadow-2xl shadow-indigo-100/50 p-8 md:p-16 border border-slate-100 print:shadow-none print:border-2">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-16">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-2 flex items-center gap-4">
-                <div className="bg-indigo-600 p-2 rounded-xl text-white shadow-lg shadow-indigo-100">
-                  <ShieldCheck size={28} />
-                </div>
-                行政補假守則
-              </h2>
-              <p className="text-slate-500 font-medium pl-14">請管理層及同事仔細閱讀以下 HR 準則</p>
-            </div>
-            <div className="bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 hidden md:block">
-              <span className="text-[10px] font-black text-slate-400 tracking-widest uppercase">版本: 2024.V1</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* NPCPL */}
-            <div className="space-y-8">
-              <div className="flex items-center gap-3 text-rose-600">
-                <div className="w-10 h-1 bg-rose-500 rounded-full"></div>
-                <h3 className="font-black text-xl uppercase tracking-tight">無薪補假 (No Pay CPL) 指引</h3>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="group bg-slate-50 p-6 rounded-[2rem] border border-transparent hover:border-rose-100 hover:bg-white transition-all">
-                  <div className="flex gap-5">
-                    <span className="bg-rose-100 text-rose-600 w-8 h-8 rounded-full flex items-center justify-center font-black shrink-0">1</span>
-                    <div>
-                      <h4 className="font-black text-slate-800 mb-2">計算方法</h4>
-                      <p className="text-sm text-slate-600 leading-relaxed font-bold">
-                        將扣減 1 日底薪 + 培訓津貼 / 保證佣金。
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="group bg-slate-50 p-6 rounded-[2rem] border border-transparent hover:border-rose-100 hover:bg-white transition-all">
-                  <div className="flex gap-5">
-                    <span className="bg-rose-100 text-rose-600 w-8 h-8 rounded-full flex items-center justify-center font-black shrink-0">2</span>
-                    <div>
-                      <h4 className="font-black text-slate-800 mb-2">勤工獎項</h4>
-                      <p className="text-sm text-slate-600 leading-relaxed font-bold underline decoration-rose-300 decoration-2">
-                        絕對不影響當月勤工獎。
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <p className="text-[10px] text-slate-400 italic pl-4">* 適用於入職未滿 3 個月之同事。</p>
-              </div>
-            </div>
-
-            {/* Leave System */}
-            <div className="space-y-8">
-              <div className="flex items-center gap-3 text-indigo-600">
-                <div className="w-10 h-1 bg-indigo-500 rounded-full"></div>
-                <h3 className="font-black text-xl uppercase tracking-tight">系統申假摘要 (Leave Summary)</h3>
-              </div>
-
-              <div className="bg-indigo-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-xl shadow-indigo-100">
-                <div className="absolute top-0 right-0 p-4 opacity-5"><Calendar size={120} /></div>
-                
-                <div className="relative z-10 space-y-8">
-                  <div className="flex gap-6 items-start">
-                    <div className="bg-white/10 p-3 rounded-2xl border border-white/10 shrink-0"><CalendarDays size={20} /></div>
-                    <div>
-                      <h4 className="font-black text-lg mb-2">4/3 & 4/4 (公眾假期)</h4>
-                      <p className="text-sm text-indigo-100/80 leading-relaxed font-medium">
-                        如需放假，系統必須申請 <span className="text-white font-black underline decoration-indigo-400">1.0 DAY</span>。<br/>
-                        <span className="text-orange-400 text-xs font-bold">🚫 不接受 0.5 DAY 之申請。</span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-6 items-start border-t border-white/10 pt-8">
-                    <div className="bg-white/10 p-3 rounded-2xl border border-white/10 shrink-0"><CheckCircle2 size={20} /></div>
-                    <div>
-                      <h4 className="font-black text-lg mb-2">4/6 & 4/7 (法定假期相關)</h4>
-                      <p className="text-sm text-indigo-100/80 leading-relaxed font-medium">
-                        放假同事 <span className="text-white font-black">無需在系統輸入假期</span>，系統將自動處理補假。
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* 頁腳 */}
-      <footer className="bg-slate-900 py-20 px-6 text-center text-slate-500 print:hidden">
-        <div className="max-w-4xl mx-auto flex flex-col items-center">
-          <div className="bg-white/5 p-3 rounded-2xl mb-8">
-            <CalendarDays size={32} className="text-white" />
-          </div>
-          <p className="text-xs font-black tracking-[0.4em] uppercase text-slate-400 mb-6">
-            Operations • CIC • Front-End Notice System
-          </p>
-          <p className="text-xs leading-loose max-w-lg mb-12 opacity-60 font-medium">
-            本資訊由營運部門發布，僅供內部參考。如有任何行政爭議，請以 HR 最新公佈之《僱傭條例》及公司內部守則為最終依據。
-          </p>
-          <div className="w-20 h-1 bg-indigo-600 rounded-full"></div>
-        </div>
-      </footer>
-
-      {/* 打印優化樣式 */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @media print {
-          nav { display: none !important; }
-          .min-h-screen { background: white !important; }
-          header { background: #0f172a !important; color: white !important; padding: 2rem !important; border-radius: 0 !important; }
-          main { padding: 0 !important; }
-          .rounded-[3rem] { border-radius: 1rem !important; margin-top: 2rem !important; }
-          .grid { display: grid !important; grid-template-cols: repeat(2, 1fr) !important; gap: 1rem !important; }
-          footer { display: none !important; }
-          @page { margin: 1cm; size: portrait; }
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4月假期營業及行政安排指南</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Noto Sans HK -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans HK', sans-serif; }
+        .hero-gradient {
+            background: radial-gradient(circle at 50% 20%, rgba(79, 70, 229, 0.3), transparent 70%), #0f172a;
         }
-      `}} />
-    </div>
-  );
-};
+        @media print {
+            .no-print { display: none !important; }
+            .print-shadow { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+            body { background: white !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
 
-export default App;
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-300 py-5 no-print">
+        <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="bg-indigo-600 p-2 rounded-lg text-white">
+                    <i data-lucide="calendar-days" class="w-5 h-5"></i>
+                </div>
+                <span class="font-black text-xl tracking-tighter uppercase">Staff<span class="text-indigo-600">Portal</span></span>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#schedule" class="text-sm font-bold hover:text-indigo-600 transition-colors">假期安排</a>
+                <a href="#policy" class="text-sm font-bold hover:text-indigo-600 transition-colors">行政守則</a>
+                <button onclick="window.print()" class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-full font-bold shadow-md transition-all active:scale-95 text-sm">
+                    <i data-lucide="printer" class="w-4 h-4"></i> 列印告示
+                </button>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="menuBtn" class="md:hidden text-slate-900">
+                <i data-lucide="menu" class="w-7 h-7"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileMenu" class="fixed inset-0 bg-white z-40 hidden pt-24 px-6 no-print">
+        <div class="flex flex-col gap-6">
+            <a href="#schedule" class="mobile-link text-2xl font-black border-b pb-4">假期安排</a>
+            <a href="#policy" class="mobile-link text-2xl font-black border-b pb-4">行政守則</a>
+            <button onclick="window.print()" class="w-full flex justify-center items-center gap-2 bg-indigo-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-indigo-100">
+                <i data-lucide="printer" class="w-5 h-5"></i> 列印紙本告示
+            </button>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <header class="hero-gradient pt-32 pb-20 md:pt-48 md:pb-32 px-6 text-white text-center relative overflow-hidden print:bg-slate-900 print:pt-10 print:pb-10">
+        <div class="max-w-5xl mx-auto relative z-10">
+            <div class="inline-flex items-center gap-2 bg-indigo-500/20 text-indigo-300 px-4 py-1.5 rounded-full text-[10px] font-black mb-6 border border-indigo-500/30 uppercase tracking-[0.2em] no-print">
+                重要行政公告 • 重要行政公告
+            </div>
+            <h1 class="text-4xl md:text-7xl font-black mb-6 tracking-tight leading-tight">
+                4月假期營業及<br/>
+                <span class="text-indigo-400 italic font-medium">行政指南 📋</span>
+            </h1>
+            <p class="text-slate-400 text-lg md:text-xl font-medium max-w-2xl mx-auto mb-10 leading-relaxed print:text-slate-300">
+                致全體 Operations, CIC 及前台同事：<br/>
+                請查閱以下關於清明節及復活節假期期間的中心安排及補假守則。
+            </p>
+            
+            <div class="flex justify-center gap-4 no-print">
+                <div class="bg-white/5 backdrop-blur-md border border-white/10 px-8 py-5 rounded-[2rem]">
+                    <div class="text-indigo-400 font-black text-3xl mb-1">12:00 - 18:00</div>
+                    <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest">假期中心營業時間</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-20" id="schedule">
+        <!-- Section Header -->
+        <div class="flex items-center gap-4 mb-12">
+            <div class="h-px bg-slate-200 flex-grow"></div>
+            <h2 class="text-sm font-black text-slate-400 uppercase tracking-[0.3em]">假期詳情 Schedule</h2>
+            <div class="h-px bg-slate-200 flex-grow"></div>
+        </div>
+
+        <!-- Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24" id="cardsContainer">
+            <!-- Cards will be populated here -->
+        </div>
+
+        <!-- Policy Section -->
+        <section id="policy" class="bg-white rounded-[3rem] shadow-2xl shadow-indigo-100/50 p-8 md:p-16 border border-slate-100 print-shadow">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-16">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-2 flex items-center gap-4">
+                        <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-lg shadow-indigo-100">
+                            <i data-lucide="shield-check" class="w-7 h-7"></i>
+                        </div>
+                        行政補假守則
+                    </h2>
+                    <p class="text-slate-500 font-medium pl-14">請管理層及同事仔細閱讀以下 HR 準則</p>
+                </div>
+                <div class="bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 hidden md:block no-print">
+                    <span class="text-[10px] font-black text-slate-400 tracking-widest uppercase">版本: 2024.V2</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Left Column: NPCPL -->
+                <div class="space-y-8">
+                    <div class="flex items-center gap-3 text-rose-600">
+                        <div class="w-10 h-1 bg-rose-500 rounded-full"></div>
+                        <h3 class="font-black text-xl uppercase tracking-tight">無薪補假 (No Pay CPL) 指引</h3>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-slate-50 p-6 rounded-[2rem] border border-transparent hover:border-rose-100 transition-all">
+                            <div class="flex gap-5">
+                                <span class="bg-rose-100 text-rose-600 w-8 h-8 rounded-full flex items-center justify-center font-black shrink-0">1</span>
+                                <div>
+                                    <h4 class="font-black text-slate-800 mb-2">計算方法</h4>
+                                    <p class="text-sm text-slate-600 leading-relaxed font-bold">
+                                        將扣減 1 日底薪 + 培訓津貼 / 保證佣金。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-6 rounded-[2rem] border border-transparent hover:border-rose-100 transition-all">
+                            <div class="flex gap-5">
+                                <span class="bg-rose-100 text-rose-600 w-8 h-8 rounded-full flex items-center justify-center font-black shrink-0">2</span>
+                                <div>
+                                    <h4 class="font-black text-slate-800 mb-2">勤工獎項</h4>
+                                    <p class="text-sm text-slate-600 leading-relaxed font-bold underline decoration-rose-300 decoration-2">
+                                        絕對不影響當月勤工獎。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 italic pl-4">* 適用於入職未滿 3 個月之同事。</p>
+                    </div>
+                </div>
+
+                <!-- Right Column: System Summary -->
+                <div class="space-y-8">
+                    <div class="flex items-center gap-3 text-indigo-600">
+                        <div class="w-10 h-1 bg-indigo-500 rounded-full"></div>
+                        <h3 class="font-black text-xl uppercase tracking-tight">系統申假摘要 (Leave Summary)</h3>
+                    </div>
+
+                    <div class="bg-indigo-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-xl shadow-indigo-100">
+                        <div class="relative z-10 space-y-8">
+                            <div class="flex gap-6 items-start">
+                                <div class="bg-white/10 p-3 rounded-2xl border border-white/10 shrink-0"><i data-lucide="calendar" class="w-5 h-5"></i></div>
+                                <div>
+                                    <h4 class="font-black text-lg mb-2">4/3 & 4/4 (公眾假期)</h4>
+                                    <p class="text-sm text-indigo-100/80 leading-relaxed font-medium">
+                                        如需放假，系統必須申請 <span class="text-white font-black underline decoration-indigo-400">1.0 DAY</span>。<br/>
+                                        <span class="text-orange-400 text-xs font-bold">🚫 不接受 0.5 DAY 之申請。</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-6 items-start border-t border-white/10 pt-8">
+                                <div class="bg-white/10 p-3 rounded-2xl border border-white/10 shrink-0"><i data-lucide="check-circle" class="w-5 h-5"></i></div>
+                                <div>
+                                    <h4 class="font-black text-lg mb-2">4/6 & 4/7 (法定假期相關)</h4>
+                                    <p class="text-sm text-indigo-100/80 leading-relaxed font-medium">
+                                        放假同事 <span class="text-white font-black">無需在系統輸入假期</span>，系統將自動處理。待遇視乎入職是否滿 3 個月。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-900 py-20 px-6 text-center text-slate-500 no-print">
+        <div class="max-w-4xl mx-auto flex flex-col items-center">
+            <div class="bg-white/5 p-3 rounded-2xl mb-8">
+                <i data-lucide="calendar-days" class="w-8 h-8 text-white"></i>
+            </div>
+            <p class="text-xs font-black tracking-[0.4em] uppercase text-slate-400 mb-6">
+                Operations • CIC • Front-End Notice System
+            </p>
+            <p class="text-xs leading-loose max-w-lg mb-12 opacity-60 font-medium">
+                本資訊由營運部門發布，僅供內部參考。如有任何行政爭議，請以 HR 最新公佈之《僱傭條例》及公司內部守則為最終依據。
+            </p>
+            <div class="w-20 h-1 bg-indigo-600 rounded-full"></div>
+        </div>
+    </footer>
+
+    <!-- Lucide Icons Script -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        // Data Structure
+        const scheduleData = [
+            {
+                date: '4月3日 (五)',
+                title: '耶穌受難節',
+                tag: '公眾假期',
+                tagColor: 'bg-orange-500',
+                workRule: '上班沒有補假 (CPL)',
+                workDetail: '',
+                leaveRule: '需申請 1 日假期 (不可 0.5 日)',
+                leaveDetail: '必須事先取得 CIC 同意',
+                isStatutory: false
+            },
+            {
+                date: '4月4日 (六)',
+                title: '耶穌受難節翌日',
+                tag: '公眾假期',
+                tagColor: 'bg-orange-500',
+                workRule: '上班沒有補假 (CPL)',
+                workDetail: '',
+                leaveRule: '需申請 1 日假期 (不可 0.5 日)',
+                leaveDetail: '必須事先取得 CIC 同意',
+                isStatutory: false
+            },
+            {
+                date: '4月6日 (一)',
+                title: '清明節翌日或復活節星期一',
+                tag: '法定假期',
+                tagColor: 'bg-emerald-600',
+                workRule: '上班有補假',
+                workDetail: '(入職滿3個月: CPL / 未滿: No Pay CPL)',
+                leaveRule: '不用申請假期 (自動放法定假)',
+                leaveDetail: '滿3個月: 有薪 / 未滿: 無薪(No Pay CPL)',
+                isStatutory: true
+            },
+            {
+                date: '4月7日 (二)',
+                title: '復活節星期一翌日',
+                tag: '公眾假期 (補回4/5法定假)',
+                tagColor: 'bg-emerald-600',
+                workRule: '上班有補假',
+                workDetail: '(入職滿3個月: CPL / 未滿: No Pay CPL)',
+                leaveRule: '不用申請假期 (自動放法定假)',
+                leaveDetail: '滿3個月: 有薪 / 未滿: 無薪(No Pay CPL)',
+                isStatutory: true
+            }
+        ];
+
+        // Populate Cards
+        const container = document.getElementById('cardsContainer');
+        scheduleData.forEach(item => {
+            const card = document.createElement('div');
+            card.className = "group bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 hover:shadow-2xl hover:shadow-indigo-100 transition-all duration-500 flex flex-col justify-between print-shadow";
+            
+            card.innerHTML = `
+                <div class="mb-8">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="text-[10px] font-black text-slate-400 tracking-widest uppercase">${item.date}</div>
+                        <span class="px-3 py-1 rounded-lg text-[9px] font-black text-white shadow-sm ${item.tagColor}">${item.tag}</span>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-900 leading-tight mb-6 group-hover:text-indigo-600 transition-colors">${item.title}</h3>
+                    
+                    <div class="space-y-5">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="user-check" class="w-5 h-5 text-indigo-500 shrink-0 mt-1"></i>
+                            <div>
+                                <div class="text-[10px] font-black text-slate-400 uppercase mb-0.5">當日上班：</div>
+                                <div class="font-black text-slate-800 text-sm leading-tight">${item.workRule}</div>
+                                ${item.workDetail ? `<div class="text-[10px] text-slate-500 font-bold mt-1">${item.workDetail}</div>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="info" class="w-5 h-5 text-rose-500 shrink-0 mt-1"></i>
+                            <div>
+                                <div class="text-[10px] font-black text-slate-400 uppercase mb-0.5">當日放假：</div>
+                                <div class="font-black text-rose-800 text-sm leading-tight">${item.leaveRule}</div>
+                                ${item.leaveDetail ? `<div class="text-[10px] text-rose-500 font-bold mt-1 leading-tight">${item.leaveDetail}</div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                ${!item.isStatutory ? `
+                <div class="flex items-center gap-2 text-[10px] font-black text-orange-600 bg-orange-50 p-3 rounded-2xl border border-orange-100">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
+                    <span>必須事先取得 CIC 同意</span>
+                </div>` : ''}
+            `;
+            container.appendChild(card);
+        });
+
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('bg-white/80', 'backdrop-blur-md', 'shadow-sm', 'py-3');
+                nav.classList.remove('py-5');
+            } else {
+                nav.classList.remove('bg-white/80', 'backdrop-blur-md', 'shadow-sm', 'py-3');
+                nav.classList.add('py-5');
+            }
+        });
+
+        // Mobile Menu Logic
+        const menuBtn = document.getElementById('menuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const links = document.querySelectorAll('.mobile-link');
+
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            const icon = menuBtn.querySelector('i');
+            if (mobileMenu.classList.contains('hidden')) {
+                icon.setAttribute('data-lucide', 'menu');
+            } else {
+                icon.setAttribute('data-lucide', 'x');
+            }
+            lucide.createIcons();
+        });
+
+        links.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+                menuBtn.querySelector('i').setAttribute('data-lucide', 'menu');
+                lucide.createIcons();
+            });
+        });
+    </script>
+</body>
+</html>
