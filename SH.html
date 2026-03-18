@@ -20,7 +20,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased">
+<body class="bg-slate-50 text-slate-900 antialiased">
 
     <!-- Navigation -->
     <nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-300 py-5 no-print">
@@ -34,8 +34,8 @@
             
             <div class="hidden md:flex items-center gap-8">
                 <a href="#schedule" class="text-sm font-bold hover:text-indigo-600 transition-colors">假期安排</a>
-                <a href="#policy" class="text-sm font-bold hover:text-indigo-600 transition-colors">行政守則</a>
-                <button onclick="window.print()" class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-full font-bold shadow-md transition-all active:scale-95 text-sm">
+                <a href="#policy" class="text-sm font-bold hover:text-indigo-600 transition-colors">補假安排</a>
+                <button onclick="window.print()" class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-full font-bold shadow-md transition-all active:scale-95 text-sm">
                     <i data-lucide="printer" class="w-4 h-4"></i> 列印告示
                 </button>
             </div>
@@ -51,7 +51,7 @@
     <div id="mobileMenu" class="fixed inset-0 bg-white z-40 hidden pt-24 px-6 no-print">
         <div class="flex flex-col gap-6">
             <a href="#schedule" class="mobile-link text-2xl font-black border-b pb-4">假期安排</a>
-            <a href="#policy" class="mobile-link text-2xl font-black border-b pb-4">行政守則</a>
+            <a href="#policy" class="mobile-link text-2xl font-black border-b pb-4">補假安排</a>
             <button onclick="window.print()" class="w-full flex justify-center items-center gap-2 bg-indigo-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-indigo-100">
                 <i data-lucide="printer" class="w-5 h-5"></i> 列印紙本告示
             </button>
@@ -64,11 +64,11 @@
             <div class="inline-flex items-center gap-2 bg-indigo-500/20 text-indigo-300 px-4 py-1.5 rounded-full text-[10px] font-black mb-6 border border-indigo-500/30 uppercase tracking-[0.2em] no-print">
                 重要行政公告 • 重要行政公告
             </div>
-            <h1 class="text-4xl md:text-7xl font-black mb-6 tracking-tight leading-tight">
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tight leading-tight">
                 4月假期營業及<br/>
-                <span class="text-indigo-400 italic font-medium">行政指南 📋</span>
+                <span class="text-indigo-400 italic font-medium">補假安排 📋</span>
             </h1>
-            <p class="text-slate-400 text-lg md:text-xl font-medium max-w-2xl mx-auto mb-10 leading-relaxed print:text-slate-300">
+            <p class="text-slate-400 text-base md:text-xl font-medium max-w-2xl mx-auto mb-10 leading-relaxed print:text-slate-300">
                 致全體 Operations, CIC 及前台同事：<br/>
                 請查閱以下關於清明節及復活節假期期間的中心安排及補假守則。
             </p>
@@ -82,51 +82,59 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-6 py-20" id="schedule">
+    <main class="max-w-7xl mx-auto px-6 py-16" id="schedule">
         <!-- Section Header -->
-        <div class="flex items-center gap-4 mb-12">
+        <div class="flex items-center gap-4 mb-10">
             <div class="h-px bg-slate-200 flex-grow"></div>
-            <h2 class="text-sm font-black text-slate-400 uppercase tracking-[0.3em]">假期詳情 Schedule</h2>
+            <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">假期詳情 Schedule</h2>
             <div class="h-px bg-slate-200 flex-grow"></div>
         </div>
 
         <!-- Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-24" id="cardsContainer">
-            <!-- Cards will be populated here -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="cardsContainer">
+            <!-- Cards populated by JS -->
+        </div>
+
+        <!-- Global Approval Notice -->
+        <div class="mb-20 flex items-center justify-center gap-3 text-base md:text-lg font-black text-orange-700 bg-orange-50 py-5 px-8 rounded-2xl border border-orange-100 max-w-4xl mx-auto shadow-sm">
+            <i data-lucide="alert-triangle" class="w-6 h-6 shrink-0"></i>
+            <span>所有放假之安排：必須事先取得 CIC 同意方可申請。</span>
         </div>
 
         <!-- Policy Section -->
-        <section id="policy" class="bg-white rounded-[3rem] shadow-2xl shadow-indigo-100/50 p-8 md:p-16 border border-slate-100 print-shadow">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-16">
+        <section id="policy" class="bg-white rounded-[3rem] shadow-2xl shadow-indigo-100/30 p-8 md:p-14 border border-slate-100 print-shadow">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
                 <div>
                     <h2 class="text-3xl md:text-4xl font-black text-slate-900 mb-2 flex items-center gap-4">
-                        <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-lg shadow-indigo-100">
+                        <div class="bg-indigo-600 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-100">
                             <i data-lucide="shield-check" class="w-7 h-7"></i>
                         </div>
-                        行政補假守則
+                        法定假期補假安排
                     </h2>
-                    <p class="text-slate-500 font-medium pl-14">請管理層及同事仔細閱讀以下 HR 準則</p>
+                    <p class="text-slate-500 font-bold text-base md:text-lg pl-14">請管理層及同事仔細閱讀以下 HR 準則</p>
                 </div>
                 <div class="bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 hidden md:block no-print">
-                    <span class="text-[10px] font-black text-slate-400 tracking-widest uppercase">版本: 2024.V2</span>
+                    <span class="text-[10px] font-black text-slate-400 tracking-widest uppercase">版本: 2024.V5</span>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 <!-- Left Column: NPCPL -->
-                <div class="space-y-8">
-                    <div class="flex items-center gap-3 text-rose-600">
-                        <div class="w-10 h-1 bg-rose-500 rounded-full"></div>
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3 text-rose-600 mb-2">
+                        <div class="w-10 h-1.5 bg-rose-500 rounded-full"></div>
                         <h3 class="font-black text-xl uppercase tracking-tight">無薪補假 (No Pay CPL) 指引</h3>
                     </div>
                     
                     <div class="space-y-4">
+                        <p class="text-lg text-rose-600 font-black italic pl-2 border-l-4 border-rose-500">適用於入職未滿 3 個月之同事：</p>
+                        
                         <div class="bg-slate-50 p-6 rounded-[2rem] border border-transparent hover:border-rose-100 transition-all">
                             <div class="flex gap-5">
                                 <span class="bg-rose-100 text-rose-600 w-8 h-8 rounded-full flex items-center justify-center font-black shrink-0">1</span>
                                 <div>
-                                    <h4 class="font-black text-slate-800 mb-2">計算方法</h4>
-                                    <p class="text-sm text-slate-600 leading-relaxed font-bold">
+                                    <h4 class="font-black text-lg text-slate-800 mb-1">計算方法</h4>
+                                    <p class="text-base text-slate-600 leading-relaxed font-bold">
                                         將扣減 1 日底薪 + 培訓津貼 / 保證佣金。
                                     </p>
                                 </div>
@@ -137,33 +145,32 @@
                             <div class="flex gap-5">
                                 <span class="bg-rose-100 text-rose-600 w-8 h-8 rounded-full flex items-center justify-center font-black shrink-0">2</span>
                                 <div>
-                                    <h4 class="font-black text-slate-800 mb-2">勤工獎項</h4>
-                                    <p class="text-sm text-slate-600 leading-relaxed font-bold underline decoration-rose-300 decoration-2">
+                                    <h4 class="font-black text-lg text-slate-800 mb-1">勤工獎項</h4>
+                                    <p class="text-base text-slate-600 leading-relaxed font-bold underline decoration-rose-300 decoration-4">
                                         絕對不影響當月勤工獎。
                                     </p>
                                 </div>
                             </div>
                         </div>
-                        <p class="text-[10px] text-slate-400 italic pl-4">* 適用於入職未滿 3 個月之同事。</p>
                     </div>
                 </div>
 
                 <!-- Right Column: System Summary -->
-                <div class="space-y-8">
-                    <div class="flex items-center gap-3 text-indigo-600">
-                        <div class="w-10 h-1 bg-indigo-500 rounded-full"></div>
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3 text-indigo-600 mb-2">
+                        <div class="w-10 h-1.5 bg-indigo-500 rounded-full"></div>
                         <h3 class="font-black text-xl uppercase tracking-tight">系統申假摘要 (Leave Summary)</h3>
                     </div>
 
-                    <div class="bg-indigo-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-xl shadow-indigo-100">
+                    <div class="bg-indigo-900 rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-xl shadow-indigo-100">
                         <div class="relative z-10 space-y-8">
                             <div class="flex gap-6 items-start">
                                 <div class="bg-white/10 p-3 rounded-2xl border border-white/10 shrink-0"><i data-lucide="calendar" class="w-5 h-5"></i></div>
                                 <div>
-                                    <h4 class="font-black text-lg mb-2">4/3 & 4/4 (公眾假期)</h4>
-                                    <p class="text-sm text-indigo-100/80 leading-relaxed font-medium">
-                                        如需放假，系統必須申請 <span class="text-white font-black underline decoration-indigo-400">1.0 DAY</span>。<br/>
-                                        <span class="text-orange-400 text-xs font-bold">🚫 不接受 0.5 DAY 之申請。</span>
+                                    <h4 class="font-black text-xl mb-2">4/3 & 4/4 (公眾假期)</h4>
+                                    <p class="text-base text-indigo-100 leading-relaxed font-bold">
+                                        如需放假，系統必須申請 <span class="text-white font-black underline decoration-indigo-400 decoration-4">1.0 DAY</span>。<br/>
+                                        <span class="text-orange-400 text-sm font-black block mt-2">🚫 不接受 0.5 DAY 之申請。</span>
                                     </p>
                                 </div>
                             </div>
@@ -171,13 +178,28 @@
                             <div class="flex gap-6 items-start border-t border-white/10 pt-8">
                                 <div class="bg-white/10 p-3 rounded-2xl border border-white/10 shrink-0"><i data-lucide="check-circle" class="w-5 h-5"></i></div>
                                 <div>
-                                    <h4 class="font-black text-lg mb-2">4/6 & 4/7 (法定假期相關)</h4>
-                                    <p class="text-sm text-indigo-100/80 leading-relaxed font-medium">
-                                        放假同事 <span class="text-white font-black">無需在系統輸入假期</span>，系統將自動處理。待遇視乎入職是否滿 3 個月。
+                                    <h4 class="font-black text-xl mb-2">4/6 & 4/7 (法定假期相關)</h4>
+                                    <p class="text-base text-indigo-100 leading-relaxed font-bold">
+                                        放假同事 <span class="text-white font-black underline decoration-indigo-400 decoration-2">無需在系統輸入假期</span>，系統將自動處理。待遇視乎入職是否滿 3 個月。
                                     </p>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manpower & Supervisor Notice -->
+            <div class="mt-12 pt-8 border-t border-slate-100">
+                <div class="flex items-start gap-5 text-indigo-700 bg-indigo-50/50 p-6 md:p-8 rounded-[2.5rem]">
+                    <i data-lucide="info" class="w-7 h-7 shrink-0 mt-1"></i>
+                    <div class="space-y-3">
+                        <p class="font-black text-xl md:text-2xl leading-tight italic">
+                            所有主管必需要以服務客人為先，每日做好客人預約。
+                        </p>
+                        <p class="font-bold text-base md:text-lg leading-relaxed opacity-80">
+                            主管及同事應以服務客人為準，同一樓層不應多於 2成人手放假。
+                        </p>
                     </div>
                 </div>
             </div>
@@ -189,10 +211,10 @@
             <div class="bg-white/5 p-3 rounded-2xl mb-8">
                 <i data-lucide="calendar-days" class="w-8 h-8 text-white"></i>
             </div>
-            <p class="text-xs font-black tracking-[0.4em] uppercase text-slate-400 mb-6">
+            <p class="text-[10px] font-black tracking-[0.4em] uppercase text-slate-400 mb-6">
                 Operations • CIC • Front-End Notice System
             </p>
-            <p class="text-xs leading-loose max-w-lg mb-12 opacity-60 font-medium">
+            <p class="text-xs leading-loose max-w-lg mb-10 opacity-60 font-medium">
                 本資訊由營運部門發布，僅供內部參考。如有任何行政爭議，請以 HR 最新公佈之《僱傭條例》及公司內部守則為最終依據。
             </p>
             <div class="w-20 h-1 bg-indigo-600 rounded-full"></div>
@@ -212,7 +234,7 @@
                 workRule: '上班沒有補假 (CPL)',
                 workDetail: '',
                 leaveRule: '需申請 1 日假期 (不可 0.5 日)',
-                leaveDetail: '必須事先取得 CIC 同意',
+                leaveDetail: '',
                 isStatutory: false
             },
             {
@@ -223,12 +245,12 @@
                 workRule: '上班沒有補假 (CPL)',
                 workDetail: '',
                 leaveRule: '需申請 1 日假期 (不可 0.5 日)',
-                leaveDetail: '必須事先取得 CIC 同意',
+                leaveDetail: '',
                 isStatutory: false
             },
             {
                 date: '4月6日 (一)',
-                title: '清明節翌日或復活節星期一',
+                title: '清明節翌日<br/>或復活節星期一',
                 tag: '法定假期',
                 tagColor: 'bg-emerald-600',
                 workRule: '上班有補假',
@@ -262,32 +284,27 @@
                         <div class="text-[10px] font-black text-slate-400 tracking-widest uppercase">${item.date}</div>
                         <span class="px-3 py-1 rounded-lg text-[9px] font-black text-white shadow-sm ${item.tagColor}">${item.tag}</span>
                     </div>
-                    <h3 class="text-2xl font-black text-slate-900 leading-tight mb-6 group-hover:text-indigo-600 transition-colors">${item.title}</h3>
+                    <h3 class="text-2xl font-black text-slate-900 leading-tight mb-8 group-hover:text-indigo-600 transition-colors h-16 flex items-center">${item.title}</h3>
                     
-                    <div class="space-y-5">
+                    <div class="space-y-6">
                         <div class="flex items-start gap-3">
-                            <i data-lucide="user-check" class="w-5 h-5 text-indigo-500 shrink-0 mt-1"></i>
+                            <i data-lucide="user-check" class="w-6 h-6 text-indigo-500 shrink-0 mt-1"></i>
                             <div>
-                                <div class="text-[10px] font-black text-slate-400 uppercase mb-0.5">當日上班：</div>
-                                <div class="font-black text-slate-800 text-sm leading-tight">${item.workRule}</div>
-                                ${item.workDetail ? `<div class="text-[10px] text-slate-500 font-bold mt-1">${item.workDetail}</div>` : ''}
+                                <div class="text-[10px] font-black text-slate-400 uppercase mb-1">當日上班：</div>
+                                <div class="font-black text-slate-800 text-lg leading-tight">${item.workRule}</div>
+                                ${item.workDetail ? `<div class="text-[11px] text-slate-500 font-bold mt-1.5 leading-relaxed">${item.workDetail}</div>` : ''}
                             </div>
                         </div>
-                        <div class="flex items-start gap-3">
-                            <i data-lucide="info" class="w-5 h-5 text-rose-500 shrink-0 mt-1"></i>
+                        <div class="flex items-start gap-3 border-t border-slate-50 pt-5">
+                            <i data-lucide="info" class="w-6 h-6 text-rose-500 shrink-0 mt-1"></i>
                             <div>
-                                <div class="text-[10px] font-black text-slate-400 uppercase mb-0.5">當日放假：</div>
-                                <div class="font-black text-rose-800 text-sm leading-tight">${item.leaveRule}</div>
-                                ${item.leaveDetail ? `<div class="text-[10px] text-rose-500 font-bold mt-1 leading-tight">${item.leaveDetail}</div>` : ''}
+                                <div class="text-[10px] font-black text-slate-400 uppercase mb-1">當日放假：</div>
+                                <div class="font-black text-rose-800 text-base leading-tight font-bold">${item.leaveRule}</div>
+                                ${item.leaveDetail ? `<div class="text-[11px] text-rose-500 font-bold mt-1.5 leading-relaxed">${item.leaveDetail}</div>` : ''}
                             </div>
                         </div>
                     </div>
                 </div>
-                ${!item.isStatutory ? `
-                <div class="flex items-center gap-2 text-[10px] font-black text-orange-600 bg-orange-50 p-3 rounded-2xl border border-orange-100">
-                    <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
-                    <span>必須事先取得 CIC 同意</span>
-                </div>` : ''}
             `;
             container.appendChild(card);
         });
@@ -299,10 +316,10 @@
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('navbar');
             if (window.scrollY > 50) {
-                nav.classList.add('bg-white/80', 'backdrop-blur-md', 'shadow-sm', 'py-3');
+                nav.classList.add('bg-white/90', 'backdrop-blur-md', 'shadow-md', 'py-3');
                 nav.classList.remove('py-5');
             } else {
-                nav.classList.remove('bg-white/80', 'backdrop-blur-md', 'shadow-sm', 'py-3');
+                nav.classList.remove('bg-white/90', 'backdrop-blur-md', 'shadow-md', 'py-3');
                 nav.classList.add('py-5');
             }
         });
