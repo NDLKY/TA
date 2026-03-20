@@ -64,6 +64,16 @@
             background: #eef2ff;
             box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
         }
+
+        .date-selector-input {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: #475569;
+        }
     </style>
 </head>
 <body class="py-6 md:py-12 px-3 md:px-6">
@@ -85,7 +95,7 @@
             </div>
         </div>
 
-        <!-- 01~03 查詢篩選區 -->
+        <!-- 查詢篩選區 -->
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8 md:mb-12">
             <div class="lg:col-span-1 cyber-card p-6 md:p-8 text-left">
                 <h3 class="text-indigo-950 font-black mb-5 md:mb-6 flex items-center uppercase tracking-widest text-sm">手動查詢 <span class="ml-auto opacity-20 font-cyber text-lg">01</span></h3>
@@ -130,12 +140,19 @@
             </div>
         </div>
 
-        <!-- [新增] 本週 Lead 統計 (Column AC, 週一到現在) -->
+        <!-- Lead 統計區 (Column AC) -->
         <div id="weeklyLeadArea" class="mb-10 text-left">
-            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-violet-500 pl-4 tracking-wider uppercase">本週 Lead 統計 <span class="font-cyber text-violet-500 ml-2">WEEKLY LEADS</span></h2>
+            <div class="flex flex-col md:flex-row md:items-center gap-4 mb-6">
+                <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-violet-500 pl-4 tracking-wider uppercase">Lead 統計 <span class="font-cyber text-violet-500 ml-2">WEEKLY LEADS</span></h2>
+                <div class="flex items-center gap-2 bg-white/50 p-2 rounded-xl border border-white">
+                    <input type="date" id="leadStart" onchange="calculateWeeklyLeads()" class="date-selector-input">
+                    <span class="font-bold text-slate-400">至</span>
+                    <input type="date" id="leadEnd" onchange="calculateWeeklyLeads()" class="date-selector-input">
+                </div>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div onclick="toggleLeadList('DERMES')" class="lead-card cyber-card p-6 border-b-8 border-rose-400" id="lead-DERMES">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Weekly Leads (AC: Lead Date)</p>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Leads (AC: Lead Date)</p>
                     <p class="text-xl font-black text-slate-900 mb-3">DERMES</p>
                     <div class="flex items-center justify-between">
                         <div class="flex flex-col"><span class="text-2xl font-black text-rose-500 readable-nums" id="weekly-lead-rj-DERMES">RJ: 0</span><span class="text-2xl font-black text-rose-500 readable-nums" id="weekly-lead-nj-DERMES">NJ: 0</span></div>
@@ -143,7 +160,7 @@
                     </div>
                 </div>
                 <div onclick="toggleLeadList('REENEX')" class="lead-card cyber-card p-6 border-b-8 border-indigo-400" id="lead-REENEX">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Weekly Leads (AC: Lead Date)</p>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Leads (AC: Lead Date)</p>
                     <p class="text-xl font-black text-slate-900 mb-3">REENEX</p>
                     <div class="flex items-center justify-between">
                         <div class="flex flex-col"><span class="text-2xl font-black text-indigo-500 readable-nums" id="weekly-lead-rj-REENEX">RJ: 0</span><span class="text-2xl font-black text-indigo-500 readable-nums" id="weekly-lead-nj-REENEX">NJ: 0</span></div>
@@ -151,7 +168,7 @@
                     </div>
                 </div>
                 <div onclick="toggleLeadList('ELYZE')" class="lead-card cyber-card p-6 border-b-8 border-emerald-400" id="lead-ELYZE">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Weekly Leads (AC: Lead Date)</p>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Leads (AC: Lead Date)</p>
                     <p class="text-xl font-black text-slate-900 mb-3">ELYZE</p>
                     <div class="flex items-center justify-between">
                         <div class="flex flex-col"><span class="text-2xl font-black text-emerald-500 readable-nums" id="weekly-lead-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-emerald-500 readable-nums" id="weekly-lead-nj-ELYZE">NJ: 0</span></div>
@@ -161,12 +178,19 @@
             </div>
         </div>
 
-        <!-- 本週 Offer 統計 (Column AD, 週一到現在) -->
+        <!-- Offer 統計區 (Column AD) -->
         <div id="weeklyOfferArea" class="mb-12 text-left">
-            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-blue-500 pl-4 tracking-wider uppercase text-left">本週 Offer 統計 <span class="font-cyber text-blue-500 ml-2">WEEKLY OFFERS</span></h2>
+            <div class="flex flex-col md:flex-row md:items-center gap-4 mb-6">
+                <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-blue-500 pl-4 tracking-wider uppercase text-left">Offer 統計 <span class="font-cyber text-blue-500 ml-2">WEEKLY OFFERS</span></h2>
+                <div class="flex items-center gap-2 bg-white/50 p-2 rounded-xl border border-white">
+                    <input type="date" id="offerStart" onchange="calculateWeeklyOffers()" class="date-selector-input">
+                    <span class="font-bold text-slate-400">至</span>
+                    <input type="date" id="offerEnd" onchange="calculateWeeklyOffers()" class="date-selector-input">
+                </div>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div onclick="toggleWeeklyList('DERMES')" class="weekly-card cyber-card p-6 border-b-8 border-rose-500" id="weekly-DERMES">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Weekly Offer (AD: Offer Date)</p>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Offer (AD: Offer Date)</p>
                     <p class="text-xl font-black text-slate-900 mb-3">DERMES</p>
                     <div class="flex items-center justify-between">
                         <div class="flex flex-col"><span class="text-2xl font-black text-rose-600 readable-nums" id="weekly-rj-DERMES">RJ: 0</span><span class="text-2xl font-black text-rose-600 readable-nums" id="weekly-nj-DERMES">NJ: 0</span></div>
@@ -174,7 +198,7 @@
                     </div>
                 </div>
                 <div onclick="toggleWeeklyList('REENEX')" class="weekly-card cyber-card p-6 border-b-8 border-indigo-500" id="weekly-REENEX">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Weekly Offer (AD: Offer Date)</p>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Offer (AD: Offer Date)</p>
                     <p class="text-xl font-black text-slate-900 mb-3">REENEX</p>
                     <div class="flex items-center justify-between">
                         <div class="flex flex-col"><span class="text-2xl font-black text-indigo-600 readable-nums" id="weekly-rj-REENEX">RJ: 0</span><span class="text-2xl font-black text-indigo-600 readable-nums" id="weekly-nj-REENEX">NJ: 0</span></div>
@@ -182,7 +206,7 @@
                     </div>
                 </div>
                 <div onclick="toggleWeeklyList('ELYZE')" class="weekly-card cyber-card p-6 border-b-8 border-emerald-500" id="weekly-ELYZE">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Weekly Offer (AD: Offer Date)</p>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Offer (AD: Offer Date)</p>
                     <p class="text-xl font-black text-slate-900 mb-3">ELYZE</p>
                     <div class="flex items-center justify-between">
                         <div class="flex flex-col"><span class="text-2xl font-black text-emerald-600 readable-nums" id="weekly-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-emerald-600 readable-nums" id="weekly-nj-ELYZE">NJ: 0</span></div>
@@ -203,6 +227,7 @@
                                 <tr>
                                     <th class="text-left border-r border-blue-50">BRAND</th>
                                     <th class="text-center border-r border-blue-50">Lead Date</th>
+                                    <th class="text-center border-r border-blue-50">Offer Date</th>
                                     <th class="text-center border-r border-blue-50">RJ/NJ</th>
                                     <th class="text-left border-r border-blue-50">Name (N)</th>
                                     <th class="text-left">REFER BY</th>
@@ -215,29 +240,37 @@
             </div>
         </div>
 
-        <!-- 以下區塊維持原狀 -->
+        <!-- 個人統計與搜尋結果區 -->
         <div id="statsArea" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8 hidden text-center">
             <div class="cyber-card p-4 md:p-8 border-l-4 border-blue-500"><p class="text-xs text-slate-500 font-black mb-1">總推薦</p><p id="totalCount" class="text-2xl md:text-5xl font-black text-slate-900 readable-nums">0</p></div>
             <div class="cyber-card p-4 md:p-8 border-l-4 border-emerald-500"><p class="text-xs text-slate-500 font-black mb-1">已入職</p><p id="joinedCount" class="text-2xl md:text-5xl font-black text-emerald-600 readable-nums">0</p></div>
-            <div class="cyber-card p-4 md:p-8 border-l-4 border-rose-500"><p class="text-xs text-slate-500 font-black mb-1">Drop</p><p id="withdrawCount" class="text-2xl md:text-5xl font-black text-rose-600 readable-nums">0</p></div>
+            <div class="cyber-card p-4 md:p-8 border-l-4 border-rose-500"><p class="text-xs text-slate-500 font-black mb-1">Drop</p><p id="withdrawCount" class="text-2xl md:text-5xl font-black text-rose-600 readable-nums text-center">0</p></div>
             <div class="cyber-card p-4 md:p-8 border-l-4 border-amber-500"><p class="text-xs text-slate-500 font-black mb-1">處理中</p><p id="pendingCount" class="text-2xl md:text-5xl font-black text-amber-600 readable-nums">0</p></div>
         </div>
         <div id="referralTrackingInfo" class="hidden mb-10 px-6 py-4 rounded-2xl summary-accent bg-white/40 text-left"><p id="trackingText" class="text-lg md:text-xl font-black text-indigo-900 tracking-tight"></p></div>
+        
+        <!-- 推薦明細表格 -->
         <div id="resultArea" class="hidden space-y-12 mb-16 text-left">
-            <div id="sectionRJ"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-indigo-600 pl-4 tracking-wider uppercase">RJ 推薦明細 <span class="font-cyber text-indigo-500 ml-2">Referral Join</span></h2><div class="cyber-card overflow-hidden"><div class="overflow-x-auto custom-scrollbar text-center"><table class="w-full border-collapse"><thead class="bg-indigo-50 border-b-2 border-indigo-100 text-indigo-950 font-black text-sm"><tr><th class="text-left">被介紹人 (N)</th><th>日期資訊 (B+C+D)</th><th>Status</th><th>On Board Date</th><th>最終標記</th></tr></thead><tbody id="resultTableBodyRJ" class="divide-y divide-slate-200"></tbody></table></div></div></div>
-            <div id="sectionNJ"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-violet-600 pl-4 tracking-wider uppercase">NJ 推薦明細 <span class="font-cyber text-violet-500 ml-2">New Joiner</span></h2><div class="cyber-card overflow-hidden text-center"><div class="overflow-x-auto custom-scrollbar"><table class="w-full border-collapse"><thead class="bg-violet-50 border-b-2 border-violet-100 text-violet-950 font-black text-sm text-center"><tr><th class="text-left">被介紹人 (N)</th><th>日期資訊 (B+C+D)</th><th>Status</th><th>On Board Date</th><th>最終標記</th></tr></thead><tbody id="resultTableBodyNJ" class="divide-y divide-slate-200"></tbody></table></div></div></div>
+            <div id="sectionRJ"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-indigo-600 pl-4 tracking-wider uppercase text-left">RJ 推薦明細 <span class="font-cyber text-indigo-500 ml-2">Referral Join</span></h2><div class="cyber-card overflow-hidden"><div class="overflow-x-auto custom-scrollbar text-center"><table class="w-full border-collapse"><thead class="bg-indigo-50 border-b-2 border-indigo-100 text-indigo-950 font-black text-sm"><tr><th class="text-left">被介紹人 (N)</th><th>日期資訊 (B+C+D)</th><th>Status</th><th>On Board Date</th><th>最終標記</th></tr></thead><tbody id="resultTableBodyRJ" class="divide-y divide-slate-200"></tbody></table></div></div></div>
+            <div id="sectionNJ"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-violet-600 pl-4 tracking-wider uppercase text-left">NJ 推薦明細 <span class="font-cyber text-violet-500 ml-2">New Joiner</span></h2><div class="cyber-card overflow-hidden text-center"><div class="overflow-x-auto custom-scrollbar text-center"><table class="w-full border-collapse"><thead class="bg-violet-50 border-b-2 border-violet-100 text-violet-950 font-black text-sm text-center"><tr><th class="text-left">被介紹人 (N)</th><th>日期資訊 (B+C+D)</th><th>Status</th><th>On Board Date</th><th>最終標記</th></tr></thead><tbody id="resultTableBodyNJ" class="divide-y divide-slate-200"></tbody></table></div></div></div>
         </div>
+
         <div id="resultAreaSheet2" class="hidden mb-16 text-left">
             <h2 id="resultAreaSheet2Title" class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-sky-600 pl-4 tracking-wider uppercase">相關資訊 <span class="font-cyber text-sky-500 ml-2">REFERENCE INFO</span></h2>
             <div class="cyber-card overflow-hidden text-center"><div class="overflow-x-auto custom-scrollbar text-center"><table class="w-full border-collapse text-center"><thead class="bg-sky-50 text-sky-950 border-b-2 border-sky-100 font-black uppercase text-xs text-center"><tr><th class="text-left border-r border-sky-100">Name</th><th class="border-r border-sky-100">1月+2月<br>Resign No</th><th class="border-r border-sky-100 leading-tight">Total Offer <br><span class="text-[10px] block opacity-60">(已減無返工Offer)</span></th><th class="border-r border-sky-100 leading-tight">Should<br>on Board</th><th class="border-r border-sky-100">On board</th><th class="border-r border-sky-100">Gap</th><th>NJ Offer</th></tr></thead><tbody id="sheet2TableBody" class="divide-y divide-slate-200 text-lg readable-nums font-bold text-center"></tbody></table></div></div>
             <div id="dynamicLogicFormulaBox" class="mt-4 p-4 bg-white/70 rounded-2xl border-2 border-white shadow-inner text-left"><p id="dynamicLogicFormula" class="text-base md:text-xl text-slate-900 font-black italic mb-2 readable-nums leading-relaxed"></p><p class="text-xs text-slate-500 italic font-bold uppercase">* Formula: Target (2) + Resign No. - Total Offer = Gap (HI-PO excluded)</p></div>
         </div>
+
         <div id="inactiveResultArea" class="hidden mb-16 text-left space-y-10"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-rose-600 pl-4 tracking-wider uppercase text-left">非活躍推薦名單 <span id="inactiveTitleSpan" class="font-cyber text-rose-500 ml-2 text-left"></span></h2><div id="inactiveBrandContainer" class="space-y-10 text-left"></div></div>
+        
         <div id="brandSummaryArea" class="mb-16 text-left hidden"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-emerald-600 pl-4 tracking-wider uppercase text-left">Brand Summary <span class="font-cyber text-emerald-500 ml-2 text-left">GLOBAL DATA</span></h2><div class="cyber-card overflow-hidden"><div class="overflow-x-auto custom-scrollbar text-center"><table class="w-full border-collapse text-lg text-center"><thead class="bg-emerald-50 text-emerald-950 border-b-2 border-emerald-100 font-black uppercase text-sm text-center"><tr><th class="text-left px-10">Brand Name</th><th>Total Offer</th><th class="leading-tight">Total Should<br>on Board</th><th class="text-emerald-900">Total On board</th><th>Total Gap</th><th>NJ Offer</th></tr></thead><tbody id="brandSummaryBody" class="divide-y divide-slate-200 readable-nums font-bold text-center"></tbody></table></div></div></div>
+        
         <div id="picSummaryArea" class="mb-24 text-left hidden"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-blue-600 pl-4 tracking-wider uppercase text-left">PIC Summary <span class="font-cyber text-blue-500 ml-2 text-left">BY PERSON</span></h2><div class="cyber-card overflow-hidden"><div class="overflow-x-auto custom-scrollbar text-center"><table class="w-full border-collapse text-center"><thead class="bg-blue-50 text-blue-950 border-b-2 border-blue-100 font-black uppercase text-xs text-center"><tr><th class="text-left border-r border-blue-100">Brand</th><th class="text-left border-r border-blue-100">PIC</th><th class="border-r border-blue-100 leading-tight text-rose-700">1月+2月<br>Resign No</th><th class="border-r border-blue-100 leading-tight text-slate-600">Total Offer<br><span class="text-[9px] opacity-60">(已減無返工Offer)</span></th><th class="border-r border-blue-100 leading-tight">Should<br>on Board</th><th class="border-r border-blue-100 text-emerald-800">On board</th><th class="border-r border-blue-100">Gap</th><th>NJ Offer</th></tr></thead><tbody id="picSummaryBody" class="divide-y divide-slate-200 readable-nums font-bold text-center"></tbody></table></div></div></div>
+
+        <!-- 載入與狀態 -->
         <div id="loadingStatus" class="text-center py-10 text-indigo-700 font-black flex flex-col items-center justify-center gap-4 text-center"><svg class="animate-spin h-8 w-8 text-indigo-600" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="tracking-[0.2em] uppercase font-cyber text-sm text-center">Synchronizing Database...</span></div>
         <div id="noResult" class="hidden text-center py-20 cyber-card mx-2 text-center text-center"><p class="text-slate-500 text-xl font-black uppercase font-cyber">NO RECORD FOUND</p></div>
-        <div id="initialPrompt" class="text-center py-32 md:py-48 opacity-20 uppercase font-cyber text-2xl text-center">Enter Staff ID to Start_</div>
+        <div id="initialPrompt" class="text-center py-32 md:py-48 opacity-20 uppercase font-cyber text-2xl">Enter Staff ID to Start_</div>
     </div>
 
     <script>
@@ -259,8 +292,15 @@
             monday.setHours(0,0,0,0); return monday;
         }
 
+        function formatDateToISO(date) { return date.toISOString().split('T')[0]; }
+
         async function init() {
-            const updateDisplay = document.getElementById('lastUpdateDisplay');
+            const monday = getThisMonday(); const today = new Date();
+            document.getElementById('leadStart').value = formatDateToISO(monday);
+            document.getElementById('leadEnd').value = formatDateToISO(today);
+            document.getElementById('offerStart').value = formatDateToISO(monday);
+            document.getElementById('offerEnd').value = formatDateToISO(today);
+
             try {
                 const r1 = await fetch(SHEET1_BASE_URL + `&t=${Date.now()}`);
                 const r2 = await fetch(SHEET2_BASE_URL + `&t=${Date.now()}`);
@@ -276,7 +316,7 @@
                     populateFilters(); calculateSummaries(); 
                     document.getElementById('loadingStatus').classList.add('hidden');
                 } });
-                updateDisplay.innerText = `同步時間：${new Date().toLocaleString('zh-HK', { hour12: false })}`;
+                document.getElementById('lastUpdateDisplay').innerText = `同步時間：${new Date().toLocaleString('zh-HK', { hour12: false })}`;
             } catch (e) { console.error(e); }
         }
 
@@ -286,9 +326,10 @@
             document.getElementById("count-2303").innerHTML = `<span class="text-4xl font-black text-emerald-600 readable-nums">${list.length} <span class="text-xs text-slate-400 font-bold ml-1">(NJ: ${njCount})</span></span>`;
         }
 
-        // [核心邏輯] 本週 Lead 統計 (參考 AC)
         function calculateWeeklyLeads() {
-            const start = getThisMonday(); const end = new Date();
+            const start = new Date(document.getElementById('leadStart').value);
+            const end = new Date(document.getElementById('leadEnd').value);
+            end.setHours(23, 59, 59, 999);
             ['DERMES', 'REENEX', 'ELYZE'].forEach(brand => {
                 const list = dataS1.filter(row => {
                     if ((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
@@ -299,11 +340,13 @@
                 document.getElementById(`weekly-lead-nj-${brand}`).innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
                 document.getElementById(`weekly-lead-total-${brand}`).innerText = list.length;
             });
+            if (currentDetailMode === "LEAD") showSharedDetail("LEAD", currentDetailKey);
         }
 
-        // [核心邏輯] 本週 Offer 統計 (參考 AD)
         function calculateWeeklyOffers() {
-            const start = getThisMonday(); const end = new Date();
+            const start = new Date(document.getElementById('offerStart').value);
+            const end = new Date(document.getElementById('offerEnd').value);
+            end.setHours(23, 59, 59, 999);
             ['DERMES', 'REENEX', 'ELYZE'].forEach(brand => {
                 const list = dataS1.filter(row => {
                     if ((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
@@ -314,18 +357,14 @@
                 document.getElementById(`weekly-nj-${brand}`).innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
                 document.getElementById(`weekly-total-${brand}`).innerText = list.length;
             });
+            if (currentDetailMode === "WEEKLY") showSharedDetail("WEEKLY", currentDetailKey);
         }
-
-        function toggleBatchList(d) { currentDetailMode==="BATCH"&&currentDetailKey===d ? hideSharedDetail() : showSharedDetail("BATCH", d); }
-        function toggleWeeklyList(b) { currentDetailMode==="WEEKLY"&&currentDetailKey===b ? hideSharedDetail() : showSharedDetail("WEEKLY", b); }
-        function toggleLeadList(b) { currentDetailMode==="LEAD"&&currentDetailKey===b ? hideSharedDetail() : showSharedDetail("LEAD", b); }
 
         function showSharedDetail(mode, key) {
             currentDetailMode = mode; currentDetailKey = key;
             const area = document.getElementById('sharedDetailArea'); const tbody = document.getElementById('sharedDetailTableBody');
             document.querySelectorAll('.batch-card, .weekly-card, .lead-card').forEach(c => c.classList.remove('active'));
             let list = [];
-            const start = getThisMonday();
             
             if (mode === "BATCH") {
                 document.getElementById('batch-2303').classList.add('active');
@@ -333,12 +372,16 @@
                 list = dataS1.filter(row => ["23 March 2026", "23 Mar 2026", "23March 2026"].includes((row[headersS1[S1_IDX.ONBOARD_DATE]]||"").trim()));
             } else if (mode === "LEAD") {
                 document.getElementById(`lead-${key}`).classList.add('active');
-                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-violet-500 rounded-full mr-3"></span> 本週 ${key} Lead 名單`;
-                list = dataS1.filter(row => (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key && parseDate(row[headersS1[S1_IDX.LEAD_DATE]]) >= start);
+                const start = new Date(document.getElementById('leadStart').value), end = new Date(document.getElementById('leadEnd').value);
+                end.setHours(23, 59, 59, 999);
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-violet-500 rounded-full mr-3 text-left"></span> ${key} Lead 名單 (${start.toLocaleDateString()} - ${end.toLocaleDateString()})`;
+                list = dataS1.filter(row => (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key && parseDate(row[headersS1[S1_IDX.LEAD_DATE]]) >= start && parseDate(row[headersS1[S1_IDX.LEAD_DATE]]) <= end);
             } else {
                 document.getElementById(`weekly-${key}`).classList.add('active');
-                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-blue-500 rounded-full mr-3"></span> 本週 ${key} Offer 名單`;
-                list = dataS1.filter(row => (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key && parseDate(row[headersS1[S1_IDX.OFFER_DATE]]) >= start);
+                const start = new Date(document.getElementById('offerStart').value), end = new Date(document.getElementById('offerEnd').value);
+                end.setHours(23, 59, 59, 999);
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-blue-500 rounded-full mr-3 text-left"></span> ${key} Offer 名單 (${start.toLocaleDateString()} - ${end.toLocaleDateString()})`;
+                list = dataS1.filter(row => (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key && parseDate(row[headersS1[S1_IDX.OFFER_DATE]]) >= start && parseDate(row[headersS1[S1_IDX.OFFER_DATE]]) <= end);
             }
 
             list.sort((a, b) => {
@@ -347,10 +390,20 @@
                 return refA.localeCompare(refB);
             });
 
-            tbody.innerHTML = list.map(row => `<tr class="hover:bg-blue-50/50 transition font-bold"><td class="text-left border-r border-blue-50 text-indigo-600 font-black text-sm">${row[headersS1[S1_IDX.BRAND]]}</td><td class="text-center border-r border-blue-50 text-slate-800 text-sm">${row[headersS1[S1_IDX.LEAD_DATE]]}</td><td class="text-center border-r border-blue-50 text-indigo-700 uppercase text-sm">${row[headersS1[S1_IDX.RJNJ]]}</td><td class="text-left border-r border-blue-50 text-slate-900 font-black text-sm">${row[headersS1[S1_IDX.NAME]]}</td><td class="text-left text-slate-600 font-medium text-xs">${(row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")}</td></tr>`).join('');
+            tbody.innerHTML = list.map(row => `<tr class="hover:bg-blue-50/50 transition font-bold">
+                <td class="text-left border-r border-blue-50 text-indigo-600 font-black text-sm">${row[headersS1[S1_IDX.BRAND]] || "-"}</td>
+                <td class="text-center border-r border-blue-50 text-slate-800 text-sm">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
+                <td class="text-center border-r border-blue-50 text-slate-800 text-sm">${row[headersS1[S1_IDX.OFFER_DATE]] || "-"}</td>
+                <td class="text-center border-r border-blue-50 text-indigo-700 uppercase text-sm">${row[headersS1[S1_IDX.RJNJ]] || "-"}</td>
+                <td class="text-left border-r border-blue-50 text-slate-900 font-black text-sm md:text-base">${row[headersS1[S1_IDX.NAME]] || "-"}</td>
+                <td class="text-left text-slate-600 font-medium text-xs md:text-sm">${((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim() || "-"}</td>
+            </tr>`).join('');
             area.classList.remove('hidden'); area.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
+        function toggleBatchList(d) { currentDetailMode==="BATCH"&&currentDetailKey===d ? hideSharedDetail() : showSharedDetail("BATCH", d); }
+        function toggleWeeklyList(b) { currentDetailMode==="WEEKLY"&&currentDetailKey===b ? hideSharedDetail() : showSharedDetail("WEEKLY", b); }
+        function toggleLeadList(b) { currentDetailMode==="LEAD"&&currentDetailKey===b ? hideSharedDetail() : showSharedDetail("LEAD", b); }
         function hideSharedDetail() { document.getElementById('sharedDetailArea').classList.add('hidden'); document.querySelectorAll('.batch-card, .weekly-card, .lead-card').forEach(c => c.classList.remove('active')); currentDetailMode = ""; currentDetailKey = ""; }
 
         function calculateSummaries() {
@@ -365,14 +418,14 @@
                     bs.njo += parseFloat((i[headersS2[S2_IDX.NJ_OFFER]]||"0").replace(/,/g,''));
                 });
                 gt.o+=bs.o; gt.s+=bs.s; gt.ob+=bs.ob; gt.g+=bs.g; gt.njo+=bs.njo;
-                sumBody.innerHTML += `<tr class="hover:bg-emerald-50/70 transition font-bold"><td class="text-left px-10 text-left text-left text-left">${brand}</td><td>${bs.o.toLocaleString()}</td><td>${bs.s.toLocaleString()}</td><td class="text-emerald-800 text-2xl text-center">${bs.ob.toLocaleString()}</td><td class="${bs.g<0?'text-rose-700 font-black':''} text-center">${bs.g.toLocaleString()}</td><td>${bs.njo.toLocaleString()}</td></tr>`;
+                sumBody.innerHTML += `<tr class="hover:bg-emerald-50/70 transition font-bold"><td class="text-left px-10 text-left">${brand}</td><td>${bs.o.toLocaleString()}</td><td>${bs.s.toLocaleString()}</td><td class="text-emerald-800 text-2xl text-center">${bs.ob.toLocaleString()}</td><td class="${bs.g<0?'text-rose-700 font-black':''} text-center">${bs.g.toLocaleString()}</td><td>${bs.njo.toLocaleString()}</td></tr>`;
                 [...new Set(br.map(i => i[headersS2[S2_IDX.PIC]]).filter(v => v))].forEach(pic => {
                     const pr = br.filter(i => i[headersS2[S2_IDX.PIC]] === pic); let ps = { r:0, o:0, s:0, ob:0, g:0, njo:0 };
                     pr.forEach(i => { ps.r += (parseFloat(i[headersS2[S2_IDX.RESIGN]])||0) + (parseFloat(i[headersS2[S2_IDX.RESIGN]+1])||0); ps.o += parseFloat((i[headersS2[S2_IDX.OFFER]]||"0").replace(/,/g,'')); ps.s += parseFloat((i[headersS2[S2_IDX.SHOULD]]||"0").replace(/,/g,'')); ps.ob += parseFloat((i[headersS2[S2_IDX.ONBOARD]]||"0").replace(/,/g,'')); ps.g += parseFloat((i[headersS2[S2_IDX.GAP]]||"0").replace(/,/g,'')); ps.njo += parseFloat((i[headersS2[S2_IDX.NJ_OFFER]]||"0").replace(/,/g,'')); });
-                    picBody.innerHTML += `<tr class="hover:bg-blue-50/50 transition font-bold"><td class="text-left border-r border-blue-50 text-left">${brand}</td><td class="text-left border-r border-blue-50 text-left">${pic}</td><td class="text-rose-700 font-black border-r border-blue-50 text-center text-center text-center">${ps.r}</td><td class="border-r border-blue-50 text-slate-800 text-center text-center text-center">${ps.o}</td><td class="border-r border-blue-50 text-center text-center text-center text-center">${ps.s}</td><td class="text-emerald-800 font-black text-lg border-r border-blue-50 text-center text-center text-center">${ps.ob}</td><td class="border-r border-blue-50 ${ps.g<0?'text-rose-700 font-black':''} text-center text-center text-center">${ps.g}</td><td class="text-center">${ps.njo}</td></tr>`;
+                    picBody.innerHTML += `<tr class="hover:bg-blue-50/50 transition font-bold"><td class="text-left border-r border-blue-50 text-left">${brand}</td><td class="text-left border-r border-blue-50 text-left">${pic}</td><td class="text-rose-700 font-black border-r border-blue-50 text-center">${ps.r}</td><td class="border-r border-blue-50 text-slate-800 text-center">${ps.o}</td><td class="border-r border-blue-50 text-center">${ps.s}</td><td class="text-emerald-800 font-black text-lg border-r border-blue-50 text-center">${ps.ob}</td><td class="border-r border-blue-50 ${ps.g<0?'text-rose-700 font-black':''} text-center">${ps.g}</td><td class="text-center">${ps.njo}</td></tr>`;
                 });
             });
-            sumBody.innerHTML += `<tr class="bg-slate-100 font-black border-t-2 border-slate-300 text-center text-center text-center text-center text-center text-center"><td class="text-left px-10 text-indigo-900 text-left">GRAND TOTAL</td><td>${gt.o.toLocaleString()}</td><td>${gt.s.toLocaleString()}</td><td class="text-emerald-900 text-2xl text-center">${gt.ob.toLocaleString()}</td><td class="${gt.g<0?'text-rose-800':''}">${gt.g.toLocaleString()}</td><td>${gt.njo.toLocaleString()}</td></tr>`;
+            sumBody.innerHTML += `<tr class="bg-slate-100 font-black border-t-2 border-slate-300 text-center"><td class="text-left px-10 text-indigo-900 text-left">GRAND TOTAL</td><td>${gt.o.toLocaleString()}</td><td>${gt.s.toLocaleString()}</td><td class="text-emerald-900 text-2xl text-center">${gt.ob.toLocaleString()}</td><td class="${gt.g<0?'text-rose-800':''}">${gt.g.toLocaleString()}</td><td>${gt.njo.toLocaleString()}</td></tr>`;
             document.getElementById('brandSummaryArea').classList.remove('hidden'); document.getElementById('picSummaryArea').classList.remove('hidden');
         }
 
@@ -427,9 +480,9 @@
                 const list = dataS2.filter(i => (i[headersS2[S2_IDX.BRAND]]||"").toUpperCase() === bName && !i[headersS2[S2_IDX.NAME]].toUpperCase().includes("TOTAL") && !['HIPO E1','CM','DM'].includes((i[headersS2[S2_IDX.POS]]||"").toUpperCase()));
                 const inact = list.filter(i => { const d = lMap.get((i[headersS2[S2_IDX.STAFF_ID]]||"").trim()); return !d || d < cut; });
                 if (inact.length > 0) {
-                    container.innerHTML += `<div class="space-y-4 text-left"><h3 class="text-lg font-black text-slate-800 flex items-center bg-white/40 px-4 py-2 rounded-xl w-fit border border-white text-left text-left"><span class="w-3 h-3 bg-rose-500 rounded-full mr-3 text-left"></span>${bName} <span class="ml-3 text-rose-600 font-cyber text-sm text-left">Total: ${inact.length}</span></h3><div class="cyber-card overflow-hidden text-center text-center text-center text-center text-center text-center text-center text-center"><div class="overflow-x-auto custom-scrollbar text-center text-center text-center"><table class="w-full border-collapse text-center text-center text-center text-center text-center text-center text-center text-center"><thead class="bg-rose-50/50 border-b-2 border-rose-100 text-rose-950 font-black text-sm text-center text-center text-center text-center text-center"><tr><th class="text-left border-r border-rose-50">PIC</th><th class="text-left border-r border-rose-50">姓名 (Name)</th><th class="text-left border-r border-rose-50 text-left text-left">職位</th><th class="text-center border-r border-rose-50 text-center">最後日期</th><th class="text-center text-center">距離</th></tr></thead><tbody class="divide-y divide-slate-100 font-bold text-lg text-center text-center text-center text-center text-center text-center">${inact.map(i => {
+                    container.innerHTML += `<div class="space-y-4 text-left"><h3 class="text-lg font-black text-slate-800 flex items-center bg-white/40 px-4 py-2 rounded-xl w-fit border border-white text-left text-left"><span class="w-3 h-3 bg-rose-500 rounded-full mr-3 text-left"></span>${bName} <span class="ml-3 text-rose-600 font-cyber text-sm text-left">Total: ${inact.length}</span></h3><div class="cyber-card overflow-hidden text-center text-center text-center text-center text-center text-center text-center text-center"><div class="overflow-x-auto custom-scrollbar text-center text-center text-center"><table class="w-full border-collapse text-center text-center text-center text-center text-center text-center text-center text-center"><thead class="bg-rose-50/50 border-b-2 border-rose-100 text-rose-950 font-black text-sm text-center text-center text-center text-center text-center"><tr><th class="text-left border-r border-rose-50">PIC</th><th class="text-left border-r border-rose-50">姓名 (Name)</th><th class="text-left border-r border-rose-50 text-left">職位</th><th class="text-center border-r border-rose-50">最後日期</th><th class="text-center text-center">距離</th></tr></thead><tbody class="divide-y divide-slate-100 font-bold text-lg text-center text-center text-center text-center text-center text-center">${inact.map(i => {
                         const d = lMap.get((i[headersS2[S2_IDX.STAFF_ID]]||"").trim());
-                        return `<tr><td class="text-slate-600 text-left border-r border-rose-50 text-left text-left text-left">${i[headersS2[S2_IDX.PIC]]||"-"}</td><td class="text-slate-900 font-black text-left border-r border-rose-50 text-left text-left text-left">${i[headersS2[S2_IDX.NAME]]||"-"}</td><td class="text-slate-600 text-left border-r border-rose-50 italic text-sm text-left text-left text-left text-left text-left text-left text-left text-left text-left">${i[headersS2[S2_IDX.POS]]||"-"}</td><td class="text-slate-700 text-center border-r border-rose-50 text-center text-center text-center">${d ? d.toLocaleDateString('zh-HK') : "-"}</td><td class="text-rose-700 font-black text-center text-center text-center text-center text-center text-center text-center">${d ? Math.floor((now-d)/(1000*60*60*24))+" 天前" : "從無記錄"}</td></tr>`;
+                        return `<tr><td class="text-slate-600 text-left border-r border-rose-50 text-left">${i[headersS2[S2_IDX.PIC]]||"-"}</td><td class="text-slate-900 font-black text-left border-r border-rose-50 text-left">${i[headersS2[S2_IDX.NAME]]||"-"}</td><td class="text-slate-600 text-left border-r border-rose-50 italic text-sm text-left text-left">${i[headersS2[S2_IDX.POS]]||"-"}</td><td class="text-slate-700 text-center border-r border-rose-50 text-center">${d ? d.toLocaleDateString('zh-HK') : "-"}</td><td class="text-rose-700 font-black text-center text-center">${d ? Math.floor((now-d)/(1000*60*60*24))+" 天前" : "從無記錄"}</td></tr>`;
                     }).join('')}</tbody></table></div></div></div>`;
                 }
             });
@@ -447,10 +500,10 @@
             const rbRJ = document.getElementById('resultTableBodyRJ'), rbNJ = document.getElementById('resultTableBodyNJ'); rbRJ.innerHTML = ''; rbNJ.innerHTML = ''; let c = { t: 0, j: 0, d: 0, w: 0 };
             list.forEach(i => {
                 c.t++; const n = i[headersS1[S1_IDX.NAME]], rjnj = (i[headersS1[S1_IDX.RJNJ]]||"").toUpperCase();
-                const dV = (i[headersS1[S1_IDX.LEAD_DATE]]||"").trim(); const obV = (i[headersS1[S1_IDX.ONBOARD_DATE]]||"").trim();
+                const dV = (i[headersS1[S1_IDX.LEAD_DATE]]||"").trim(), obV = (i[headersS1[S1_IDX.ONBOARD_DATE]]||"").trim();
                 const status = (i[headersS1[22]]||"-"), z = (i[headersS1[25]]||"PENDING");
                 if (z.toUpperCase().includes('ONBOARD')) c.j++; else if (z.toUpperCase().includes('WITHDRAW') || status.toUpperCase().includes('WITHDRAW')) c.d++; else c.w++;
-                const tr = `<tr><td class="text-left font-black text-base md:text-xl text-slate-900 text-left text-left text-left text-left">${n}</td><td class="text-center text-[10px] md:text-sm font-bold bg-slate-50/50 text-center text-center text-center text-center text-center text-center">${dV}</td><td class="text-center text-sm md:text-lg text-center text-center text-center text-center text-center text-center text-center">${status}</td><td class="text-center text-sm md:text-base readable-nums text-center text-center text-center text-center text-center text-center text-center text-center">${obV}</td><td class="text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center"><span class="px-3 md:px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm ${getZColumnClass(z)} text-center text-center text-center text-center text-center text-center text-center text-center">${z}</span></td></tr>`;
+                const tr = `<tr><td class="text-left font-black text-base md:text-xl text-slate-900 text-left text-left">${n}</td><td class="text-center text-[10px] md:text-sm font-bold bg-slate-50/50 text-center text-center">${dV}</td><td class="text-center text-sm md:text-lg text-center text-center">${status}</td><td class="text-center text-sm md:text-base readable-nums text-center text-center text-center">${obV}</td><td class="text-center text-center text-center text-center text-center"><span class="px-3 md:px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm ${getZColumnClass(z)} text-center text-center">${z}</span></td></tr>`;
                 rjnj.includes('RJ') ? rbRJ.innerHTML += tr : rbNJ.innerHTML += tr;
             });
             document.getElementById('totalCount').innerText = c.t; document.getElementById('joinedCount').innerText = c.j; document.getElementById('withdrawCount').innerText = c.d; document.getElementById('pendingCount').innerText = c.w;
@@ -462,12 +515,12 @@
                 const isAS = (i[headersS2[S2_IDX.POS]]||"").toUpperCase().includes('AS') || (i[headersS2[S2_IDX.POS]]||"").toUpperCase() === 'S';
                 let rVal = isAS ? (parseFloat(i[headersS2[S2_IDX.RESIGN]])||0) + (parseFloat(i[headersS2[S2_IDX.RESIGN]+1])||0) : 0;
                 let o = parseFloat((i[headersS2[S2_IDX.OFFER]]||"0").replace(/,/g,'')), g = parseFloat((i[headersS2[S2_IDX.GAP]]||"0").replace(/,/g,'')), njo = parseFloat((i[headersS2[S2_IDX.NJ_OFFER]]||"0").replace(/,/g,''));
-                rb.innerHTML += `<tr class="hover:bg-sky-50 transition font-bold font-bold font-bold font-bold font-bold"><td class="text-left border-r border-sky-50 text-base md:text-xl text-slate-950 text-left text-left text-left text-left text-left">${i[headersS2[S2_IDX.NAME]]}</td><td class="text-center border-r border-sky-50 bg-sky-50/50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center">${isAS ? rVal : '-'}</td><td class="text-center border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center text-center">${o}</td><td class="text-center border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center text-center">${i[headersS2[S2_IDX.SHOULD]]}</td><td class="text-center border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center text-center">${i[headersS2[S2_IDX.ONBOARD]]}</td><td class="text-center border-r border-blue-50 text-xl md:text-3xl font-black ${g<0?'bg-rose-100 text-rose-900 shadow-inner text-center text-center' : ''} text-center text-center text-center text-center text-center text-center text-center">${g}</td><td class="text-center text-slate-700 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center">${njo}</td></tr>`;
+                rb.innerHTML += `<tr class="hover:bg-sky-50 transition font-bold font-bold font-bold font-bold"><td class="text-left border-r border-sky-50 text-base md:text-xl text-slate-950 text-left text-left text-left text-left">${i[headersS2[S2_IDX.NAME]]}</td><td class="text-center border-r border-sky-50 bg-sky-50/50 text-xl md:text-2xl text-center text-center text-center text-center">${isAS ? rVal : '-'}</td><td class="text-center border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center">${o}</td><td class="text-center border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center">${i[headersS2[S2_IDX.SHOULD]]}</td><td class="text-center border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center">${i[headersS2[S2_IDX.ONBOARD]]}</td><td class="text-center border-r border-blue-50 text-xl md:text-3xl font-black ${g<0?'bg-rose-100 text-rose-900 shadow-inner text-center text-center' : ''} text-center text-center">${g}</td><td class="text-center text-slate-700 text-xl md:text-2xl text-center text-center text-center text-center">${njo}</td></tr>`;
                 if (!isLv) document.getElementById('dynamicLogicFormula').innerHTML = `Formula Trace: 2 + Resign (<span class="text-indigo-700 font-black text-center text-center text-center text-center">${rVal}</span>) - Offer (<span class="text-slate-900 font-black text-center text-center text-center text-center text-center">${o}</span>) = Gap (<span class="${g<0?'text-rose-700 underline text-center text-center text-center text-center':''}">${g}</span>)`;
             });
             document.getElementById('resultAreaSheet2').classList.remove('hidden');
         }
-        function getZColumnClass(v) { if (v.toUpperCase().includes('WITHDRAW')) return "bg-rose-100 text-rose-800 text-center text-center text-center text-center"; if (v.toUpperCase().includes('ONBOARD')) return "bg-emerald-100 text-emerald-900 text-center text-center text-center text-center"; return "bg-amber-100 text-amber-800 text-center text-center text-center text-center"; }
+        function getZColumnClass(v) { if (v.toUpperCase().includes('WITHDRAW')) return "bg-rose-100 text-rose-800 text-center"; if (v.toUpperCase().includes('ONBOARD')) return "bg-emerald-100 text-emerald-900 text-center"; return "bg-amber-100 text-amber-800 text-center"; }
         function showNone() { document.getElementById('statsArea').classList.add('hidden'); document.getElementById('resultArea').classList.add('hidden'); document.getElementById('resultAreaSheet2').classList.add('hidden'); document.getElementById('inactiveResultArea').classList.add('hidden'); document.getElementById('referralTrackingInfo').classList.add('hidden'); document.getElementById('noResult').classList.remove('hidden'); hideSharedDetail(); }
         window.onload = init;
     </script>
