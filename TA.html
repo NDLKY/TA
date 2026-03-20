@@ -289,8 +289,14 @@
         function getThisMonday() {
             const today = new Date(); const day = today.getDay();
             const diff = today.getDate() - day + (day === 0 ? -6 : 1);
-            const monday = new Date(new Date(today).setDate(diff));
+            const monday = new Date(today.getFullYear(), today.getMonth(), diff);
             monday.setHours(0,0,0,0); return monday;
+        }
+
+        function getLocalDateFromInput(val) {
+            if (!val) return null;
+            const [y, m, d] = val.split('-').map(Number);
+            return new Date(y, m - 1, d);
         }
 
         function formatDateToISO(date) { return date.toISOString().split('T')[0]; }
@@ -328,11 +334,11 @@
         }
 
         function calculateWeeklyLeads() {
-            const startStr = document.getElementById('leadStart').value;
-            const endStr = document.getElementById('leadEnd').value;
-            if(!startStr || !endStr) return;
-            const start = new Date(startStr); const end = new Date(endStr);
+            const start = getLocalDateFromInput(document.getElementById('leadStart').value);
+            const end = getLocalDateFromInput(document.getElementById('leadEnd').value);
+            if(!start || !end) return;
             end.setHours(23, 59, 59, 999);
+            
             ['DERMES', 'REENEX', 'ELYZE'].forEach(brand => {
                 const list = dataS1.filter(row => {
                     if ((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
@@ -347,16 +353,17 @@
         }
 
         function calculateWeeklyOffers() {
-            const startStr = document.getElementById('offerStart').value;
-            const endStr = document.getElementById('offerEnd').value;
-            if(!startStr || !endStr) return;
-            const start = new Date(startStr); const end = new Date(endStr);
+            const start = getLocalDateFromInput(document.getElementById('offerStart').value);
+            const end = getLocalDateFromInput(document.getElementById('offerEnd').value);
+            if(!start || !end) return;
             end.setHours(23, 59, 59, 999);
+            
             ['DERMES', 'REENEX', 'ELYZE'].forEach(brand => {
                 const list = dataS1.filter(row => {
                     if ((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
                     const offD = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
-                    return offD && offD >= start && offD <= end;
+                    const status = (row[headersS1[S1_IDX.STATUS]]||"").trim().toUpperCase();
+                    return offD && offD >= start && offD <= end && (status.includes("OFFER") || status.includes("ACCEPT"));
                 });
                 document.getElementById(`weekly-rj-${brand}`).innerText = `RJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length}`;
                 document.getElementById(`weekly-nj-${brand}`).innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
@@ -373,20 +380,27 @@
             
             if (mode === "BATCH") {
                 document.getElementById('batch-2303').classList.add('active');
-                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-indigo-500 rounded-full mr-3"></span> ${key} 批次名單`;
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-indigo-500 rounded-full mr-3 text-left"></span> ${key} 批次名單`;
                 list = dataS1.filter(row => ["23 March 2026", "23 Mar 2026", "23March 2026"].includes((row[headersS1[S1_IDX.ONBOARD_DATE]]||"").trim()));
             } else if (mode === "LEAD") {
                 document.getElementById(`lead-${key}`).classList.add('active');
-                const start = new Date(document.getElementById('leadStart').value), end = new Date(document.getElementById('leadEnd').value);
+                const start = getLocalDateFromInput(document.getElementById('leadStart').value);
+                const end = getLocalDateFromInput(document.getElementById('leadEnd').value);
                 end.setHours(23, 59, 59, 999);
                 document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-violet-500 rounded-full mr-3 text-left"></span> ${key} Lead 名單 (${start.toLocaleDateString()} - ${end.toLocaleDateString()})`;
                 list = dataS1.filter(row => (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key && parseDate(row[headersS1[S1_IDX.LEAD_DATE]]) >= start && parseDate(row[headersS1[S1_IDX.LEAD_DATE]]) <= end);
             } else {
                 document.getElementById(`weekly-${key}`).classList.add('active');
-                const start = new Date(document.getElementById('offerStart').value), end = new Date(document.getElementById('offerEnd').value);
+                const start = getLocalDateFromInput(document.getElementById('offerStart').value);
+                const end = getLocalDateFromInput(document.getElementById('offerEnd').value);
                 end.setHours(23, 59, 59, 999);
                 document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-blue-500 rounded-full mr-3 text-left"></span> ${key} Offer 名單 (${start.toLocaleDateString()} - ${end.toLocaleDateString()})`;
-                list = dataS1.filter(row => (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key && parseDate(row[headersS1[S1_IDX.OFFER_DATE]]) >= start && parseDate(row[headersS1[S1_IDX.OFFER_DATE]]) <= end);
+                list = dataS1.filter(row => {
+                    const b = (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase();
+                    const d = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
+                    const status = (row[headersS1[S1_IDX.STATUS]]||"").trim().toUpperCase();
+                    return b === key && d >= start && d <= end && (status.includes("OFFER") || status.includes("ACCEPT"));
+                });
             }
 
             list.sort((a, b) => {
@@ -396,13 +410,13 @@
             });
 
             tbody.innerHTML = list.map(row => `<tr class="hover:bg-blue-50/50 transition font-bold">
-                <td class="text-left border-r border-blue-50 text-indigo-600 font-black text-sm text-left">${row[headersS1[S1_IDX.BRAND]] || "-"}</td>
-                <td class="text-center border-r border-blue-50 text-slate-800 text-sm text-center text-center">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
-                <td class="text-center border-r border-blue-50 text-slate-800 text-sm text-center text-center">${row[headersS1[S1_IDX.OFFER_DATE]] || "-"}</td>
-                <td class="text-center border-r border-blue-50 text-slate-900 text-sm font-black text-center text-center">${row[headersS1[S1_IDX.STATUS]] || "-"}</td>
-                <td class="text-center border-r border-blue-50 text-indigo-700 uppercase text-sm text-center text-center">${row[headersS1[S1_IDX.RJNJ]] || "-"}</td>
-                <td class="text-left border-r border-blue-50 text-slate-900 font-black text-sm md:text-base text-left text-left">${row[headersS1[S1_IDX.NAME]] || "-"}</td>
-                <td class="text-left text-slate-600 font-medium text-xs md:text-sm text-left text-left">${((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim() || "-"}</td>
+                <td class="text-left border-r border-blue-50 text-indigo-600 font-black text-sm">${row[headersS1[S1_IDX.BRAND]] || "-"}</td>
+                <td class="text-center border-r border-blue-50 text-slate-800 text-sm">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
+                <td class="text-center border-r border-blue-50 text-slate-800 text-sm">${row[headersS1[S1_IDX.OFFER_DATE]] || "-"}</td>
+                <td class="text-center border-r border-blue-50 text-slate-900 text-sm font-black">${row[headersS1[S1_IDX.STATUS]] || "-"}</td>
+                <td class="text-center border-r border-blue-50 text-indigo-700 uppercase text-sm">${row[headersS1[S1_IDX.RJNJ]] || "-"}</td>
+                <td class="text-left border-r border-blue-50 text-slate-900 font-black text-sm md:text-base">${row[headersS1[S1_IDX.NAME]] || "-"}</td>
+                <td class="text-left text-slate-600 font-medium text-xs md:text-sm">${((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim() || "-"}</td>
             </tr>`).join('');
             area.classList.remove('hidden'); area.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -424,15 +438,15 @@
                     bs.njo += parseFloat((i[headersS2[S2_IDX.NJ_OFFER]]||"0").replace(/,/g,''));
                 });
                 gt.o+=bs.o; gt.s+=bs.s; gt.ob+=bs.ob; gt.g+=bs.g; gt.njo+=bs.njo;
-                sumBody.innerHTML += `<tr class="hover:bg-emerald-50/70 transition font-bold text-center text-center text-center"><td class="px-10 py-5 text-left text-left text-left text-left text-left">${brand}</td><td>${bs.o.toLocaleString()}</td><td>${bs.s.toLocaleString()}</td><td class="text-emerald-800 text-2xl text-center">${bs.ob.toLocaleString()}</td><td class="${bs.g<0?'text-rose-700 font-black':''} text-center">${bs.g.toLocaleString()}</td><td>${bs.njo.toLocaleString()}</td></tr>`;
+                sumBody.innerHTML += `<tr class="hover:bg-emerald-50/70 transition font-bold text-center"><td class="px-10 py-5 text-left">${brand}</td><td>${bs.o.toLocaleString()}</td><td>${bs.s.toLocaleString()}</td><td class="text-emerald-800 text-2xl">${bs.ob.toLocaleString()}</td><td class="${bs.g<0?'text-rose-700 font-black':''}">${bs.g.toLocaleString()}</td><td>${bs.njo.toLocaleString()}</td></tr>`;
                 const uniquePICs = [...new Set(br.map(i => i[headersS2[S2_IDX.PIC]]).filter(v => v))];
                 uniquePICs.forEach(picName => {
                     const pr = br.filter(i => i[headersS2[S2_IDX.PIC]] === picName); let ps = { r:0, o:0, s:0, ob:0, g:0, njo:0 };
                     pr.forEach(i => { ps.r += (parseFloat(i[headersS2[S2_IDX.RESIGN]])||0) + (parseFloat(i[headersS2[S2_IDX.RESIGN]+1])||0); ps.o += parseFloat((i[headersS2[S2_IDX.OFFER]]||"0").replace(/,/g,'')); ps.s += parseFloat((i[headersS2[S2_IDX.SHOULD]]||"0").replace(/,/g,'')); ps.ob += parseFloat((i[headersS2[S2_IDX.ONBOARD]]||"0").replace(/,/g,'')); ps.g += parseFloat((i[headersS2[S2_IDX.GAP]]||"0").replace(/,/g,'')); ps.njo += parseFloat((i[headersS2[S2_IDX.NJ_OFFER]]||"0").replace(/,/g,'')); });
-                    picBody.innerHTML += `<tr class="hover:bg-blue-50/50 transition font-bold text-center text-center text-center text-center"><td class="px-6 py-5 border-r border-blue-50 text-left text-left text-left text-left text-left text-left text-left text-left">${brand}</td><td class="px-6 py-5 border-r border-blue-50 text-left text-left text-left text-left text-left text-left text-left text-left">${picName}</td><td class="text-rose-700 font-black text-center border-r border-blue-50 text-center text-center text-center text-center text-center">${ps.r}</td><td class="border-r border-blue-50 text-slate-600 text-xs text-center text-center text-center">${ps.o}</td><td class="border-r border-blue-50 text-center text-center text-center text-center">${ps.s}</td><td class="text-emerald-800 font-black text-lg border-r border-blue-50 text-center text-center text-center">${ps.ob}</td><td class="border-r border-blue-50 ${ps.g<0?'text-rose-700 font-black':''} text-center text-center text-center text-center text-center">${ps.g}</td><td class="text-center text-center text-center">${ps.njo}</td></tr>`;
+                    picBody.innerHTML += `<tr class="hover:bg-blue-50/50 transition font-bold"><td class="text-left border-r border-blue-50">${brand}</td><td class="text-left border-r border-blue-50">${picName}</td><td class="text-rose-700 font-black border-r border-blue-50 text-center">${ps.r}</td><td class="border-r border-blue-50 text-slate-600 text-xs">${ps.o}</td><td class="border-r border-blue-50">${ps.s}</td><td class="text-emerald-800 font-black text-lg border-r border-blue-50">${ps.ob}</td><td class="border-r border-blue-50 ${ps.g<0?'text-rose-700 font-black':''}">${ps.g}</td><td>${ps.njo}</td></tr>`;
                 });
             });
-            sumBody.innerHTML += `<tr class="bg-slate-100 font-black border-t-2 border-slate-300 text-center text-center text-center text-center text-center text-center text-center"><td class="text-left px-10 text-indigo-900 text-left text-left text-left text-left text-left text-left text-left">GRAND TOTAL</td><td>${gt.o.toLocaleString()}</td><td>${gt.s.toLocaleString()}</td><td class="text-emerald-900 text-2xl text-center">${gt.ob.toLocaleString()}</td><td class="${gt.g<0?'text-rose-800':''}">${gt.g.toLocaleString()}</td><td>${gt.njo.toLocaleString()}</td></tr>`;
+            sumBody.innerHTML += `<tr class="bg-slate-100 font-black border-t-2 border-slate-300 text-center"><td class="text-left px-10 text-indigo-900">GRAND TOTAL</td><td>${gt.o.toLocaleString()}</td><td>${gt.s.toLocaleString()}</td><td class="text-emerald-900 text-2xl">${gt.ob.toLocaleString()}</td><td class="${gt.g<0?'text-rose-800':''}">${gt.g.toLocaleString()}</td><td>${gt.njo.toLocaleString()}</td></tr>`;
             document.getElementById('brandSummaryArea').classList.remove('hidden'); document.getElementById('picSummaryArea').classList.remove('hidden');
         }
 
@@ -487,9 +501,9 @@
                 const list = dataS2.filter(i => (i[headersS2[S2_IDX.BRAND]]||"").toUpperCase() === bName && !i[headersS2[S2_IDX.NAME]].toUpperCase().includes("TOTAL") && !['HIPO E1','CM','DM'].includes((i[headersS2[S2_IDX.POS]]||"").toUpperCase()));
                 const inact = list.filter(i => { const d = lMap.get((i[headersS2[S2_IDX.STAFF_ID]]||"").trim()); return !d || d < cut; });
                 if (inact.length > 0) {
-                    container.innerHTML += `<div class="space-y-4 text-left"><h3 class="text-lg font-black text-slate-800 flex items-center bg-white/40 px-4 py-2 rounded-xl w-fit border border-white text-left text-left"><span class="w-3 h-3 bg-rose-500 rounded-full mr-3 text-left"></span>${bName} <span class="ml-3 text-rose-600 font-cyber text-sm text-left">Total: ${inact.length}</span></h3><div class="cyber-card overflow-hidden text-center text-center text-center text-center text-center text-center text-center text-center"><div class="overflow-x-auto custom-scrollbar text-center text-center text-center text-center"><table class="w-full border-collapse text-center text-center text-center text-center text-center text-center text-center text-center text-center"><thead class="bg-rose-50/50 border-b-2 border-rose-100 text-rose-950 font-black text-sm text-center text-center text-center text-center text-center text-center"><tr><th class="text-left border-r border-rose-50">PIC</th><th class="text-left border-r border-rose-50">姓名 (Name)</th><th class="text-left border-r border-rose-50 text-left text-left">職位</th><th class="text-center border-r border-rose-50 text-center">最後日期</th><th class="text-center text-center">距離</th></tr></thead><tbody class="divide-y divide-slate-100 font-bold text-lg text-center text-center text-center text-center text-center text-center text-center">${inact.map(i => {
+                    container.innerHTML += `<div class="space-y-4 text-left"><h3 class="text-lg font-black text-slate-800 flex items-center bg-white/40 px-4 py-2 rounded-xl w-fit border border-white text-left"><span class="w-3 h-3 bg-rose-500 rounded-full mr-3 text-left"></span>${bName} <span class="ml-3 text-rose-600 font-cyber text-sm text-left">Total: ${inact.length}</span></h3><div class="cyber-card overflow-hidden text-center"><div class="overflow-x-auto custom-scrollbar text-center"><table class="w-full border-collapse text-center"><thead class="bg-rose-50/50 border-b-2 border-rose-100 text-rose-950 font-black text-sm text-center"><tr><th class="text-left border-r border-rose-50">PIC</th><th class="text-left border-r border-rose-50">姓名 (Name)</th><th class="text-left border-r border-rose-50">職位</th><th class="text-center border-r border-rose-50">最後日期</th><th class="text-center">距離</th></tr></thead><tbody class="divide-y divide-slate-100 font-bold text-lg text-center text-center">${inact.map(i => {
                         const d = lMap.get((i[headersS2[S2_IDX.STAFF_ID]]||"").trim());
-                        return `<tr><td class="text-slate-600 text-left border-r border-rose-50 text-left text-left text-left text-left">${i[headersS2[S2_IDX.PIC]]||"-"}</td><td class="text-slate-900 font-black text-left border-r border-rose-50 text-left text-left text-left text-left">${i[headersS2[S2_IDX.NAME]]||"-"}</td><td class="text-slate-600 text-left border-r border-rose-50 italic text-sm text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left">${i[headersS2[S2_IDX.POS]]||"-"}</td><td class="text-slate-700 text-center border-r border-rose-50 text-center text-center text-center text-center">${d ? d.toLocaleDateString('zh-HK') : "-"}</td><td class="text-rose-700 font-black text-center text-center text-center text-center text-center text-center text-center text-center">${d ? Math.floor((now-d)/(1000*60*60*24))+" 天前" : "從無記錄"}</td></tr>`;
+                        return `<tr><td class="text-slate-600 text-left border-r border-rose-50">${i[headersS2[S2_IDX.PIC]]||"-"}</td><td class="text-slate-900 font-black text-left border-r border-rose-50">${i[headersS2[S2_IDX.NAME]]||"-"}</td><td class="text-slate-600 text-left border-r border-rose-50 italic text-sm">${i[headersS2[S2_IDX.POS]]||"-"}</td><td class="border-r border-rose-50">${d ? d.toLocaleDateString('zh-HK') : "-"}</td><td class="text-rose-700 font-black">${d ? Math.floor((now-d)/(1000*60*60*24))+" 天前" : "從無記錄"}</td></tr>`;
                     }).join('')}</tbody></table></div></div></div>`;
                 }
             });
@@ -500,7 +514,10 @@
         function parseDate(d) {
             if (!d || d === '-' || d.trim() === "") return null;
             const ms = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-            const p = d.split(/[\s/-]+/); if (p.length === 3) { let day = parseInt(p[0]), mIdx = ms.indexOf(p[1].toLowerCase().substring(0, 3)), yr = parseInt(p[2]); if (day && mIdx !== -1 && yr) return new Date(yr, mIdx, day); }
+            const p = d.split(/[\s/-]+/); if (p.length === 3) { 
+                let day = parseInt(p[0]), mIdx = ms.indexOf(p[1].toLowerCase().substring(0, 3)), yr = parseInt(p[2]); 
+                if (day && mIdx !== -1 && yr) return new Date(yr, mIdx, day); 
+            }
             const ts = Date.parse(d); return isNaN(ts) ? null : new Date(ts);
         }
         function renderS1(list) {
@@ -510,7 +527,7 @@
                 const dV = (i[headersS1[S1_IDX.LEAD_DATE]]||"").trim(), obV = (i[headersS1[S1_IDX.ONBOARD_DATE]]||"").trim();
                 const status = (i[headersS1[22]]||"-"), z = (i[headersS1[25]]||"PENDING");
                 if (z.toUpperCase().includes('ONBOARD')) c.j++; else if (z.toUpperCase().includes('WITHDRAW') || status.toUpperCase().includes('WITHDRAW')) c.d++; else c.w++;
-                const tr = `<tr><td class="text-left font-black text-base md:text-xl text-slate-900 text-left text-left text-left text-left text-left">${n}</td><td class="text-center text-[10px] md:text-sm font-bold bg-slate-50/50 text-center text-center text-center text-center text-center text-center text-center">${dV}</td><td class="text-center text-sm md:text-lg text-center text-center text-center text-center text-center text-center text-center text-center">${status}</td><td class="text-center text-sm md:text-base readable-nums text-center text-center text-center text-center text-center text-center text-center text-center text-center">${obV}</td><td class="text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center"><span class="px-3 md:px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm ${getZColumnClass(z)} text-center text-center text-center text-center text-center text-center text-center text-center text-center">${z}</span></td></tr>`;
+                const tr = `<tr><td class="text-left font-black text-base md:text-xl text-slate-900">${n}</td><td class="text-center text-[10px] md:text-sm font-bold bg-slate-50/50">${dV}</td><td class="text-center text-sm md:text-lg">${status}</td><td class="text-center text-sm md:text-base readable-nums">${obV}</td><td class="text-center"><span class="px-3 md:px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm ${getZColumnClass(z)}">${z}</span></td></tr>`;
                 rjnj.includes('RJ') ? rbRJ.innerHTML += tr : rbNJ.innerHTML += tr;
             });
             document.getElementById('totalCount').innerText = c.t; document.getElementById('joinedCount').innerText = c.j; document.getElementById('withdrawCount').innerText = c.d; document.getElementById('pendingCount').innerText = c.w;
@@ -522,12 +539,12 @@
                 const isAS = (i[headersS2[S2_IDX.POS]]||"").toUpperCase().includes('AS') || (i[headersS2[S2_IDX.POS]]||"").toUpperCase() === 'S';
                 let rVal = isAS ? (parseFloat(i[headersS2[S2_IDX.RESIGN]])||0) + (parseFloat(i[headersS2[S2_IDX.RESIGN]+1])||0) : 0;
                 let o = parseFloat((i[headersS2[S2_IDX.OFFER]]||"0").replace(/,/g,'')), g = parseFloat((i[headersS2[S2_IDX.GAP]]||"0").replace(/,/g,'')), njo = parseFloat((i[headersS2[S2_IDX.NJ_OFFER]]||"0").replace(/,/g,''));
-                rb.innerHTML += `<tr class="hover:bg-sky-50 transition font-bold font-bold font-bold font-bold font-bold font-bold"><td class="text-left border-r border-sky-50 text-base md:text-xl text-slate-950 text-left text-left text-left text-left text-left text-left text-left text-left text-left">${i[headersS2[S2_IDX.NAME]]}</td><td class="text-center border-r border-sky-50 bg-sky-50/50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center text-center">${isAS ? rVal : '-'}</td><td class="text-center border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center text-center">${o}</td><td class="text-center border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center">${i[headersS2[S2_IDX.SHOULD]]}</td><td class="text-center border-r border-sky-50 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center">${i[headersS2[S2_IDX.ONBOARD]]}</td><td class="text-center border-r border-blue-50 text-xl md:text-3xl font-black ${g<0?'bg-rose-100 text-rose-900 shadow-inner text-center text-center text-center' : ''} text-center text-center text-center text-center text-center text-center text-center text-center">${g}</td><td class="text-center text-slate-700 text-xl md:text-2xl text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center">${njo}</td></tr>`;
-                if (!isLv) document.getElementById('dynamicLogicFormula').innerHTML = `Formula Trace: 2 + Resign (<span class="text-indigo-700 font-black text-center text-center text-center text-center text-center">${rVal}</span>) - Offer (<span class="text-slate-900 font-black text-center text-center text-center text-center text-center text-center">${o}</span>) = Gap (<span class="${g<0?'text-rose-700 underline text-center text-center text-center text-center text-center':''}">${g}</span>)`;
+                rb.innerHTML += `<tr class="hover:bg-sky-50 transition font-bold"><td class="text-left border-r border-sky-50 text-base md:text-xl text-slate-950">${i[headersS2[S2_IDX.NAME]]}</td><td class="border-r border-sky-50 bg-sky-50/50">${isAS ? rVal : '-'}</td><td class="border-r border-sky-50">${o}</td><td class="border-r border-sky-50">${i[headersS2[S2_IDX.SHOULD]]}</td><td class="border-r border-sky-50">${i[headersS2[S2_IDX.ONBOARD]]}</td><td class="border-r border-blue-50 text-xl md:text-3xl font-black ${g<0?'bg-rose-100 text-rose-900 shadow-inner':''}">${g}</td><td>${njo}</td></tr>`;
+                if (!isLv) document.getElementById('dynamicLogicFormula').innerHTML = `Formula Trace: 2 + Resign (<span class="text-indigo-700 font-black">${rVal}</span>) - Offer (<span class="text-slate-900 font-black">${o}</span>) = Gap (<span class="${g<0?'text-rose-700 underline':''}">${g}</span>)`;
             });
             document.getElementById('resultAreaSheet2').classList.remove('hidden');
         }
-        function getZColumnClass(v) { if (v.toUpperCase().includes('WITHDRAW')) return "bg-rose-100 text-rose-800 text-center text-center text-center text-center text-center"; if (v.toUpperCase().includes('ONBOARD')) return "bg-emerald-100 text-emerald-900 text-center text-center text-center text-center text-center"; return "bg-amber-100 text-amber-800 text-center text-center text-center text-center text-center"; }
+        function getZColumnClass(v) { if (v.toUpperCase().includes('WITHDRAW')) return "bg-rose-100 text-rose-800"; if (v.toUpperCase().includes('ONBOARD')) return "bg-emerald-100 text-emerald-900"; return "bg-amber-100 text-amber-800"; }
         function showNone() { document.getElementById('statsArea').classList.add('hidden'); document.getElementById('resultArea').classList.add('hidden'); document.getElementById('resultAreaSheet2').classList.add('hidden'); document.getElementById('inactiveResultArea').classList.add('hidden'); document.getElementById('referralTrackingInfo').classList.add('hidden'); document.getElementById('noResult').classList.remove('hidden'); hideSharedDetail(); }
         window.onload = init;
     </script>
