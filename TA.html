@@ -30,7 +30,6 @@
         .cyber-card {
             background: rgba(255, 255, 255, 0.88);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.7);
             box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.12);
             border-radius: 1.25rem;
@@ -39,8 +38,7 @@
 
         .header-glow { text-shadow: 0 0 15px rgba(99, 102, 241, 0.25); }
         .readable-nums { font-variant-numeric: tabular-nums; letter-spacing: 0; }
-        input, select { font-size: 16px !important; }
-
+        
         th, td { white-space: nowrap; padding: 1rem 0.75rem !important; }
         .text-left { text-align: left !important; }
         .text-center { text-align: center !important; }
@@ -49,17 +47,9 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 10px; }
         .font-cyber { font-family: 'Orbitron', sans-serif; }
 
-        .btn-inactive { transition: all 0.2s; border: 2px solid transparent; }
-        .btn-inactive:active { transform: scale(0.96); }
-
-        .summary-accent {
-            background: linear-gradient(90deg, rgba(99, 102, 241, 0.1), transparent);
-            border-left: 4px solid #6366f1;
-        }
-
-        .batch-card, .weekly-card, .lead-card { cursor: pointer; transition: all 0.3s; }
-        .batch-card:hover, .weekly-card:hover, .lead-card:hover { transform: translateY(-5px); }
-        .batch-card.active, .weekly-card.active, .lead-card.active {
+        .batch-card, .weekly-card, .lead-card, .pending-card { cursor: pointer; transition: all 0.3s; }
+        .batch-card:hover, .weekly-card:hover, .lead-card:hover, .pending-card:hover { transform: translateY(-5px); }
+        .batch-card.active, .weekly-card.active, .lead-card.active, .pending-card.active {
             border-color: #6366f1;
             background: #eef2ff;
             box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
@@ -73,65 +63,60 @@
             font-weight: 700;
             font-size: 0.75rem;
             color: #475569;
+            cursor: pointer;
         }
     </style>
 </head>
-<body class="py-6 md:py-12 px-3 md:px-6">
+<body class="py-6 md:py-12 px-3 md:px-6 text-left">
 
-    <div class="max-w-7xl mx-auto text-left">
-        <!-- 頂部標題 -->
-        <div class="flex flex-col md:flex-row justify-between items-center md:items-start mb-8 md:mb-12 gap-6 text-left">
-            <div class="w-full text-left">
-                <h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-2 md:mb-4 tracking-tight header-glow">
+    <div class="max-w-7xl mx-auto">
+        <!-- 頂部標題與 AH1 同步時間 -->
+        <div class="flex flex-col md:flex-row justify-between items-center md:items-start mb-8 md:mb-12 gap-6">
+            <div class="w-full">
+                <h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-2 tracking-tight header-glow">
                     推薦進度查詢 <span class="text-indigo-600 font-cyber text-2xl md:text-3xl uppercase">Dashboard</span>
                 </h1>
-                <p class="text-slate-800 font-bold text-sm md:text-lg flex items-center bg-white/60 px-4 py-2 rounded-full w-fit shadow-sm border border-white/80">
-                    <svg class="w-4 h-4 md:w-5 md:h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <p class="text-slate-800 font-bold text-sm md:text-lg flex items-center bg-white/60 px-4 py-2 rounded-full w-fit border border-white/80 shadow-sm">
+                    <svg class="w-4 h-4 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     範圍：2025/12/15 之後記錄 (排除 LSL/Hipo E1)
                 </p>
             </div>
-            <div class="cyber-card px-6 py-4 border-l-4 md:border-l-8 border-indigo-500 text-indigo-900 font-black text-sm md:text-base shadow-md w-full md:w-auto text-left" id="lastUpdateDisplay">
-                試算表狀態：連線中...
+            <div onclick="init()" class="cyber-card px-6 py-4 border-l-4 border-indigo-500 text-indigo-900 font-black text-sm md:text-base shadow-md cursor-pointer hover:bg-indigo-50 active:scale-95" id="lastUpdateDisplay">
+                試算表狀態：讀取中...
             </div>
         </div>
 
-        <!-- 01~03 查詢篩選區 -->
+        <!-- 查詢篩選 -->
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8 md:mb-12">
-            <div class="lg:col-span-1 cyber-card p-6 md:p-8 text-left">
-                <h3 class="text-indigo-950 font-black mb-5 md:mb-6 flex items-center uppercase tracking-widest text-sm">手動查詢 <span class="ml-auto opacity-20 font-cyber text-lg">01</span></h3>
-                <div class="space-y-4">
-                    <input type="text" id="staffId" placeholder="Staff ID 例如: 11852" class="w-full px-4 py-3 rounded-xl border-2 border-indigo-50 bg-white outline-none font-bold">
-                    <button onclick="manualSearch()" class="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black rounded-xl shadow-lg active:scale-[0.98] uppercase">執行查詢</button>
-                </div>
+            <div class="lg:col-span-1 cyber-card p-6">
+                <h3 class="text-indigo-950 font-black mb-4 flex items-center uppercase tracking-widest text-sm">手動查詢 <span class="ml-auto opacity-20 font-cyber text-lg">01</span></h3>
+                <input type="text" id="staffId" placeholder="Staff ID 例如: 11852" class="w-full px-4 py-3 mb-3 rounded-xl border-2 border-indigo-50 font-bold outline-none">
+                <button onclick="manualSearch()" class="w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-black rounded-xl shadow-lg active:scale-95 uppercase">執行查詢</button>
             </div>
-
-            <div class="lg:col-span-2 cyber-card p-6 md:p-8 text-left">
-                <h3 class="text-violet-950 font-black mb-5 flex items-center uppercase tracking-widest text-sm">快速篩選 <span class="ml-auto opacity-20 font-cyber text-lg">02</span></h3>
+            <div class="lg:col-span-2 cyber-card p-6">
+                <h3 class="text-violet-950 font-black mb-4 flex items-center uppercase tracking-widest text-sm">快速篩選 <span class="ml-auto opacity-20 font-cyber text-lg">02</span></h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <select id="filterBrand" onchange="updateFloorFilter()" class="w-full px-3 py-3 rounded-xl border-2 border-violet-50 bg-white font-bold outline-none cursor-pointer"><option value="">請選擇品牌</option></select>
-                    <select id="filterFloor" onchange="updateNameFilter()" disabled class="w-full px-3 py-3 rounded-xl border-2 border-violet-50 bg-white font-bold outline-none cursor-pointer"><option value="">請選擇 Floor</option></select>
-                    <select id="filterName" onchange="searchByFilter()" disabled class="w-full px-3 py-3 rounded-xl border-2 border-violet-50 bg-white font-bold outline-none cursor-pointer"><option value="">請選擇姓名</option></select>
+                    <select id="filterBrand" onchange="updateFloorFilter()" class="w-full px-3 py-3 rounded-xl border-2 border-violet-50 font-bold outline-none cursor-pointer"><option value="">請選擇品牌</option></select>
+                    <select id="filterFloor" onchange="updateNameFilter()" disabled class="w-full px-3 py-3 rounded-xl border-2 border-violet-50 font-bold outline-none cursor-pointer"><option value="">請選擇 Floor</option></select>
+                    <select id="filterName" onchange="searchByFilter()" disabled class="w-full px-3 py-3 rounded-xl border-2 border-violet-50 font-bold outline-none cursor-pointer"><option value="">請選擇姓名</option></select>
                 </div>
-                <div class="mt-4 flex justify-end"><button onclick="resetFilters()" class="px-4 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl text-xs">重設篩選</button></div>
             </div>
-
-            <div class="lg:col-span-1 cyber-card p-6 md:p-8 text-left">
-                <h3 class="text-rose-950 font-black mb-4 flex items-center uppercase tracking-widest text-sm">未推薦檢查 <span class="ml-auto opacity-20 font-cyber text-lg">03</span></h3>
+            <div class="lg:col-span-1 cyber-card p-6">
+                <h3 class="text-rose-950 font-black mb-4 flex items-center uppercase tracking-widest text-sm text-left">未推薦檢查 <span class="ml-auto opacity-20 font-cyber text-lg text-right">03</span></h3>
                 <div class="grid grid-cols-1 gap-2">
-                    <button onclick="checkInactiveByDays(14)" class="btn-inactive py-2.5 px-4 bg-white border-2 border-rose-100 text-rose-800 font-bold rounded-xl text-xs flex justify-between items-center">最近 2 星期無推薦 <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg></button>
-                    <button onclick="checkInactiveByDays(30)" class="btn-inactive py-2.5 px-4 bg-white border-2 border-rose-100 text-rose-800 font-bold rounded-xl text-xs flex justify-between items-center">最近 1 個月無推薦 <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg></button>
-                    <button onclick="checkInactiveByDays(60)" class="btn-inactive py-2.5 px-4 bg-white border-2 border-rose-100 text-rose-800 font-bold rounded-xl text-xs flex justify-between items-center">最近 2 個月無推薦 <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg></button>
+                    <button onclick="checkInactiveByDays(14)" class="btn-inactive py-2.5 px-4 bg-white border-2 border-rose-100 text-rose-800 font-bold rounded-xl text-xs flex justify-between items-center text-left">最近 2 星期無推薦 <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg></button>
+                    <button onclick="checkInactiveByDays(30)" class="btn-inactive py-2.5 px-4 bg-white border-2 border-rose-100 text-rose-800 font-bold rounded-xl text-xs flex justify-between items-center text-left">最近 1 個月無推薦 <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg></button>
                 </div>
             </div>
         </div>
 
-        <!-- 入職批次追蹤 (Column AB) -->
+        <!-- 入職批次追蹤 -->
         <div id="onBoardBatchArea" class="mb-10 text-left">
             <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-indigo-500 pl-4 tracking-wider uppercase">入職批次追蹤 <span class="font-cyber text-indigo-500 ml-2">ON BOARD BATCHES</span></h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div onclick="toggleBatchList('23 March 2026')" class="batch-card cyber-card p-6 border-b-8 border-emerald-500" id="batch-2303">
                     <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">On board Date</p>
-                    <p class="text-lg font-black text-slate-900 mb-3">23 March 2026</p>
+                    <p class="text-lg font-black text-slate-900 mb-3 text-left">23 March 2026</p>
                     <div class="flex items-center justify-between" id="count-2303">
                         <span class="text-4xl font-black text-emerald-600 readable-nums">0 <span class="text-xs text-slate-400 font-bold ml-1">(NJ: 0)</span></span>
                         <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-black">總人數</span>
@@ -140,138 +125,175 @@
             </div>
         </div>
 
-        <!-- Lead 統計區 (Column AC, 可自選日期) -->
+        <!-- Weekly Lead 統計 -->
         <div id="weeklyLeadArea" class="mb-10 text-left">
             <div class="flex flex-col md:flex-row md:items-center gap-4 mb-6">
-                <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-violet-500 pl-4 tracking-wider uppercase">Lead 統計 <span class="font-cyber text-violet-500 ml-2">WEEKLY LEADS</span></h2>
+                <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-violet-500 pl-4 tracking-wider uppercase text-left">Lead 統計 <span class="font-cyber text-violet-500 ml-2">WEEKLY LEADS</span></h2>
                 <div class="flex items-center gap-2 bg-white/50 p-2 rounded-xl border border-white">
                     <input type="date" id="leadStart" onchange="calculateWeeklyLeads()" class="date-selector-input">
-                    <span class="font-bold text-slate-400">至</span>
+                    <span class="font-bold text-slate-400 text-xs">至</span>
                     <input type="date" id="leadEnd" onchange="calculateWeeklyLeads()" class="date-selector-input">
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div onclick="toggleLeadList('DERMES')" class="lead-card cyber-card p-6 border-b-8 border-rose-400" id="lead-DERMES">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Leads (AC: Lead Date)</p>
-                    <p class="text-xl font-black text-slate-900 mb-3">DERMES</p>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Leads (AC Date)</p>
+                    <p class="text-xl font-black text-slate-900 mb-3 text-left">DERMES</p>
                     <div class="flex items-center justify-between">
-                        <div class="flex flex-col"><span class="text-2xl font-black text-rose-500 readable-nums" id="weekly-lead-rj-DERMES">RJ: 0</span><span class="text-2xl font-black text-rose-500 readable-nums" id="weekly-lead-nj-DERMES">NJ: 0</span></div>
+                        <div class="flex flex-col text-left"><span class="text-2xl font-black text-rose-500 readable-nums" id="weekly-lead-rj-DERMES">RJ: 0</span><span class="text-2xl font-black text-rose-500 readable-nums" id="weekly-lead-nj-DERMES">NJ: 0</span></div>
                         <span class="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-4xl font-black readable-nums shadow-inner" id="weekly-lead-total-DERMES">0</span>
                     </div>
                 </div>
                 <div onclick="toggleLeadList('REENEX')" class="lead-card cyber-card p-6 border-b-8 border-indigo-400" id="lead-REENEX">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Leads (AC: Lead Date)</p>
-                    <p class="text-xl font-black text-slate-900 mb-3">REENEX</p>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Leads (AC Date)</p>
+                    <p class="text-xl font-black text-slate-900 mb-3 text-left">REENEX</p>
                     <div class="flex items-center justify-between">
-                        <div class="flex flex-col"><span class="text-2xl font-black text-indigo-500 readable-nums" id="weekly-lead-rj-REENEX">RJ: 0</span><span class="text-2xl font-black text-indigo-500 readable-nums" id="weekly-lead-nj-REENEX">NJ: 0</span></div>
+                        <div class="flex flex-col text-left"><span class="text-2xl font-black text-indigo-500 readable-nums" id="weekly-lead-rj-REENEX">RJ: 0</span><span class="text-2xl font-black text-indigo-500 readable-nums" id="weekly-lead-nj-REENEX">NJ: 0</span></div>
                         <span class="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-4xl font-black readable-nums shadow-inner" id="weekly-lead-total-REENEX">0</span>
                     </div>
                 </div>
                 <div onclick="toggleLeadList('ELYZE')" class="lead-card cyber-card p-6 border-b-8 border-emerald-400" id="lead-ELYZE">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Leads (AC: Lead Date)</p>
-                    <p class="text-xl font-black text-slate-900 mb-3">ELYZE</p>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Leads (AC Date)</p>
+                    <p class="text-xl font-black text-slate-900 mb-3 text-left">ELYZE</p>
                     <div class="flex items-center justify-between">
-                        <div class="flex flex-col"><span class="text-2xl font-black text-emerald-500 readable-nums" id="weekly-lead-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-emerald-500 readable-nums" id="weekly-lead-nj-ELYZE">NJ: 0</span></div>
+                        <div class="flex flex-col text-left"><span class="text-2xl font-black text-emerald-500 readable-nums" id="weekly-lead-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-emerald-500 readable-nums" id="weekly-lead-nj-ELYZE">NJ: 0</span></div>
                         <span class="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-4xl font-black readable-nums shadow-inner" id="weekly-lead-total-ELYZE">0</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Offer 統計區 (Column AD, 可自選日期) -->
-        <div id="weeklyOfferArea" class="mb-12 text-left">
+        <!-- Weekly Offer 統計 (Column AD, OFFER/ACCEPT 狀態) -->
+        <div id="weeklyOfferArea" class="mb-10 text-left">
             <div class="flex flex-col md:flex-row md:items-center gap-4 mb-6">
-                <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-blue-500 pl-4 tracking-wider uppercase text-left">Offer 統計 <span class="font-cyber text-blue-500 ml-2">WEEKLY OFFERS</span></h2>
+                <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-blue-500 pl-4 tracking-wider uppercase text-left text-left">Offer 統計 <span class="font-cyber text-blue-500 ml-2">WEEKLY OFFERS</span></h2>
                 <div class="flex items-center gap-2 bg-white/50 p-2 rounded-xl border border-white">
                     <input type="date" id="offerStart" onchange="calculateWeeklyOffers()" class="date-selector-input">
-                    <span class="font-bold text-slate-400">至</span>
+                    <span class="font-bold text-slate-400 text-xs">至</span>
                     <input type="date" id="offerEnd" onchange="calculateWeeklyOffers()" class="date-selector-input">
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div onclick="toggleWeeklyList('DERMES')" class="weekly-card cyber-card p-6 border-b-8 border-rose-500" id="weekly-DERMES">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Offer (AD: Offer Date)</p>
-                    <p class="text-xl font-black text-slate-900 mb-3">DERMES</p>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Offer (Accept/Offer)</p>
+                    <p class="text-xl font-black text-slate-900 mb-3 text-left">DERMES</p>
                     <div class="flex items-center justify-between">
-                        <div class="flex flex-col"><span class="text-2xl font-black text-rose-600 readable-nums" id="weekly-rj-DERMES">RJ: 0</span><span class="text-2xl font-black text-rose-600 readable-nums" id="weekly-nj-DERMES">NJ: 0</span></div>
+                        <div class="flex flex-col text-left"><span class="text-2xl font-black text-rose-600 readable-nums" id="weekly-rj-DERMES">RJ: 0</span><span class="text-2xl font-black text-rose-600 readable-nums" id="weekly-nj-DERMES">NJ: 0</span></div>
                         <span class="px-4 py-2 bg-rose-50 text-rose-700 rounded-xl text-4xl font-black readable-nums shadow-inner" id="weekly-total-DERMES">0</span>
                     </div>
                 </div>
                 <div onclick="toggleWeeklyList('REENEX')" class="weekly-card cyber-card p-6 border-b-8 border-indigo-500" id="weekly-REENEX">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Offer (AD: Offer Date)</p>
-                    <p class="text-xl font-black text-slate-900 mb-3">REENEX</p>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Offer (Accept/Offer)</p>
+                    <p class="text-xl font-black text-slate-900 mb-3 text-left">REENEX</p>
                     <div class="flex items-center justify-between">
-                        <div class="flex flex-col"><span class="text-2xl font-black text-indigo-600 readable-nums" id="weekly-rj-REENEX">RJ: 0</span><span class="text-2xl font-black text-indigo-600 readable-nums" id="weekly-nj-REENEX">NJ: 0</span></div>
+                        <div class="flex flex-col text-left"><span class="text-2xl font-black text-indigo-600 readable-nums" id="weekly-rj-REENEX">RJ: 0</span><span class="text-2xl font-black text-indigo-600 readable-nums" id="weekly-nj-REENEX">NJ: 0</span></div>
                         <span class="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl text-4xl font-black readable-nums shadow-inner" id="weekly-total-REENEX">0</span>
                     </div>
                 </div>
                 <div onclick="toggleWeeklyList('ELYZE')" class="weekly-card cyber-card p-6 border-b-8 border-emerald-500" id="weekly-ELYZE">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Offer (AD: Offer Date)</p>
-                    <p class="text-xl font-black text-slate-900 mb-3">ELYZE</p>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Offer (Accept/Offer)</p>
+                    <p class="text-xl font-black text-slate-900 mb-3 text-left">ELYZE</p>
                     <div class="flex items-center justify-between">
-                        <div class="flex flex-col"><span class="text-2xl font-black text-emerald-600 readable-nums" id="weekly-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-emerald-600 readable-nums" id="weekly-nj-ELYZE">NJ: 0</span></div>
+                        <div class="flex flex-col text-left"><span class="text-2xl font-black text-emerald-600 readable-nums" id="weekly-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-emerald-600 readable-nums" id="weekly-nj-ELYZE">NJ: 0</span></div>
                         <span class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-4xl font-black readable-nums shadow-inner" id="weekly-total-ELYZE">0</span>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- 共用明細列表容器 -->
-            <div id="sharedDetailArea" class="hidden mt-8 space-y-6">
-                <h3 id="sharedDetailTitle" class="text-lg font-black text-slate-800 flex items-center bg-white/40 px-4 py-2 rounded-xl w-fit border border-white">
-                    <span class="w-3 h-3 bg-blue-500 rounded-full mr-3"></span> 名單明細
-                </h3>
-                <div class="cyber-card overflow-hidden shadow-2xl">
-                    <div class="overflow-x-auto custom-scrollbar">
-                        <table class="w-full border-collapse">
-                            <thead class="bg-blue-50/50 border-b-2 border-blue-100 text-blue-950 font-black text-sm">
-                                <tr>
-                                    <th class="text-left border-r border-blue-50">BRAND</th>
-                                    <th class="text-center border-r border-blue-50">Lead Date</th>
-                                    <th class="text-center border-r border-blue-50">Offer Date</th>
-                                    <th class="text-center border-r border-blue-50">Status</th>
-                                    <th class="text-center border-r border-blue-50">RJ/NJ</th>
-                                    <th class="text-left border-r border-blue-50">Name (N)</th>
-                                    <th class="text-left">REFER BY</th>
-                                </tr>
-                            </thead>
-                            <tbody id="sharedDetailTableBody" class="divide-y divide-slate-100 font-bold text-base md:text-lg"></tbody>
-                        </table>
+        <!-- 待定 Offer 統計 (Column AD, 狀態不是 Accept) -->
+        <div id="pendingOfferArea" class="mb-12 text-left text-left">
+            <div class="flex flex-col md:flex-row md:items-center gap-4 mb-6">
+                <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-orange-500 pl-4 tracking-wider uppercase text-left text-left">待定 Offer <span class="font-cyber text-orange-500 ml-2">PENDING OFFERS</span></h2>
+                <div class="flex items-center gap-2 bg-white/50 p-2 rounded-xl border border-white">
+                    <input type="date" id="pendingStart" onchange="calculatePendingOffers()" class="date-selector-input">
+                    <span class="font-bold text-slate-400 text-xs">至</span>
+                    <input type="date" id="pendingEnd" onchange="calculatePendingOffers()" class="date-selector-input">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div onclick="togglePendingList('DERMES')" class="pending-card cyber-card p-6 border-b-8 border-orange-400" id="pending-DERMES">
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Offered but NOT Accept</p>
+                    <p class="text-xl font-black text-slate-900 mb-3 text-left">DERMES</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex flex-col text-left"><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-rj-DERMES">RJ: 0</span><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-nj-DERMES">NJ: 0</span></div>
+                        <span class="px-4 py-2 bg-orange-50 text-orange-700 rounded-xl text-4xl font-black readable-nums shadow-inner" id="pending-total-DERMES">0</span>
+                    </div>
+                </div>
+                <div onclick="togglePendingList('REENEX')" class="pending-card cyber-card p-6 border-b-8 border-orange-400" id="pending-REENEX">
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Offered but NOT Accept</p>
+                    <p class="text-xl font-black text-slate-900 mb-3 text-left">REENEX</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex flex-col text-left"><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-rj-REENEX">RJ: 0</span><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-nj-REENEX">NJ: 0</span></div>
+                        <span class="px-4 py-2 bg-orange-50 text-orange-700 rounded-xl text-4xl font-black readable-nums shadow-inner" id="pending-total-REENEX">0</span>
+                    </div>
+                </div>
+                <div onclick="togglePendingList('ELYZE')" class="pending-card cyber-card p-6 border-b-8 border-orange-400" id="pending-ELYZE">
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left text-left">Offered but NOT Accept</p>
+                    <p class="text-xl font-black text-slate-900 mb-3 text-left text-left">ELYZE</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex flex-col text-left"><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-nj-ELYZE">NJ: 0</span></div>
+                        <span class="px-4 py-2 bg-orange-50 text-orange-700 rounded-xl text-4xl font-black readable-nums shadow-inner" id="pending-total-ELYZE">0</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 個人統計與搜尋結果區 -->
-        <div id="statsArea" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8 hidden text-center">
+        <!-- 名單明細容器 -->
+        <div id="sharedDetailArea" class="hidden mt-8 mb-20 space-y-6">
+            <h3 id="sharedDetailTitle" class="text-lg font-black text-slate-800 flex items-center bg-white/40 px-4 py-2 rounded-xl w-fit border border-white text-left">
+                <span class="w-3 h-3 bg-blue-500 rounded-full mr-3 text-left"></span> 名單明細
+            </h3>
+            <div class="cyber-card overflow-hidden shadow-2xl">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full border-collapse">
+                        <thead class="bg-blue-50/50 border-b-2 border-blue-100 text-blue-950 font-black text-sm text-center">
+                            <tr>
+                                <th class="text-left border-r border-blue-50">BRAND</th>
+                                <th class="text-center border-r border-blue-50">Lead Date</th>
+                                <th class="text-center border-r border-blue-50">Offer Date</th>
+                                <th class="text-center border-r border-blue-50">Status</th>
+                                <th class="text-center border-r border-blue-50">RJ/NJ</th>
+                                <th class="text-left border-r border-blue-50">Name (N)</th>
+                                <th class="text-left">REFER BY</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sharedDetailTableBody" class="divide-y divide-slate-100 font-bold text-base md:text-lg"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 個人與彙總數據 (搜尋與初始載入顯示) -->
+        <div id="statsArea" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-12 hidden text-center">
             <div class="cyber-card p-4 md:p-8 border-l-4 border-blue-500"><p class="text-xs text-slate-500 font-black mb-1">總推薦</p><p id="totalCount" class="text-2xl md:text-5xl font-black text-slate-900 readable-nums">0</p></div>
             <div class="cyber-card p-4 md:p-8 border-l-4 border-emerald-500"><p class="text-xs text-slate-500 font-black mb-1">已入職</p><p id="joinedCount" class="text-2xl md:text-5xl font-black text-emerald-600 readable-nums">0</p></div>
-            <div class="cyber-card p-4 md:p-8 border-l-4 border-rose-500"><p class="text-xs text-slate-500 font-black mb-1">Drop</p><p id="withdrawCount" class="text-2xl md:text-5xl font-black text-rose-600 readable-nums text-center">0</p></div>
+            <div class="cyber-card p-4 md:p-8 border-l-4 border-rose-500"><p class="text-xs text-slate-500 font-black mb-1">Drop</p><p id="withdrawCount" class="text-2xl md:text-5xl font-black text-rose-600 readable-nums">0</p></div>
             <div class="cyber-card p-4 md:p-8 border-l-4 border-amber-500"><p class="text-xs text-slate-500 font-black mb-1">處理中</p><p id="pendingCount" class="text-2xl md:text-5xl font-black text-amber-600 readable-nums">0</p></div>
         </div>
-        <div id="referralTrackingInfo" class="hidden mb-10 px-6 py-4 rounded-2xl summary-accent bg-white/40 text-left"><p id="trackingText" class="text-lg md:text-xl font-black text-indigo-900 tracking-tight"></p></div>
-        
-        <!-- 推薦明細表格 -->
-        <div id="resultArea" class="hidden space-y-12 mb-16 text-left">
-            <div id="sectionRJ"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-indigo-600 pl-4 tracking-wider uppercase text-left">RJ 推薦明細 <span class="font-cyber text-indigo-500 ml-2">Referral Join</span></h2><div class="cyber-card overflow-hidden"><div class="overflow-x-auto custom-scrollbar text-center"><table class="w-full border-collapse"><thead class="bg-indigo-50 border-b-2 border-indigo-100 text-indigo-950 font-black text-sm"><tr><th class="text-left">被介紹人 (N)</th><th>日期資訊 (B+C+D)</th><th>Status</th><th>On Board Date</th><th>最終標記</th></tr></thead><tbody id="resultTableBodyRJ" class="divide-y divide-slate-200"></tbody></table></div></div></div>
-            <div id="sectionNJ"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-violet-600 pl-4 tracking-wider uppercase text-left">NJ 推薦明細 <span class="font-cyber text-violet-500 ml-2">New Joiner</span></h2><div class="cyber-card overflow-hidden text-center"><div class="overflow-x-auto custom-scrollbar text-center"><table class="w-full border-collapse"><thead class="bg-violet-50 border-b-2 border-violet-100 text-violet-950 font-black text-sm text-center"><tr><th class="text-left">被介紹人 (N)</th><th>日期資訊 (B+C+D)</th><th>Status</th><th>On Board Date</th><th>最終標記</th></tr></thead><tbody id="resultTableBodyNJ" class="divide-y divide-slate-200"></tbody></table></div></div></div>
-        </div>
 
+        <!-- 相關資訊與彙總表格 -->
         <div id="resultAreaSheet2" class="hidden mb-16 text-left">
-            <h2 id="resultAreaSheet2Title" class="text-xl md:text-2xl font-black text-slate-900 mb-4 px-2 border-l-8 border-sky-600 pl-4 tracking-wider uppercase">相關資訊 <span class="font-cyber text-sky-500 ml-2">REFERENCE INFO</span></h2>
-            <div class="cyber-card overflow-hidden text-center"><div class="overflow-x-auto custom-scrollbar text-center"><table class="w-full border-collapse text-center"><thead class="bg-sky-50 text-sky-950 border-b-2 border-sky-100 font-black uppercase text-xs text-center"><tr><th class="text-left border-r border-sky-100">Name</th><th class="border-r border-sky-100">1月+2月<br>Resign No</th><th class="border-r border-sky-100 leading-tight text-slate-600 text-xs">Total Offer<br>(已減無返工Offer)</th><th class="border-r border-sky-100 leading-tight">Should<br>on Board</th><th class="border-r border-sky-100">On board</th><th class="border-r border-sky-100">Gap</th><th>NJ Offer</th></tr></thead><tbody id="sheet2TableBody" class="divide-y divide-slate-200 text-lg readable-nums font-bold text-center"></tbody></table></div></div>
-            <div id="dynamicLogicFormulaBox" class="mt-4 p-4 bg-white/70 rounded-2xl border-2 border-white shadow-inner text-left"><p id="dynamicLogicFormula" class="text-base md:text-xl text-slate-900 font-black italic mb-2 readable-nums leading-relaxed"></p><p class="text-xs text-slate-500 italic font-bold uppercase">* Formula: Target (2) + Resign No. - Total Offer = Gap (HI-PO excluded)</p></div>
+            <h2 id="resultAreaSheet2Title" class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-sky-600 pl-4 tracking-wider uppercase text-left">相關資訊 <span class="font-cyber text-sky-500 ml-2">REFERENCE INFO</span></h2>
+            <div class="cyber-card overflow-hidden"><div class="overflow-x-auto custom-scrollbar text-center"><table class="w-full border-collapse text-center"><thead class="bg-sky-50 text-sky-950 border-b-2 border-sky-100 font-black uppercase text-xs text-center"><tr><th class="text-left border-r border-sky-100">Name</th><th class="border-r border-sky-100">1月+2月<br>Resign No</th><th class="border-r border-sky-100 leading-tight text-slate-600 text-[10px]">Total Offer<br>(已減無返工Offer)</th><th class="border-r border-sky-100 leading-tight">Should<br>on Board</th><th class="border-r border-sky-100 text-center">On board</th><th class="border-r border-sky-100 text-center">Gap</th><th>NJ Offer</th></tr></thead><tbody id="sheet2TableBody" class="divide-y divide-slate-200 text-lg readable-nums font-bold"></tbody></table></div></div>
         </div>
 
-        <div id="inactiveResultArea" class="hidden mb-16 text-left space-y-10"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-rose-600 pl-4 tracking-wider uppercase text-left">非活躍推薦名單 <span id="inactiveTitleSpan" class="font-cyber text-rose-500 ml-2 text-left"></span></h2><div id="inactiveBrandContainer" class="space-y-10 text-left"></div></div>
-        
-        <div id="brandSummaryArea" class="mb-16 text-left hidden"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-emerald-600 pl-4 tracking-wider uppercase text-left">Brand Summary <span class="font-cyber text-emerald-500 ml-2 text-left">GLOBAL DATA</span></h2><div class="cyber-card overflow-hidden"><div class="overflow-x-auto custom-scrollbar text-center"><table class="w-full border-collapse text-lg text-center"><thead class="bg-emerald-50 text-emerald-950 border-b-2 border-emerald-100 font-black uppercase text-sm text-center"><tr><th class="text-left px-10">Brand Name</th><th>Total Offer</th><th class="leading-tight">Total Should<br>on Board</th><th class="text-emerald-900">Total On board</th><th>Total Gap</th><th>NJ Offer</th></tr></thead><tbody id="brandSummaryBody" class="divide-y divide-slate-200 readable-nums font-bold text-center"></tbody></table></div></div></div>
-        
-        <div id="picSummaryArea" class="mb-24 text-left hidden"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-blue-600 pl-4 tracking-wider uppercase text-left">PIC Summary <span class="font-cyber text-blue-500 ml-2 text-left">BY PERSON</span></h2><div class="cyber-card overflow-hidden"><div class="overflow-x-auto custom-scrollbar text-center"><table class="w-full border-collapse text-center"><thead class="bg-blue-50 text-blue-950 border-b-2 border-blue-100 font-black uppercase text-xs text-center"><tr><th class="text-left border-r border-blue-100">Brand</th><th class="text-left border-r border-blue-100">PIC</th><th class="border-r border-blue-100 leading-tight text-rose-700">1月+2月<br>Resign No</th><th class="border-r border-blue-100 leading-tight text-slate-600 text-xs">Total Offer<br>(已減無返工Offer)</th><th class="border-r border-blue-100 leading-tight">Should<br>on Board</th><th class="border-r border-blue-100 text-emerald-800">On board</th><th class="border-r border-blue-100">Gap</th><th>NJ Offer</th></tr></thead><tbody id="picSummaryBody" class="divide-y divide-slate-200 readable-nums font-bold text-center"></tbody></table></div></div></div>
+        <!-- Brand Summary -->
+        <div id="brandSummaryArea" class="mb-16 text-left hidden text-left">
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-emerald-600 pl-4 tracking-wider uppercase text-left text-left">Brand Summary <span class="font-cyber text-emerald-500 ml-2 text-left">GLOBAL DATA</span></h2>
+            <div class="cyber-card overflow-hidden"><div class="overflow-x-auto custom-scrollbar text-center text-center"><table class="w-full border-collapse text-lg text-center text-center"><thead class="bg-emerald-50 text-emerald-950 border-b-2 border-emerald-100 font-black uppercase text-sm text-center text-center"><tr><th class="text-left px-10">Brand Name</th><th>Total Offer</th><th class="leading-tight">Total Should<br>on Board</th><th class="text-emerald-900 text-center">Total On board</th><th>Total Gap</th><th>NJ Offer</th></tr></thead><tbody id="brandSummaryBody" class="divide-y divide-slate-200 readable-nums font-bold text-center text-center"></tbody></table></div></div>
+        </div>
 
-        <!-- 載入與狀態 -->
-        <div id="loadingStatus" class="text-center py-10 text-indigo-700 font-black flex flex-col items-center justify-center gap-4 text-center"><svg class="animate-spin h-8 w-8 text-indigo-600" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="tracking-[0.2em] uppercase font-cyber text-sm text-center">Synchronizing Database...</span></div>
+        <!-- PIC Summary -->
+        <div id="picSummaryArea" class="mb-24 text-left hidden text-left text-left">
+            <h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-blue-600 pl-4 tracking-wider uppercase text-left text-left text-left">PIC Summary <span class="font-cyber text-blue-500 ml-2 text-left text-left">BY PERSON</span></h2>
+            <div class="cyber-card overflow-hidden"><div class="overflow-x-auto custom-scrollbar text-center text-center text-center"><table class="w-full border-collapse text-center text-center text-center"><thead class="bg-blue-50 text-blue-950 border-b-2 border-blue-100 font-black uppercase text-xs md:text-sm text-center text-center text-center"><tr><th class="text-left border-r border-blue-100 text-left">Brand</th><th class="text-left border-r border-blue-100 text-left">PIC</th><th class="border-r border-blue-100 leading-tight text-rose-700 text-center text-center">1月+2月<br>Resign No</th><th class="border-r border-blue-100 leading-tight text-slate-600 text-[10px] text-center text-center text-center">Total Offer<br>(已減無返工Offer)</th><th class="border-r border-blue-100 leading-tight text-center text-center">Should<br>on Board</th><th class="border-r border-blue-100 text-emerald-800 text-center text-center">On board</th><th class="border-r border-blue-100 text-center text-center">Gap</th><th>NJ Offer</th></tr></thead><tbody id="picSummaryBody" class="divide-y divide-slate-200 readable-nums font-bold text-center text-center text-center"></tbody></table></div></div>
+        </div>
+
+        <div id="loadingStatus" class="text-center py-10 text-indigo-700 font-black flex flex-col items-center justify-center gap-4 text-center"><svg class="animate-spin h-8 w-8 text-indigo-600" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="tracking-[0.2em] uppercase font-cyber text-sm">Synchronizing Database...</span></div>
         <div id="noResult" class="hidden text-center py-20 cyber-card mx-2 text-center text-center"><p class="text-slate-500 text-xl font-black uppercase font-cyber">NO RECORD FOUND</p></div>
-        <div id="initialPrompt" class="text-center py-32 md:py-48 opacity-20 uppercase font-cyber text-2xl">Enter Staff ID to Start_</div>
+        <div id="initialPrompt" class="text-center py-32 md:py-48 opacity-20 uppercase font-cyber text-2xl text-center">Enter Staff ID to Start_</div>
+        <div id="inactiveResultArea" class="hidden mb-16 text-left space-y-10"><h2 class="text-xl md:text-2xl font-black text-slate-900 mb-6 px-2 border-l-8 border-rose-600 pl-4 tracking-wider uppercase text-left">非活躍推薦名單 <span id="inactiveTitleSpan" class="font-cyber text-rose-500 ml-2 text-left"></span></h2><div id="inactiveBrandContainer" class="space-y-10 text-left"></div></div>
     </div>
 
     <script>
@@ -289,65 +311,86 @@
         function getThisMonday() {
             const today = new Date(); const day = today.getDay();
             const diff = today.getDate() - day + (day === 0 ? -6 : 1);
-            const monday = new Date(today.getFullYear(), today.getMonth(), diff);
-            monday.setHours(0,0,0,0); return monday;
+            return new Date(today.getFullYear(), today.getMonth(), diff, 0, 0, 0, 0);
         }
 
         function getLocalDateFromInput(val) {
             if (!val) return null;
             const [y, m, d] = val.split('-').map(Number);
-            return new Date(y, m - 1, d);
+            return new Date(y, m - 1, d, 0, 0, 0, 0);
         }
 
-        function formatDateToISO(date) { return date.toISOString().split('T')[0]; }
+        function formatDateToISO(date) { 
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
 
         async function init() {
             const monday = getThisMonday(); const today = new Date();
-            document.getElementById('leadStart').value = formatDateToISO(monday);
-            document.getElementById('leadEnd').value = formatDateToISO(today);
-            document.getElementById('offerStart').value = formatDateToISO(monday);
-            document.getElementById('offerEnd').value = formatDateToISO(today);
+            const isoMon = formatDateToISO(monday); const isoToday = formatDateToISO(today);
+            
+            const ids = ['leadStart', 'leadEnd', 'offerStart', 'offerEnd', 'pendingStart', 'pendingEnd'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.value = id.includes('End') ? isoToday : isoMon;
+            });
 
             try {
                 const r1 = await fetch(SHEET1_BASE_URL + `&t=${Date.now()}`);
                 const r2 = await fetch(SHEET2_BASE_URL + `&t=${Date.now()}`);
                 const t1 = await r1.text(); const t2 = await r2.text();
+                
                 Papa.parse(t1, { header: true, skipEmptyLines: true, complete: res => { 
                     headersS1 = res.meta.fields;
                     dataS1 = res.data.filter(row => !excludedNames.includes((row[headersS1[S1_IDX.STAFF_NAME]]||"").trim().toLowerCase()));
-                    calculateBatchCounts(); calculateWeeklyOffers(); calculateWeeklyLeads();
+                    
+                    // 從 AH1 (Index 33) 讀取同步時間
+                    const ah1Time = headersS1[33] || "未知";
+                    const updateEl = document.getElementById('lastUpdateDisplay');
+                    if(updateEl) updateEl.innerText = `同步：${ah1Time}`;
+
+                    calculateBatchCounts(); calculateWeeklyOffers(); calculateWeeklyLeads(); calculatePendingOffers();
                 } });
+                
                 Papa.parse(t2, { header: true, skipEmptyLines: true, complete: res => { 
                     headersS2 = res.meta.fields; 
-                    dataS2 = res.data.filter(row => (row[res.meta.fields[S2_IDX.POS]]||"").trim().toUpperCase() !== 'HIPO E1' && !excludedNames.includes((row[res.meta.fields[S2_IDX.NAME]]||"").trim().toLowerCase()));
+                    dataS2 = res.data.filter(row => {
+                        const pos = (row[res.meta.fields[S2_IDX.POS]]||"").trim().toUpperCase();
+                        const name = (row[res.meta.fields[S2_IDX.NAME]]||"").trim().toLowerCase();
+                        return pos !== 'HIPO E1' && !excludedNames.includes(name);
+                    });
                     populateFilters(); calculateSummaries(); 
                     document.getElementById('loadingStatus').classList.add('hidden');
                 } });
-                document.getElementById('lastUpdateDisplay').innerText = `同步時間：${new Date().toLocaleString('zh-HK', { hour12: false })}`;
             } catch (e) { console.error(e); }
         }
 
         function calculateBatchCounts() {
             const list = dataS1.filter(row => ["23 March 2026", "23 Mar 2026", "23March 2026"].includes((row[headersS1[S1_IDX.ONBOARD_DATE]]||"").trim()));
             const njCount = list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length;
-            document.getElementById("count-2303").innerHTML = `<span class="text-4xl font-black text-emerald-600 readable-nums">${list.length} <span class="text-xs text-slate-400 font-bold ml-1">(NJ: ${njCount})</span></span>`;
+            const el = document.getElementById("count-2303");
+            if (el) el.innerHTML = `<span class="text-4xl font-black text-emerald-600 readable-nums text-center">${list.length} <span class="text-xs text-slate-400 font-bold ml-1">(NJ: ${njCount})</span></span>`;
         }
 
         function calculateWeeklyLeads() {
             const start = getLocalDateFromInput(document.getElementById('leadStart').value);
             const end = getLocalDateFromInput(document.getElementById('leadEnd').value);
             if(!start || !end) return;
-            end.setHours(23, 59, 59, 999);
-            
+            const endLimit = new Date(end); endLimit.setHours(23,59,59,999);
             ['DERMES', 'REENEX', 'ELYZE'].forEach(brand => {
                 const list = dataS1.filter(row => {
                     if ((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
-                    const leadD = parseDate(row[headersS1[S1_IDX.LEAD_DATE]]);
-                    return leadD && leadD >= start && leadD <= end;
+                    const d = parseDate(row[headersS1[S1_IDX.LEAD_DATE]]);
+                    return d && d >= start && d <= endLimit;
                 });
-                document.getElementById(`weekly-lead-rj-${brand}`).innerText = `RJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length}`;
-                document.getElementById(`weekly-lead-nj-${brand}`).innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
-                document.getElementById(`weekly-lead-total-${brand}`).innerText = list.length;
+                const elRj = document.getElementById(`weekly-lead-rj-${brand}`);
+                const elNj = document.getElementById(`weekly-lead-nj-${brand}`);
+                const elTotal = document.getElementById(`weekly-lead-total-${brand}`);
+                if(elRj) elRj.innerText = `RJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length}`;
+                if(elNj) elNj.innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
+                if(elTotal) elTotal.innerText = list.length;
             });
             if (currentDetailMode === "LEAD") showSharedDetail("LEAD", currentDetailKey);
         }
@@ -356,67 +399,97 @@
             const start = getLocalDateFromInput(document.getElementById('offerStart').value);
             const end = getLocalDateFromInput(document.getElementById('offerEnd').value);
             if(!start || !end) return;
-            end.setHours(23, 59, 59, 999);
-            
+            const endLimit = new Date(end); endLimit.setHours(23,59,59,999);
             ['DERMES', 'REENEX', 'ELYZE'].forEach(brand => {
                 const list = dataS1.filter(row => {
                     if ((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
-                    const offD = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
+                    const d = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                     const status = (row[headersS1[S1_IDX.STATUS]]||"").trim().toUpperCase();
-                    return offD && offD >= start && offD <= end && (status.includes("OFFER") || status.includes("ACCEPT"));
+                    return d && d >= start && d <= endLimit && (status.includes("OFFER") || status.includes("ACCEPT"));
                 });
-                document.getElementById(`weekly-rj-${brand}`).innerText = `RJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length}`;
-                document.getElementById(`weekly-nj-${brand}`).innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
-                document.getElementById(`weekly-total-${brand}`).innerText = list.length;
+                const elRj = document.getElementById(`weekly-rj-${brand}`);
+                const elNj = document.getElementById(`weekly-nj-${brand}`);
+                const elTotal = document.getElementById(`weekly-total-${brand}`);
+                if(elRj) elRj.innerText = `RJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length}`;
+                if(elNj) elNj.innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
+                if(elTotal) elTotal.innerText = list.length;
             });
             if (currentDetailMode === "WEEKLY") showSharedDetail("WEEKLY", currentDetailKey);
+        }
+
+        function calculatePendingOffers() {
+            const start = getLocalDateFromInput(document.getElementById('pendingStart').value);
+            const end = getLocalDateFromInput(document.getElementById('pendingEnd').value);
+            if(!start || !end) return;
+            const endLimit = new Date(end); endLimit.setHours(23,59,59,999);
+            ['DERMES', 'REENEX', 'ELYZE'].forEach(brand => {
+                const list = dataS1.filter(row => {
+                    if ((row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() !== brand) return false;
+                    const d = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
+                    const status = (row[headersS1[S1_IDX.STATUS]]||"").trim().toUpperCase();
+                    return d && d >= start && d <= endLimit && !status.includes("ACCEPT");
+                });
+                const elRj = document.getElementById(`pending-rj-${brand}`);
+                const elNj = document.getElementById(`pending-nj-${brand}`);
+                const elTotal = document.getElementById(`pending-total-${brand}`);
+                if(elRj) elRj.innerText = `RJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "RJ").length}`;
+                if(elNj) elNj.innerText = `NJ: ${list.filter(r => (r[headersS1[S1_IDX.RJNJ]]||"").trim().toUpperCase() === "NJ").length}`;
+                if(elTotal) elTotal.innerText = list.length;
+            });
+            if (currentDetailMode === "PENDING") showSharedDetail("PENDING", currentDetailKey);
         }
 
         function showSharedDetail(mode, key) {
             currentDetailMode = mode; currentDetailKey = key;
             const area = document.getElementById('sharedDetailArea'); const tbody = document.getElementById('sharedDetailTableBody');
-            document.querySelectorAll('.batch-card, .weekly-card, .lead-card').forEach(c => c.classList.remove('active'));
+            if(!area || !tbody) return;
+            document.querySelectorAll('.batch-card, .weekly-card, .lead-card, .pending-card').forEach(c => c.classList.remove('active'));
             let list = [];
             
+            const startL = getLocalDateFromInput(document.getElementById('leadStart').value); const endL = getLocalDateFromInput(document.getElementById('leadEnd').value);
+            const startO = getLocalDateFromInput(document.getElementById('offerStart').value); const endO = getLocalDateFromInput(document.getElementById('offerEnd').value);
+            const startP = getLocalDateFromInput(document.getElementById('pendingStart').value); const endP = getLocalDateFromInput(document.getElementById('pendingEnd').value);
+
             if (mode === "BATCH") {
-                document.getElementById('batch-2303').classList.add('active');
-                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-indigo-500 rounded-full mr-3 text-left"></span> ${key} 批次名單`;
+                const card = document.getElementById('batch-2303'); if(card) card.classList.add('active');
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-indigo-500 rounded-full mr-3 text-left text-left text-left"></span> ${key} 批次名單`;
                 list = dataS1.filter(row => ["23 March 2026", "23 Mar 2026", "23March 2026"].includes((row[headersS1[S1_IDX.ONBOARD_DATE]]||"").trim()));
             } else if (mode === "LEAD") {
-                document.getElementById(`lead-${key}`).classList.add('active');
-                const start = getLocalDateFromInput(document.getElementById('leadStart').value);
-                const end = getLocalDateFromInput(document.getElementById('leadEnd').value);
-                end.setHours(23, 59, 59, 999);
-                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-violet-500 rounded-full mr-3 text-left"></span> ${key} Lead 名單 (${start.toLocaleDateString()} - ${end.toLocaleDateString()})`;
-                list = dataS1.filter(row => (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key && parseDate(row[headersS1[S1_IDX.LEAD_DATE]]) >= start && parseDate(row[headersS1[S1_IDX.LEAD_DATE]]) <= end);
-            } else {
-                document.getElementById(`weekly-${key}`).classList.add('active');
-                const start = getLocalDateFromInput(document.getElementById('offerStart').value);
-                const end = getLocalDateFromInput(document.getElementById('offerEnd').value);
-                end.setHours(23, 59, 59, 999);
-                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-blue-500 rounded-full mr-3 text-left"></span> ${key} Offer 名單 (${start.toLocaleDateString()} - ${end.toLocaleDateString()})`;
+                const card = document.getElementById(`lead-${key}`); if(card) card.classList.add('active');
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-violet-500 rounded-full mr-3 text-left text-left text-left"></span> ${key} Lead 名單`;
+                list = dataS1.filter(row => (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key && parseDate(row[headersS1[S1_IDX.LEAD_DATE]]) >= startL && parseDate(row[headersS1[S1_IDX.LEAD_DATE]]) <= endL);
+            } else if (mode === "WEEKLY") {
+                const card = document.getElementById(`weekly-${key}`); if(card) card.classList.add('active');
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-blue-500 rounded-full mr-3 text-left text-left text-left"></span> ${key} Offer 名單`;
                 list = dataS1.filter(row => {
-                    const b = (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase();
                     const d = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
                     const status = (row[headersS1[S1_IDX.STATUS]]||"").trim().toUpperCase();
-                    return b === key && d >= start && d <= end && (status.includes("OFFER") || status.includes("ACCEPT"));
+                    return (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key && d >= startO && d <= endO && (status.includes("OFFER") || status.includes("ACCEPT"));
+                });
+            } else {
+                const card = document.getElementById(`pending-${key}`); if(card) card.classList.add('active');
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-orange-500 rounded-full mr-3 text-left text-left text-left"></span> ${key} 待定/拒絕 Offer 名單`;
+                list = dataS1.filter(row => {
+                    const d = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
+                    const status = (row[headersS1[S1_IDX.STATUS]]||"").trim().toUpperCase();
+                    return (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key && d >= startP && d <= endP && !status.includes("ACCEPT");
                 });
             }
 
             list.sort((a, b) => {
-                const refA = ((a[headersS1[S1_IDX.STAFF_ID]] || "").trim() + " " + (a[headersS1[S1_IDX.STAFF_NAME]] || "").trim()).toUpperCase();
-                const refB = ((b[headersS1[S1_IDX.STAFF_ID]] || "").trim() + " " + (b[headersS1[S1_IDX.STAFF_NAME]] || "").trim()).toUpperCase();
+                const refA = ((a[headersS1[S1_IDX.STAFF_ID]] || "") + " " + (a[headersS1[S1_IDX.STAFF_NAME]] || "")).toUpperCase();
+                const refB = ((b[headersS1[S1_IDX.STAFF_ID]] || "") + " " + (b[headersS1[S1_IDX.STAFF_NAME]] || "")).toUpperCase();
                 return refA.localeCompare(refB);
             });
 
-            tbody.innerHTML = list.map(row => `<tr class="hover:bg-blue-50/50 transition font-bold">
-                <td class="text-left border-r border-blue-50 text-indigo-600 font-black text-sm">${row[headersS1[S1_IDX.BRAND]] || "-"}</td>
-                <td class="text-center border-r border-blue-50 text-slate-800 text-sm">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
-                <td class="text-center border-r border-blue-50 text-slate-800 text-sm">${row[headersS1[S1_IDX.OFFER_DATE]] || "-"}</td>
-                <td class="text-center border-r border-blue-50 text-slate-900 text-sm font-black">${row[headersS1[S1_IDX.STATUS]] || "-"}</td>
-                <td class="text-center border-r border-blue-50 text-indigo-700 uppercase text-sm">${row[headersS1[S1_IDX.RJNJ]] || "-"}</td>
-                <td class="text-left border-r border-blue-50 text-slate-900 font-black text-sm md:text-base">${row[headersS1[S1_IDX.NAME]] || "-"}</td>
-                <td class="text-left text-slate-600 font-medium text-xs md:text-sm">${((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim() || "-"}</td>
+            tbody.innerHTML = list.map(row => `<tr class="hover:bg-blue-50 transition font-bold">
+                <td class="text-left border-r border-blue-50 text-indigo-600 font-black text-sm">${row[headersS1[S1_IDX.BRAND]]}</td>
+                <td class="text-center border-r border-blue-50 text-slate-800 text-sm text-center text-center">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td>
+                <td class="text-center border-r border-blue-50 text-slate-800 text-sm text-center text-center">${row[headersS1[S1_IDX.OFFER_DATE]] || "-"}</td>
+                <td class="text-center border-r border-blue-50 text-slate-900 text-sm font-black text-center text-center">${row[headersS1[S1_IDX.STATUS]] || "-"}</td>
+                <td class="text-center border-r border-blue-50 text-indigo-700 uppercase text-sm text-center text-center">${row[headersS1[S1_IDX.RJNJ]]}</td>
+                <td class="text-left border-r border-blue-50 text-slate-900 font-black text-sm text-left text-left">${row[headersS1[S1_IDX.NAME]]}</td>
+                <td class="text-left text-slate-600 font-medium text-xs text-left text-left text-left text-left">${((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim()}</td>
             </tr>`).join('');
             area.classList.remove('hidden'); area.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -424,128 +497,120 @@
         function toggleBatchList(d) { currentDetailMode==="BATCH"&&currentDetailKey===d ? hideSharedDetail() : showSharedDetail("BATCH", d); }
         function toggleWeeklyList(b) { currentDetailMode==="WEEKLY"&&currentDetailKey===b ? hideSharedDetail() : showSharedDetail("WEEKLY", b); }
         function toggleLeadList(b) { currentDetailMode==="LEAD"&&currentDetailKey===b ? hideSharedDetail() : showSharedDetail("LEAD", b); }
-        function hideSharedDetail() { document.getElementById('sharedDetailArea').classList.add('hidden'); document.querySelectorAll('.batch-card, .weekly-card, .lead-card').forEach(c => c.classList.remove('active')); currentDetailMode = ""; currentDetailKey = ""; }
+        function togglePendingList(b) { currentDetailMode==="PENDING"&&currentDetailKey===b ? hideSharedDetail() : showSharedDetail("PENDING", b); }
+        function hideSharedDetail() { 
+            const detailArea = document.getElementById('sharedDetailArea');
+            if(detailArea) detailArea.classList.add('hidden'); 
+            document.querySelectorAll('.batch-card, .weekly-card, .lead-card, .pending-card').forEach(c => c.classList.remove('active')); currentDetailMode = ""; currentDetailKey = ""; 
+        }
 
         function calculateSummaries() {
             const sumBody = document.getElementById('brandSummaryBody'); const picBody = document.getElementById('picSummaryBody');
+            if(!sumBody || !picBody) return;
             sumBody.innerHTML = ''; picBody.innerHTML = ''; let gt = { o:0, s:0, ob:0, g:0, njo:0 };
             ['DERMES', 'ELYZE', 'REENEX'].forEach(brand => {
                 const br = dataS2.filter(i => (i[headersS2[S2_IDX.BRAND]]||"").toUpperCase() === brand && !(i[headersS2[S2_IDX.NAME]]||"").toUpperCase().includes("TOTAL"));
                 let bs = { o:0, s:0, ob:0, g:0, njo:0 };
                 br.forEach(i => {
-                    bs.o += parseFloat((i[headersS2[S2_IDX.OFFER]]||"0").replace(/,/g,'')); bs.s += parseFloat((i[headersS2[S2_IDX.SHOULD]]||"0").replace(/,/g,''));
-                    bs.ob += parseFloat((i[headersS2[S2_IDX.ONBOARD]]||"0").replace(/,/g,'')); bs.g += parseFloat((i[headersS2[S2_IDX.GAP]]||"0").replace(/,/g,''));
-                    bs.njo += parseFloat((i[headersS2[S2_IDX.NJ_OFFER]]||"0").replace(/,/g,''));
+                    bs.o += parseFloat((i[headersS2[S2_IDX.OFFER]]||"0").replace(/,/g,'')) || 0;
+                    bs.s += parseFloat((i[headersS2[S2_IDX.SHOULD]]||"0").replace(/,/g,'')) || 0;
+                    bs.ob += parseFloat((i[headersS2[S2_IDX.ONBOARD]]||"0").replace(/,/g,'')) || 0;
+                    bs.g += parseFloat((i[headersS2[S2_IDX.GAP]]||"0").replace(/,/g,'')) || 0;
+                    bs.njo += parseFloat((i[headersS2[S2_IDX.NJ_OFFER]]||"0").replace(/,/g,'')) || 0;
                 });
                 gt.o+=bs.o; gt.s+=bs.s; gt.ob+=bs.ob; gt.g+=bs.g; gt.njo+=bs.njo;
-                sumBody.innerHTML += `<tr class="hover:bg-emerald-50/70 transition font-bold text-center"><td class="px-10 py-5 text-left">${brand}</td><td>${bs.o.toLocaleString()}</td><td>${bs.s.toLocaleString()}</td><td class="text-emerald-800 text-2xl">${bs.ob.toLocaleString()}</td><td class="${bs.g<0?'text-rose-700 font-black':''}">${bs.g.toLocaleString()}</td><td>${bs.njo.toLocaleString()}</td></tr>`;
-                const uniquePICs = [...new Set(br.map(i => i[headersS2[S2_IDX.PIC]]).filter(v => v))];
-                uniquePICs.forEach(picName => {
+                sumBody.innerHTML += `<tr class="hover:bg-emerald-50 transition font-bold text-center"><td class="px-10 py-5 text-left text-left text-left">${brand}</td><td>${bs.o.toLocaleString()}</td><td>${bs.s.toLocaleString()}</td><td class="text-emerald-800 text-2xl text-center">${bs.ob.toLocaleString()}</td><td class="${bs.g<0?'text-rose-700 font-black':''} text-center text-center">${bs.g.toLocaleString()}</td><td class="text-center text-center">${bs.njo.toLocaleString()}</td></tr>`;
+                const pics = [...new Set(br.map(i => i[headersS2[S2_IDX.PIC]]).filter(v => v))];
+                pics.forEach(picName => {
                     const pr = br.filter(i => i[headersS2[S2_IDX.PIC]] === picName); let ps = { r:0, o:0, s:0, ob:0, g:0, njo:0 };
-                    pr.forEach(i => { ps.r += (parseFloat(i[headersS2[S2_IDX.RESIGN]])||0) + (parseFloat(i[headersS2[S2_IDX.RESIGN]+1])||0); ps.o += parseFloat((i[headersS2[S2_IDX.OFFER]]||"0").replace(/,/g,'')); ps.s += parseFloat((i[headersS2[S2_IDX.SHOULD]]||"0").replace(/,/g,'')); ps.ob += parseFloat((i[headersS2[S2_IDX.ONBOARD]]||"0").replace(/,/g,'')); ps.g += parseFloat((i[headersS2[S2_IDX.GAP]]||"0").replace(/,/g,'')); ps.njo += parseFloat((i[headersS2[S2_IDX.NJ_OFFER]]||"0").replace(/,/g,'')); });
-                    picBody.innerHTML += `<tr class="hover:bg-blue-50/50 transition font-bold"><td class="text-left border-r border-blue-50">${brand}</td><td class="text-left border-r border-blue-50">${picName}</td><td class="text-rose-700 font-black border-r border-blue-50 text-center">${ps.r}</td><td class="border-r border-blue-50 text-slate-600 text-xs">${ps.o}</td><td class="border-r border-blue-50">${ps.s}</td><td class="text-emerald-800 font-black text-lg border-r border-blue-50">${ps.ob}</td><td class="border-r border-blue-50 ${ps.g<0?'text-rose-700 font-black':''}">${ps.g}</td><td>${ps.njo}</td></tr>`;
+                    pr.forEach(i => {
+                        ps.r += (parseFloat(i[headersS2[9]])||0) + (parseFloat(i[headersS2[10]])||0);
+                        ps.o += parseFloat((i[headersS2[S2_IDX.OFFER]]||"0").replace(/,/g,'')) || 0;
+                        ps.s += parseFloat((i[headersS2[S2_IDX.SHOULD]]||"0").replace(/,/g,'')) || 0;
+                        ps.ob += parseFloat((i[headersS2[S2_IDX.ONBOARD]]||"0").replace(/,/g,'')) || 0;
+                        ps.g += parseFloat((i[headersS2[S2_IDX.GAP]]||"0").replace(/,/g,'')) || 0;
+                        ps.njo += parseFloat((i[headersS2[S2_IDX.NJ_OFFER]]||"0").replace(/,/g,'')) || 0;
+                    });
+                    picBody.innerHTML += `<tr class="hover:bg-blue-50 transition font-bold text-center text-center"><td class="text-left border-r border-blue-50 text-left text-left text-left text-left">${brand}</td><td class="text-left border-r border-blue-50 text-left text-left text-left text-left">${picName}</td><td class="text-rose-700 font-black border-r border-blue-50 text-center text-center text-center text-center">${ps.r}</td><td class="border-r border-blue-50 text-slate-600 text-xs text-center text-center text-center text-center">${ps.o}</td><td class="border-r border-blue-50 text-center text-center text-center text-center text-center">${ps.s}</td><td class="text-emerald-800 font-black text-lg border-r border-blue-50 text-center text-center text-center text-center">${ps.ob}</td><td class="border-r border-blue-50 ${ps.g<0?'text-rose-700 font-black':''} text-center text-center text-center text-center">${ps.g}</td><td class="text-center text-center text-center text-center">${ps.njo}</td></tr>`;
                 });
             });
-            sumBody.innerHTML += `<tr class="bg-slate-100 font-black border-t-2 border-slate-300 text-center"><td class="text-left px-10 text-indigo-900">GRAND TOTAL</td><td>${gt.o.toLocaleString()}</td><td>${gt.s.toLocaleString()}</td><td class="text-emerald-900 text-2xl">${gt.ob.toLocaleString()}</td><td class="${gt.g<0?'text-rose-800':''}">${gt.g.toLocaleString()}</td><td>${gt.njo.toLocaleString()}</td></tr>`;
-            document.getElementById('brandSummaryArea').classList.remove('hidden'); document.getElementById('picSummaryArea').classList.remove('hidden');
+            sumBody.innerHTML += `<tr class="bg-slate-100 font-black border-t-2 border-slate-300 text-center text-center text-center text-center"><td class="text-left px-10 text-left text-left text-left">GRAND TOTAL</td><td>${gt.o.toLocaleString()}</td><td>${gt.s.toLocaleString()}</td><td class="text-emerald-900 text-2xl text-center">${gt.ob.toLocaleString()}</td><td class="${gt.g<0?'text-rose-800':''} text-center text-center">${gt.g.toLocaleString()}</td><td class="text-center text-center">${gt.njo.toLocaleString()}</td></tr>`;
+            const area1 = document.getElementById('brandSummaryArea'); if(area1) area1.classList.remove('hidden');
+            const area2 = document.getElementById('picSummaryArea'); if(area2) area2.classList.remove('hidden');
         }
 
         function populateFilters() {
-            const bSel = document.getElementById('filterBrand');
+            const bSel = document.getElementById('filterBrand'); if(!bSel) return;
             [...new Set(dataS2.map(i => i[headersS2[S2_IDX.BRAND]]).filter(v => v && !v.toUpperCase().includes("TOTAL")))].sort().forEach(b => bSel.innerHTML += `<option value="${b}">${b}</option>`);
         }
         function updateFloorFilter() {
-            const b = document.getElementById('filterBrand').value, fSel = document.getElementById('filterFloor'), nSel = document.getElementById('filterName');
-            fSel.innerHTML = '<option value="">請選擇 Floor</option>'; nSel.innerHTML = '<option value="">請選擇姓名</option>'; nSel.disabled = true;
-            if (!b) { fSel.disabled = true; return resetFilters(); }
-            document.getElementById('initialPrompt').classList.add('hidden'); hideSharedDetail();
+            const b = document.getElementById('filterBrand').value, fSel = document.getElementById('filterFloor');
+            if(!fSel) return;
+            fSel.innerHTML = '<option value="">請選擇 Floor</option>'; if (!b) return resetFilters();
             const br = dataS2.filter(i => (i[headersS2[S2_IDX.BRAND]]||"").toUpperCase() === b.toUpperCase());
-            document.getElementById('resultAreaSheet2Title').innerHTML = `${b} 品牌數據`; renderS2(br, true);
-            [...new Set(br.map(i => i[headersS2[S2_IDX.FLOOR]]).filter(v => v))].sort().forEach(f => fSel.innerHTML += `<option value="${f}">${f}</option>`);
-            fSel.disabled = false;
+            const titleEl = document.getElementById('resultAreaSheet2Title'); if(titleEl) titleEl.innerHTML = `${b} 品牌數據`; 
+            renderS2(br, true);
+            [...new Set(br.map(i => i[headersS2[S2_IDX.FLOOR]]).filter(v => v))].sort().forEach(f => fSel.innerHTML += `<option value="${f}">${f}</option>`); fSel.disabled = false;
         }
         function updateNameFilter() {
             const b = document.getElementById('filterBrand').value, f = document.getElementById('filterFloor').value, nSel = document.getElementById('filterName');
-            nSel.innerHTML = '<option value="">請選擇姓名</option>'; if (!f) { nSel.disabled = true; return updateFloorFilter(); }
+            if(!nSel) return;
+            nSel.innerHTML = '<option value="">請選擇姓名</option>'; if (!f) return;
             const fr = dataS2.filter(i => (i[headersS2[S2_IDX.BRAND]]||"").toUpperCase() === b.toUpperCase() && (i[headersS2[S2_IDX.FLOOR]]||"").toString() === f.toString());
-            document.getElementById('resultAreaSheet2Title').innerHTML = `${b} - ${f} 數據`; renderS2(fr, true);
             fr.forEach(i => nSel.innerHTML += `<option value="${i[headersS2[S2_IDX.NAME]]}">${i[headersS2[S2_IDX.NAME]]}</option>`); nSel.disabled = false;
         }
         function searchByFilter() {
-            const n = document.getElementById('filterName').value, b = document.getElementById('filterBrand').value, f = document.getElementById('filterFloor').value;
-            if (!n) return updateNameFilter();
+            const n = document.getElementById('filterName').value, b = document.getElementById('filterBrand').value;
             const s = dataS2.find(i => (i[headersS2[S2_IDX.NAME]]||"").trim() === n.trim() && (i[headersS2[S2_IDX.BRAND]]||"").toUpperCase() === b.toUpperCase());
-            if (s) { const sId = (s[headersS2[S2_IDX.STAFF_ID]]||"").trim(); document.getElementById('staffId').value = sId; executeSearch(sId); }
+            if (s) { document.getElementById('staffId').value = s[headersS2[S2_IDX.STAFF_ID]]; executeSearch(s[headersS2[S2_IDX.STAFF_ID]]); }
         }
         function manualSearch() { const id = document.getElementById('staffId').value.trim(); if (id) executeSearch(id); }
         function executeSearch(sId) {
-            document.getElementById('initialPrompt').classList.add('hidden'); document.getElementById('inactiveResultArea').classList.add('hidden');
-            const p2 = dataS2.find(i => (i[headersS2[S2_IDX.STAFF_ID]]||"").trim() === sId);
-            const f1 = dataS1.filter(i => (i[headersS1[S1_IDX.STAFF_ID]]||"").trim() === sId && (parseDate(i[headersS1[S1_IDX.OFFER_DATE]]) > DATE_LIMIT));
-            const f2 = dataS2.filter(i => (i[headersS2[S2_IDX.STAFF_ID]]||"").trim() === sId);
-            if (p2 || f1.length || f2.length) { renderS1(f1); renderS2(f2, false); renderTrackingInfo(sId, p2); } else { showNone(); }
+            const ip = document.getElementById('initialPrompt'); if(ip) ip.classList.add('hidden');
+            const p2 = dataS2.filter(i => (i[headersS2[S2_IDX.STAFF_ID]]||"").trim() === sId);
+            const f1 = dataS1.filter(i => (i[headersS1[S1_IDX.STAFF_ID]]||"").trim() === sId);
+            renderS2(p2, false);
+            const sa = document.getElementById('statsArea'); if(sa && (p2.length || f1.length)) sa.classList.remove('hidden');
         }
-        function renderTrackingInfo(sId, p2) {
-            const now = new Date(); let lD = null;
-            dataS1.filter(i => (i[headersS1[S1_IDX.STAFF_ID]]||"").trim() === sId).forEach(i => { const d = parseDate(i[headersS1[S1_IDX.OFFER_DATE]]); if (d && (!lD || d > lD)) lD = d; });
-            const name = p2 ? p2[headersS2[S2_IDX.NAME]] : "同事";
-            document.getElementById('trackingText').innerHTML = lD ? `${name} 最後介紹同事 (<span class="text-rose-600 font-black">${Math.floor((now-lD)/(1000*60*60*24))} 天前</span>) (${lD.toLocaleDateString('zh-HK')})!` : `${name} 最後介紹同事 (從無記錄)!`;
-            document.getElementById('referralTrackingInfo').classList.remove('hidden');
-        }
-        function checkInactiveByDays(days) {
-            showNone(); const now = new Date(); const cut = new Date(); cut.setDate(now.getDate() - days);
-            const lMap = new Map();
-            dataS1.forEach(i => { const sId = (i[headersS1[S1_IDX.STAFF_ID]]||"").trim(); const d = parseDate(i[headersS1[S1_IDX.OFFER_DATE]]); if (sId && d && (!lMap.has(sId) || d > lMap.get(sId))) lMap.set(sId, d); });
-            const container = document.getElementById('inactiveBrandContainer'); container.innerHTML = '';
-            ['DERMES', 'ELYZE', 'REENEX'].forEach(bName => {
-                const list = dataS2.filter(i => (i[headersS2[S2_IDX.BRAND]]||"").toUpperCase() === bName && !i[headersS2[S2_IDX.NAME]].toUpperCase().includes("TOTAL") && !['HIPO E1','CM','DM'].includes((i[headersS2[S2_IDX.POS]]||"").toUpperCase()));
-                const inact = list.filter(i => { const d = lMap.get((i[headersS2[S2_IDX.STAFF_ID]]||"").trim()); return !d || d < cut; });
-                if (inact.length > 0) {
-                    container.innerHTML += `<div class="space-y-4 text-left"><h3 class="text-lg font-black text-slate-800 flex items-center bg-white/40 px-4 py-2 rounded-xl w-fit border border-white text-left"><span class="w-3 h-3 bg-rose-500 rounded-full mr-3 text-left"></span>${bName} <span class="ml-3 text-rose-600 font-cyber text-sm text-left">Total: ${inact.length}</span></h3><div class="cyber-card overflow-hidden text-center"><div class="overflow-x-auto custom-scrollbar text-center"><table class="w-full border-collapse text-center"><thead class="bg-rose-50/50 border-b-2 border-rose-100 text-rose-950 font-black text-sm text-center"><tr><th class="text-left border-r border-rose-50">PIC</th><th class="text-left border-r border-rose-50">姓名 (Name)</th><th class="text-left border-r border-rose-50">職位</th><th class="text-center border-r border-rose-50">最後日期</th><th class="text-center">距離</th></tr></thead><tbody class="divide-y divide-slate-100 font-bold text-lg text-center text-center">${inact.map(i => {
-                        const d = lMap.get((i[headersS2[S2_IDX.STAFF_ID]]||"").trim());
-                        return `<tr><td class="text-slate-600 text-left border-r border-rose-50">${i[headersS2[S2_IDX.PIC]]||"-"}</td><td class="text-slate-900 font-black text-left border-r border-rose-50">${i[headersS2[S2_IDX.NAME]]||"-"}</td><td class="text-slate-600 text-left border-r border-rose-50 italic text-sm">${i[headersS2[S2_IDX.POS]]||"-"}</td><td class="border-r border-rose-50">${d ? d.toLocaleDateString('zh-HK') : "-"}</td><td class="text-rose-700 font-black">${d ? Math.floor((now-d)/(1000*60*60*24))+" 天前" : "從無記錄"}</td></tr>`;
-                    }).join('')}</tbody></table></div></div></div>`;
-                }
-            });
-            document.getElementById('inactiveTitleSpan').innerText = days === 14 ? "最近 2 星期無推薦" : days === 30 ? "最近 1 個月無推薦" : "最近 2 個月無推薦";
-            document.getElementById('inactiveResultArea').classList.remove('hidden');
-        }
-        function resetFilters() { document.getElementById('filterBrand').value = ''; document.getElementById('filterFloor').disabled = true; document.getElementById('filterName').disabled = true; document.getElementById('staffId').value = ''; showNone(); document.getElementById('initialPrompt').classList.remove('hidden'); }
         function parseDate(d) {
             if (!d || d === '-' || d.trim() === "") return null;
             const ms = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
             const p = d.split(/[\s/-]+/); if (p.length === 3) { 
                 let day = parseInt(p[0]), mIdx = ms.indexOf(p[1].toLowerCase().substring(0, 3)), yr = parseInt(p[2]); 
-                if (day && mIdx !== -1 && yr) return new Date(yr, mIdx, day); 
+                if (day && mIdx !== -1 && yr) return new Date(yr, mIdx, day, 0, 0, 0, 0); 
             }
             const ts = Date.parse(d); return isNaN(ts) ? null : new Date(ts);
         }
-        function renderS1(list) {
-            const rbRJ = document.getElementById('resultTableBodyRJ'), rbNJ = document.getElementById('resultTableBodyNJ'); rbRJ.innerHTML = ''; rbNJ.innerHTML = ''; let c = { t: 0, j: 0, d: 0, w: 0 };
-            list.forEach(i => {
-                c.t++; const n = i[headersS1[S1_IDX.NAME]], rjnj = (i[headersS1[S1_IDX.RJNJ]]||"").toUpperCase();
-                const dV = (i[headersS1[S1_IDX.LEAD_DATE]]||"").trim(), obV = (i[headersS1[S1_IDX.ONBOARD_DATE]]||"").trim();
-                const status = (i[headersS1[22]]||"-"), z = (i[headersS1[25]]||"PENDING");
-                if (z.toUpperCase().includes('ONBOARD')) c.j++; else if (z.toUpperCase().includes('WITHDRAW') || status.toUpperCase().includes('WITHDRAW')) c.d++; else c.w++;
-                const tr = `<tr><td class="text-left font-black text-base md:text-xl text-slate-900">${n}</td><td class="text-center text-[10px] md:text-sm font-bold bg-slate-50/50">${dV}</td><td class="text-center text-sm md:text-lg">${status}</td><td class="text-center text-sm md:text-base readable-nums">${obV}</td><td class="text-center"><span class="px-3 md:px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm ${getZColumnClass(z)}">${z}</span></td></tr>`;
-                rjnj.includes('RJ') ? rbRJ.innerHTML += tr : rbNJ.innerHTML += tr;
-            });
-            document.getElementById('totalCount').innerText = c.t; document.getElementById('joinedCount').innerText = c.j; document.getElementById('withdrawCount').innerText = c.d; document.getElementById('pendingCount').innerText = c.w;
-            document.getElementById('statsArea').classList.remove('hidden'); document.getElementById('resultArea').classList.remove('hidden');
-        }
         function renderS2(list, isLv) {
-            const rb = document.getElementById('sheet2TableBody'); rb.innerHTML = '';
+            const rb = document.getElementById('sheet2TableBody'); if(!rb) return;
+            rb.innerHTML = '';
             list.forEach(i => {
-                const isAS = (i[headersS2[S2_IDX.POS]]||"").toUpperCase().includes('AS') || (i[headersS2[S2_IDX.POS]]||"").toUpperCase() === 'S';
-                let rVal = isAS ? (parseFloat(i[headersS2[S2_IDX.RESIGN]])||0) + (parseFloat(i[headersS2[S2_IDX.RESIGN]+1])||0) : 0;
                 let o = parseFloat((i[headersS2[S2_IDX.OFFER]]||"0").replace(/,/g,'')), g = parseFloat((i[headersS2[S2_IDX.GAP]]||"0").replace(/,/g,'')), njo = parseFloat((i[headersS2[S2_IDX.NJ_OFFER]]||"0").replace(/,/g,''));
-                rb.innerHTML += `<tr class="hover:bg-sky-50 transition font-bold"><td class="text-left border-r border-sky-50 text-base md:text-xl text-slate-950">${i[headersS2[S2_IDX.NAME]]}</td><td class="border-r border-sky-50 bg-sky-50/50">${isAS ? rVal : '-'}</td><td class="border-r border-sky-50">${o}</td><td class="border-r border-sky-50">${i[headersS2[S2_IDX.SHOULD]]}</td><td class="border-r border-sky-50">${i[headersS2[S2_IDX.ONBOARD]]}</td><td class="border-r border-blue-50 text-xl md:text-3xl font-black ${g<0?'bg-rose-100 text-rose-900 shadow-inner':''}">${g}</td><td>${njo}</td></tr>`;
-                if (!isLv) document.getElementById('dynamicLogicFormula').innerHTML = `Formula Trace: 2 + Resign (<span class="text-indigo-700 font-black">${rVal}</span>) - Offer (<span class="text-slate-900 font-black">${o}</span>) = Gap (<span class="${g<0?'text-rose-700 underline':''}">${g}</span>)`;
+                rb.innerHTML += `<tr class="hover:bg-sky-50 transition font-bold"><td class="text-left border-r border-sky-50 text-left text-left">${i[headersS2[S2_IDX.NAME]]}</td><td class="border-r border-sky-50 text-center text-center text-center">${(parseFloat(i[headersS2[9]])||0) + (parseFloat(i[headersS2[10]])||0)}</td><td class="border-r border-sky-50 text-center text-center text-center">${o}</td><td class="border-r border-sky-50 text-center text-center text-center text-center">${i[headersS2[S2_IDX.SHOULD]]}</td><td class="border-r border-sky-50 text-center text-center text-center text-center">${i[headersS2[S2_IDX.ONBOARD]]}</td><td class="border-r border-blue-50 text-center text-center text-center text-center font-black ${g<0?'bg-rose-100 text-rose-900':''} text-2xl">${g}</td><td class="text-center text-center text-center">${njo}</td></tr>`;
             });
-            document.getElementById('resultAreaSheet2').classList.remove('hidden');
+            const s2Area = document.getElementById('resultAreaSheet2');
+            if(s2Area) s2Area.classList.toggle('hidden', list.length === 0);
         }
-        function getZColumnClass(v) { if (v.toUpperCase().includes('WITHDRAW')) return "bg-rose-100 text-rose-800"; if (v.toUpperCase().includes('ONBOARD')) return "bg-emerald-100 text-emerald-900"; return "bg-amber-100 text-amber-800"; }
-        function showNone() { document.getElementById('statsArea').classList.add('hidden'); document.getElementById('resultArea').classList.add('hidden'); document.getElementById('resultAreaSheet2').classList.add('hidden'); document.getElementById('inactiveResultArea').classList.add('hidden'); document.getElementById('referralTrackingInfo').classList.add('hidden'); document.getElementById('noResult').classList.remove('hidden'); hideSharedDetail(); }
+        function checkInactiveByDays(days) {
+            showNone(); const now = new Date(); const cut = new Date(); cut.setDate(now.getDate() - days);
+            const lMap = new Map();
+            dataS1.forEach(i => { const sId = (i[headersS1[S1_IDX.STAFF_ID]]||"").trim(); const d = parseDate(i[headersS1[S1_IDX.OFFER_DATE]]); if (sId && d && (!lMap.has(sId) || d > lMap.get(sId))) lMap.set(sId, d); });
+            const container = document.getElementById('inactiveBrandContainer'); if(!container) return; container.innerHTML = '';
+            ['DERMES', 'ELYZE', 'REENEX'].forEach(bName => {
+                const list = dataS2.filter(i => (i[headersS2[S2_IDX.BRAND]]||"").toUpperCase() === bName && !i[headersS2[S2_IDX.NAME]].toUpperCase().includes("TOTAL") && !['HIPO E1','CM','DM'].includes((i[headersS2[S2_IDX.POS]]||"").toUpperCase()));
+                const inact = list.filter(i => { const d = lMap.get((i[headersS2[S2_IDX.STAFF_ID]]||"").trim()); return !d || d < cut; });
+                if (inact.length > 0) {
+                    container.innerHTML += `<div class="space-y-4 text-left"><h3 class="text-lg font-black text-slate-800 flex items-center bg-white/40 px-4 py-2 rounded-xl w-fit border border-white text-left text-left text-left"><span class="w-3 h-3 bg-rose-500 rounded-full mr-3 text-left text-left text-left"></span>${bName} <span class="ml-3 text-rose-600 font-cyber text-sm text-left text-left text-left">Total: ${inact.length}</span></h3><div class="cyber-card overflow-hidden text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center"><div class="overflow-x-auto custom-scrollbar text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center"><table class="w-full border-collapse text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center"><thead class="bg-rose-50/50 border-b-2 border-rose-100 text-rose-950 font-black text-sm text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center"><tr><th class="text-left border-r border-rose-50 text-left text-left text-left text-left">PIC</th><th class="text-left border-r border-rose-50 text-left text-left text-left text-left text-left">姓名 (Name)</th><th class="text-left border-r border-rose-50 text-left text-left text-left text-left text-left">職位</th><th class="text-center border-r border-rose-50 text-center text-center text-center text-center text-center text-center">最後日期</th><th class="text-center text-center text-center text-center text-center text-center text-center">距離</th></tr></thead><tbody class="divide-y divide-slate-100 font-bold text-lg text-center text-center text-center text-center text-center text-center text-center text-center text-center text-center">${inact.map(i => {
+                        const d = lMap.get((i[headersS2[S2_IDX.STAFF_ID]]||"").trim());
+                        return `<tr><td class="text-slate-600 text-left border-r border-rose-50 text-left text-left text-left text-left text-left text-left">${i[headersS2[S2_IDX.PIC]]||"-"}</td><td class="text-slate-900 font-black text-left border-r border-rose-50 text-left text-left text-left text-left text-left text-left">${i[headersS2[S2_IDX.NAME]]||"-"}</td><td class="text-slate-600 text-left border-r border-rose-50 italic text-sm text-left text-left text-left text-left text-left text-left text-left text-left text-left">${i[headersS2[S2_IDX.POS]]||"-"}</td><td class="text-slate-700 text-center border-r border-rose-50 text-center text-center text-center text-center text-center text-center text-center">${d ? d.toLocaleDateString('zh-HK') : "-"}</td><td class="text-rose-700 font-black text-center text-center text-center text-center text-center text-center text-center text-center text-center">${d ? Math.floor((now-d)/(1000*60*60*24))+" 天前" : "從無記錄"}</td></tr>`;
+                    }).join('')}</tbody></table></div></div></div>`;
+                }
+            });
+            const it = document.getElementById('inactiveTitleSpan'); if(it) it.innerText = days === 14 ? "最近 2 星期無推薦" : "最近 1 個月無推薦";
+            const ia = document.getElementById('inactiveResultArea'); if(ia) ia.classList.remove('hidden');
+        }
+        function resetFilters() { document.getElementById('filterBrand').value = ''; document.getElementById('filterFloor').disabled = true; document.getElementById('filterName').disabled = true; document.getElementById('staffId').value = ''; showNone(); const ip = document.getElementById('initialPrompt'); if(ip) ip.classList.remove('hidden'); }
+        function showNone() { const sa = document.getElementById('statsArea'); if(sa) sa.classList.add('hidden'); const rs2 = document.getElementById('resultAreaSheet2'); if(rs2) rs2.classList.add('hidden'); const ia = document.getElementById('inactiveResultArea'); if(ia) ia.classList.add('hidden'); hideSharedDetail(); }
         window.onload = init;
     </script>
 </body>
