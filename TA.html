@@ -162,12 +162,12 @@
             </div>
         </div>
 
-        <!-- 入職批次追蹤 -->
+        <!-- 入職批次追蹤 (當月與後4個月) -->
         <div id="onBoardBatchArea" class="mb-10 text-left">
             <div class="flex flex-col md:flex-row md:items-center gap-6 mb-8 text-left">
                 <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-indigo-500 pl-4 tracking-wider uppercase text-left">入職批次追蹤 <span class="font-cyber text-indigo-500 ml-2">ON BOARD BATCHES</span></h2>
                 <div class="flex flex-wrap items-center gap-2 bg-white/50 p-2 rounded-2xl border border-white shadow-sm text-left" id="monthSelector">
-                    <!-- JS 自動產生 -->
+                    <!-- JS 自動產生 5 個月的按鈕 -->
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-left" id="batchContainer">
@@ -321,7 +321,7 @@
         <div id="hrPerformanceArea" class="mb-24 text-left hidden">
             <div class="flex flex-col gap-4 mb-6">
                 <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-teal-600 pl-4 tracking-wider uppercase text-left">Weekly PIC Performance <span class="font-cyber text-teal-500 ml-2">BY HR</span></h2>
-                <div class="flex flex-col md:flex-row flex-wrap gap-4 text-left">
+                <div class="flex flex-col md:flex-row flex-wrap gap-4 text-left z-10">
                     <div class="flex items-center gap-2 bg-white/60 p-2 rounded-xl border border-white shadow-sm">
                         <span class="filter-label ml-1">Lead/Offer Date:</span>
                         <input type="date" id="hrPerfStart" onchange="calculateHrPerformance()" class="date-selector-input">
@@ -339,12 +339,21 @@
                             <input type="date" id="hrPerfObEnd" onchange="calculateHrPerformance()" class="date-selector-input border-teal-100">
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 bg-teal-50/50 p-2 rounded-xl border border-teal-100 shadow-sm">
+                    
+                    <!-- 多選 Position 選單 -->
+                    <div class="flex items-center gap-2 bg-teal-50/50 p-2 rounded-xl border border-teal-100 shadow-sm relative">
                         <span class="filter-label ml-1 text-teal-700">Position:</span>
-                        <select id="hrPerfPosFilter" onchange="calculateHrPerformance()" class="date-selector-input border-teal-100 outline-none w-32 md:w-auto">
-                            <option value="">所有 Position</option>
-                        </select>
+                        <div class="relative">
+                            <button type="button" onclick="document.getElementById('posDropdownMenu').classList.toggle('hidden')" class="date-selector-input border-teal-100 outline-none w-40 text-left flex justify-between items-center gap-2 min-w-[120px] bg-white">
+                                <span id="posDropdownLabel" class="truncate">E1</span>
+                                <svg class="w-3 h-3 flex-shrink-0 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div id="posDropdownMenu" class="hidden absolute top-full right-0 md:left-0 mt-2 w-48 bg-white border border-teal-100 rounded-xl shadow-2xl z-50 py-2 max-h-60 overflow-y-auto">
+                                <!-- Checkboxes dynamic list -->
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
             <div class="cyber-card overflow-hidden">
@@ -376,6 +385,7 @@
         let currentDetailMode = ""; let currentDetailKey = "";
         let availableMonths = [];
         let selectedBatchMonths = [];
+        let selectedPositions = ['E1']; // 預設顯示 E1
 
         const SHEET1_BASE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQI5NkFNnXAqi78qHKhg6CRZ4ZTVwu1Tevpo2PXdQn85pZWh6GeAhK29Ih4U7B9QKzqucIDomXJh94L/pub?gid=0&single=true&output=csv';
         const SHEET2_BASE_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQI5NkFNnXAqi78qHKhg6CRZ4ZTVwu1Tevpo2PXdQn85pZWh6GeAhK29Ih4U7B9QKzqucIDomXJh94L/pub?gid=906179987&single=true&output=csv';
@@ -392,6 +402,16 @@
             { border: 'border-violet-500', text: 'text-violet-600', bg: 'bg-violet-100', accent: 'text-violet-700' },
             { border: 'border-sky-500', text: 'text-sky-600', bg: 'bg-sky-100', accent: 'text-sky-700' }
         ];
+
+        // 點擊外部關閉 Position 選單
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('posDropdownMenu');
+            if (!menu) return;
+            const button = menu.previousElementSibling;
+            if (!menu.classList.contains('hidden') && !menu.contains(event.target) && !button.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
 
         // --- 工具函式 ---
         function getThisMonday() { const today = new Date(); const diff = today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1); return new Date(today.getFullYear(), today.getMonth(), diff, 0, 0, 0, 0); }
@@ -664,6 +684,24 @@
             sumBody.innerHTML += `<tr class="bg-slate-100 font-black border-t-2 border-slate-300 text-center"><td class="text-left px-10 text-indigo-900">GRAND TOTAL</td><td>${gt.o.toLocaleString()}</td><td>${gt.s.toLocaleString()}</td><td class="text-emerald-900 text-2xl">${gt.ob.toLocaleString()}</td><td class="${gt.g<0?'text-rose-800':''}">${gt.g.toLocaleString()}</td><td>${gt.njo.toLocaleString()}</td></tr>`;
         }
 
+        // 多選 Position 的更新標籤函式
+        function updatePosSelection() {
+            const checkboxes = document.querySelectorAll('.pos-checkbox');
+            selectedPositions = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+            
+            const label = document.getElementById('posDropdownLabel');
+            if (label) {
+                if (selectedPositions.length === 0) {
+                    label.innerText = "未選擇";
+                } else if (selectedPositions.length <= 2) {
+                    label.innerText = selectedPositions.join(', ');
+                } else {
+                    label.innerText = `已選 ${selectedPositions.length} 項`;
+                }
+            }
+            calculateHrPerformance();
+        }
+
         function calculateHrPerformance() {
             const hrBody = document.getElementById('hrPerformanceBody');
             if(!hrBody) return;
@@ -683,8 +721,6 @@
             const poStartTs = poStart ? poStart.getTime() : 0;
             const poEndLimitTs = poEnd ? new Date(poEnd.getTime()).setHours(23,59,59,999) : Infinity;
 
-            const posFilter = document.getElementById('hrPerfPosFilter')?.value?.toUpperCase();
-
             if (pStart && endEl.value) {
                 const hrMap = new Map();
                 dataS1.forEach(row => {
@@ -692,7 +728,8 @@
                     if (!brand) return;
                     
                     const pos = (row[headersS1[4]] || "").trim().toUpperCase();
-                    if (posFilter && pos !== posFilter) return;
+                    // 若沒有任何勾選的 Position，則跳過 (不顯示資料)
+                    if (!selectedPositions.includes(pos)) return;
                     
                     const ld = parseDate(row[headersS1[S1_IDX.LEAD_DATE]]);
                     const ldTs = ld ? ld.getTime() : null;
@@ -719,6 +756,7 @@
                     }
                     
                     if (isLead || isOffer) {
+                        // 移除 HR PIC 後，只以 Brand 作為彙總分類
                         const key = brand;
                         if (!hrMap.has(key)) hrMap.set(key, { leads: 0, nj: 0, rj: 0 });
                         const stats = hrMap.get(key);
@@ -829,14 +867,21 @@
             bSel.innerHTML = '<option value="">請選擇品牌</option>';
             [...new Set(dataS2.map(i => i[headersS2[S2_IDX.BRAND]]).filter(v => v && !v.toUpperCase().includes("TOTAL")))].sort().forEach(b => bSel.innerHTML += `<option value="${b}">${b}</option>`);
 
-            const pSel = document.getElementById('hrPerfPosFilter');
-            if (pSel && headersS1.length > 4) {
-                const currentVal = pSel.value;
-                pSel.innerHTML = '<option value="">所有 Position</option>';
-                [...new Set(dataS1.map(i => (i[headersS1[4]]||"").trim()).filter(v => v))].sort().forEach(p => {
-                    pSel.innerHTML += `<option value="${p}">${p}</option>`;
+            const pMenu = document.getElementById('posDropdownMenu');
+            if (pMenu && headersS1.length > 4) {
+                // 從 Sheet 1 (Column E) 抓取所有不重複的 Position
+                const uniquePos = [...new Set(dataS1.map(i => (i[headersS1[4]]||"").trim().toUpperCase()).filter(v => v))].sort();
+                
+                pMenu.innerHTML = '';
+                uniquePos.forEach(p => {
+                    const isChecked = selectedPositions.includes(p) ? 'checked' : '';
+                    pMenu.innerHTML += `
+                        <label class="flex items-center px-4 py-2 hover:bg-teal-50 cursor-pointer">
+                            <input type="checkbox" value="${p}" class="pos-checkbox cursor-pointer w-4 h-4 accent-teal-600 mr-3" onchange="updatePosSelection()" ${isChecked}>
+                            <span class="text-sm font-bold text-slate-700">${p}</span>
+                        </label>
+                    `;
                 });
-                pSel.value = currentVal;
             }
         }
 
