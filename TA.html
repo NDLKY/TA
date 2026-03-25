@@ -167,7 +167,7 @@
             <div class="flex flex-col md:flex-row md:items-center gap-6 mb-8 text-left">
                 <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-indigo-500 pl-4 tracking-wider uppercase text-left">入職批次追蹤 <span class="font-cyber text-indigo-500 ml-2">ON BOARD BATCHES</span></h2>
                 <div class="flex flex-wrap items-center gap-2 bg-white/50 p-2 rounded-2xl border border-white shadow-sm text-left" id="monthSelector">
-                    <!-- JS 自動產生 5 個月的按鈕 -->
+                    <!-- JS 自動產生 -->
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-left" id="batchContainer">
@@ -197,9 +197,9 @@
                     <div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-indigo-500 readable-nums" id="weekly-lead-rj-REENEX">RJ: 0</span><span class="text-2xl font-black text-indigo-500 readable-nums" id="weekly-lead-nj-REENEX">NJ: 0</span></div><span class="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl text-4xl font-black shadow-inner" id="weekly-lead-total-REENEX">0</span></div>
                 </div>
                 <div onclick="toggleLeadList('ELYZE')" class="lead-card cyber-card p-6 border-b-8 border-emerald-400 text-left">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Leads (AC Date)</p>
-                    <p class="text-xl font-black text-slate-900 mb-3">ELYZE</p>
-                    <div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-emerald-500 readable-nums" id="weekly-lead-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-emerald-500 readable-nums" id="weekly-lead-nj-ELYZE">NJ: 0</span></div><span class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-4xl font-black shadow-inner" id="weekly-lead-total-ELYZE">0</span></div>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left text-left">Leads (AC Date)</p>
+                    <p class="text-xl font-black text-slate-900 mb-3 text-left text-left">ELYZE</p>
+                    <div class="flex items-center justify-between text-left"><div class="flex flex-col text-left"><span class="text-2xl font-black text-emerald-500 readable-nums" id="weekly-lead-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-emerald-500 readable-nums" id="weekly-lead-nj-ELYZE">NJ: 0</span></div><span class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-4xl font-black shadow-inner" id="weekly-lead-total-ELYZE">0</span></div>
                 </div>
             </div>
         </div>
@@ -220,12 +220,12 @@
                     <div class="flex items-center justify-between text-left"><div class="flex flex-col text-left"><span class="text-2xl font-black text-rose-600 readable-nums" id="weekly-rj-DERMES">RJ: 0</span><span class="text-2xl font-black text-rose-600 readable-nums" id="weekly-nj-DERMES">NJ: 0</span></div><span class="px-4 py-2 bg-rose-50 text-rose-700 rounded-xl text-4xl font-black shadow-inner" id="weekly-total-DERMES">0</span></div>
                 </div>
                 <div onclick="toggleWeeklyList('REENEX')" class="weekly-card cyber-card p-6 border-b-8 border-indigo-500 text-left">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Offer (Accepted/Offered)</p>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left text-left">Offer (Accepted/Offered)</p>
                     <p class="text-xl font-black text-slate-900 mb-3 text-left">REENEX</p>
                     <div class="flex items-center justify-between text-left"><div class="flex flex-col text-left"><span class="text-2xl font-black text-indigo-600 readable-nums" id="weekly-rj-REENEX">RJ: 0</span><span class="text-2xl font-black text-indigo-600 readable-nums" id="weekly-nj-REENEX">NJ: 0</span></div><span class="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl text-4xl font-black shadow-inner" id="weekly-total-REENEX">0</span></div>
                 </div>
                 <div onclick="toggleWeeklyList('ELYZE')" class="weekly-card cyber-card p-6 border-b-8 border-emerald-500 text-left">
-                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left">Offer (Accepted/Offered)</p>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 text-left text-left text-left">Offer (Accepted/Offered)</p>
                     <p class="text-xl font-black text-slate-900 mb-3 text-left">ELYZE</p>
                     <div class="flex items-center justify-between text-left"><div class="flex flex-col text-left"><span class="text-2xl font-black text-emerald-600 readable-nums" id="weekly-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-emerald-600 readable-nums" id="weekly-nj-ELYZE">NJ: 0</span></div><span class="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-4xl font-black shadow-inner" id="weekly-total-ELYZE">0</span></div>
                 </div>
@@ -242,7 +242,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
                 <div onclick="togglePendingList('DERMES')" class="pending-card cyber-card p-6 border-b-8 border-orange-400"><p class="text-xs font-black text-slate-500 uppercase mb-1">Offered but NOT Accept</p><p class="text-xl font-black text-slate-900 mb-3">DERMES</p><div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-rj-DERMES">RJ: 0</span><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-nj-DERMES">NJ: 0</span></div><span class="px-4 py-2 bg-orange-50 text-orange-700 rounded-xl text-4xl font-black shadow-inner" id="pending-total-DERMES">0</span></div></div>
                 <div onclick="togglePendingList('REENEX')" class="pending-card cyber-card p-6 border-b-8 border-orange-400"><p class="text-xs font-black text-slate-500 uppercase mb-1">Offered but NOT Accept</p><p class="text-xl font-black text-slate-900 mb-3 text-left">REENEX</p><div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-rj-REENEX">RJ: 0</span><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-nj-REENEX">NJ: 0</span></div><span class="px-4 py-2 bg-orange-50 text-orange-700 rounded-xl text-4xl font-black shadow-inner" id="pending-total-REENEX">0</span></div></div>
-                <div onclick="togglePendingList('ELYZE')" class="pending-card cyber-card p-6 border-b-8 border-orange-400"><p class="text-xs font-black text-slate-500 uppercase mb-1">Offered but NOT Accept</p><p class="text-xl font-black text-slate-900 mb-3 text-left">ELYZE</p><div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-nj-ELYZE">NJ: 0</span></div><span class="px-4 py-2 bg-orange-50 text-orange-700 rounded-xl text-4xl font-black shadow-inner" id="pending-total-ELYZE">0</span></div></div>
+                <div onclick="togglePendingList('ELYZE')" class="pending-card cyber-card p-6 border-b-8 border-orange-400"><p class="text-xs font-black text-slate-500 uppercase mb-1 text-left">Offered but NOT Accept</p><p class="text-xl font-black text-slate-900 mb-3 text-left">ELYZE</p><div class="flex items-center justify-between"><div class="flex flex-col text-left"><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-rj-ELYZE">RJ: 0</span><span class="text-2xl font-black text-orange-600 readable-nums" id="pending-nj-ELYZE">NJ: 0</span></div><span class="px-4 py-2 bg-orange-50 text-orange-700 rounded-xl text-4xl font-black shadow-inner" id="pending-total-ELYZE">0</span></div></div>
             </div>
         </div>
 
@@ -321,9 +321,30 @@
         <div id="hrPerformanceArea" class="mb-24 text-left hidden">
             <div class="flex flex-col gap-4 mb-6">
                 <h2 class="text-xl md:text-2xl font-black text-slate-900 px-2 border-l-8 border-teal-600 pl-4 tracking-wider uppercase text-left">Weekly PIC Performance <span class="font-cyber text-teal-500 ml-2">BY HR</span></h2>
-                <div class="flex flex-col md:flex-row gap-4 text-left">
-                    <div class="flex items-center gap-2 bg-white/60 p-2 rounded-xl border border-white shadow-sm"><span class="filter-label ml-1">Lead/Offer Date:</span><input type="date" id="hrPerfStart" onchange="calculateHrPerformance()" class="date-selector-input"><span class="font-bold text-slate-400 text-xs">至</span><input type="date" id="hrPerfEnd" onchange="calculateHrPerformance()" class="date-selector-input"></div>
-                    <div class="flex items-center gap-3 bg-teal-50/50 p-2 rounded-xl border border-teal-100 shadow-sm"><label class="checkbox-container ml-1"><input type="checkbox" id="useHrPerfObFilter" onchange="calculateHrPerformance()"><span class="filter-label ml-2 text-teal-700">套用 On Board Date:</span></label><div class="flex items-center gap-2"><input type="date" id="hrPerfObStart" onchange="calculateHrPerformance()" class="date-selector-input border-teal-100"><span class="font-bold text-teal-300 text-xs">至</span><input type="date" id="hrPerfObEnd" onchange="calculateHrPerformance()" class="date-selector-input border-teal-100"></div></div>
+                <div class="flex flex-col md:flex-row flex-wrap gap-4 text-left">
+                    <div class="flex items-center gap-2 bg-white/60 p-2 rounded-xl border border-white shadow-sm">
+                        <span class="filter-label ml-1">Lead/Offer Date:</span>
+                        <input type="date" id="hrPerfStart" onchange="calculateHrPerformance()" class="date-selector-input">
+                        <span class="font-bold text-slate-400 text-xs">至</span>
+                        <input type="date" id="hrPerfEnd" onchange="calculateHrPerformance()" class="date-selector-input">
+                    </div>
+                    <div class="flex items-center gap-3 bg-teal-50/50 p-2 rounded-xl border border-teal-100 shadow-sm">
+                        <label class="checkbox-container ml-1">
+                            <input type="checkbox" id="useHrPerfObFilter" onchange="calculateHrPerformance()">
+                            <span class="filter-label ml-2 text-teal-700">套用 On Board Date:</span>
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <input type="date" id="hrPerfObStart" onchange="calculateHrPerformance()" class="date-selector-input border-teal-100">
+                            <span class="font-bold text-teal-300 text-xs">至</span>
+                            <input type="date" id="hrPerfObEnd" onchange="calculateHrPerformance()" class="date-selector-input border-teal-100">
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 bg-teal-50/50 p-2 rounded-xl border border-teal-100 shadow-sm">
+                        <span class="filter-label ml-1 text-teal-700">Position:</span>
+                        <select id="hrPerfPosFilter" onchange="calculateHrPerformance()" class="date-selector-input border-teal-100 outline-none w-32 md:w-auto">
+                            <option value="">所有 Position</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="cyber-card overflow-hidden">
@@ -332,7 +353,6 @@
                         <thead class="bg-teal-50 text-teal-950 border-b-2 border-teal-100 font-black uppercase text-xs md:text-sm">
                             <tr>
                                 <th class="text-left border-r border-teal-100 px-6">Brand</th>
-                                <th class="text-left border-r border-teal-100 px-6">HR PIC</th>
                                 <th class="border-r border-teal-100 text-indigo-700 px-4">Lead</th>
                                 <th class="border-r border-teal-100 text-emerald-700 px-4">NJ Offer</th>
                                 <th class="text-emerald-700 px-4">RJ Offer</th>
@@ -663,14 +683,16 @@
             const poStartTs = poStart ? poStart.getTime() : 0;
             const poEndLimitTs = poEnd ? new Date(poEnd.getTime()).setHours(23,59,59,999) : Infinity;
 
+            const posFilter = document.getElementById('hrPerfPosFilter')?.value?.toUpperCase();
+
             if (pStart && endEl.value) {
                 const hrMap = new Map();
                 dataS1.forEach(row => {
                     const brand = (row[headersS1[S1_IDX.BRAND]] || "").trim().toUpperCase();
-                    const hrPicHeader = headersS1[23]; // Column X 為 HR PIC
-                    const hrPic = hrPicHeader ? (row[hrPicHeader] || "").trim() : "";
+                    if (!brand) return;
                     
-                    if (!brand || !hrPic) return;
+                    const pos = (row[headersS1[4]] || "").trim().toUpperCase();
+                    if (posFilter && pos !== posFilter) return;
                     
                     const ld = parseDate(row[headersS1[S1_IDX.LEAD_DATE]]);
                     const ldTs = ld ? ld.getTime() : null;
@@ -697,7 +719,7 @@
                     }
                     
                     if (isLead || isOffer) {
-                        const key = `${brand}|${hrPic}`;
+                        const key = brand;
                         if (!hrMap.has(key)) hrMap.set(key, { leads: 0, nj: 0, rj: 0 });
                         const stats = hrMap.get(key);
                         if (isLead) stats.leads++;
@@ -710,12 +732,11 @@
                 
                 const hrKeys = Array.from(hrMap.keys()).sort();
                 hrKeys.forEach(key => {
-                    const [brand, hrPic] = key.split('|');
+                    const brand = key;
                     const stats = hrMap.get(key);
                     if (stats.leads > 0 || stats.nj > 0 || stats.rj > 0) {
                         hrBody.innerHTML += `<tr class="hover:bg-teal-50 transition font-bold text-center">
                             <td class="text-left border-r border-teal-100 px-6">${brand}</td>
-                            <td class="text-left border-r border-teal-100 px-6">${hrPic}</td>
                             <td class="border-r border-teal-100 text-indigo-700 text-xl px-4">${stats.leads}</td>
                             <td class="border-r border-teal-100 text-emerald-700 text-xl px-4">${stats.nj}</td>
                             <td class="text-emerald-700 text-xl px-4">${stats.rj}</td>
@@ -807,6 +828,16 @@
             const bSel = document.getElementById('filterBrand'); if(!bSel) return;
             bSel.innerHTML = '<option value="">請選擇品牌</option>';
             [...new Set(dataS2.map(i => i[headersS2[S2_IDX.BRAND]]).filter(v => v && !v.toUpperCase().includes("TOTAL")))].sort().forEach(b => bSel.innerHTML += `<option value="${b}">${b}</option>`);
+
+            const pSel = document.getElementById('hrPerfPosFilter');
+            if (pSel && headersS1.length > 4) {
+                const currentVal = pSel.value;
+                pSel.innerHTML = '<option value="">所有 Position</option>';
+                [...new Set(dataS1.map(i => (i[headersS1[4]]||"").trim()).filter(v => v))].sort().forEach(p => {
+                    pSel.innerHTML += `<option value="${p}">${p}</option>`;
+                });
+                pSel.value = currentVal;
+            }
         }
 
         async function init() {
