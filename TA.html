@@ -355,12 +355,15 @@
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             const batchMap = new Map();
 
+            const todayMidnight = new Date();
+            todayMidnight.setHours(0, 0, 0, 0);
+
             dataS1.forEach(row => {
                 const dateStr = (row[headersS1[S1_IDX.ONBOARD_DATE]] || "").trim();
                 if (!dateStr || dateStr === "-" || dateStr === "") return;
                 const d = parseDate(dateStr);
-                // 檢查該資料的月份是否在使用者勾選的月份中
-                if (d && selectedBatchMonths.includes(d.getMonth() + 1)) {
+                // 檢查該資料的月份是否在使用者勾選的月份中，且日期 >= 今天
+                if (d && d >= todayMidnight && selectedBatchMonths.includes(d.getMonth() + 1)) {
                     const normalizedKey = `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
                     if (!batchMap.has(normalizedKey)) batchMap.set(normalizedKey, { total: 0, nj: 0, rj: 0, rawDate: d });
                     
@@ -509,7 +512,7 @@
             const rbRJ = document.getElementById('resultTableBodyRJ'), rbNJ = document.getElementById('resultTableBodyNJ'); 
             if(!rbRJ || !rbNJ) return;
             rbRJ.innerHTML = ''; rbNJ.innerHTML = ''; let c = { t: 0, j: 0, d: 0, w: 0 };
-            list.forEach(i => {
+            list.sort((a, b) => (a[headersS1[S1_IDX.BRAND]]||"").trim().localeCompare((b[headersS1[S1_IDX.BRAND]]||"").trim())).forEach(i => {
                 c.t++; const n = i[headersS1[S1_IDX.NAME]], rjnj = (i[headersS1[S1_IDX.RJNJ]]||"").toUpperCase(), dV = (i[headersS1[S1_IDX.LEAD_DATE]]||"").trim(), obV = (i[headersS1[S1_IDX.ONBOARD_DATE]]||"").trim();
                 const st = (i[headersS1[22]]||"-"), z = (i[headersS1[25]]||"PENDING");
                 if (z.toUpperCase().includes('ONBOARD')) c.j++; else if (z.toUpperCase().includes('WITHDRAW') || st.toUpperCase().includes('WITHDRAW')) c.d++; else c.w++;
@@ -523,7 +526,7 @@
 
         function renderS2(list, isLv) {
             const rb = document.getElementById('sheet2TableBody'); if(!rb) return; rb.innerHTML = '';
-            list.forEach(i => {
+            list.sort((a, b) => (a[headersS2[S2_IDX.BRAND]]||"").trim().localeCompare((b[headersS2[S2_IDX.BRAND]]||"").trim())).forEach(i => {
                 let o = parseFloat((i[headersS2[S2_IDX.OFFER]]||"0").replace(/,/g,'')), g = parseFloat((i[headersS2[S2_IDX.GAP]]||"0").replace(/,/g,'')), njo = parseFloat((i[headersS2[S2_IDX.NJ_OFFER]]||"0").replace(/,/g,''));
                 rb.innerHTML += `<tr class="hover:bg-sky-50 transition font-bold text-center"><td class="text-left border-r border-sky-50 px-6">${i[headersS2[S2_IDX.NAME]]}</td><td class="border-r border-sky-50 text-center px-4">${(parseFloat(i[headersS2[9]])||0) + (parseFloat(i[headersS2[10]])||0)}</td><td class="border-r border-sky-50 text-center px-4">${o}</td><td class="border-r border-sky-50 text-center px-4">${i[headersS2[S2_IDX.SHOULD]]}</td><td class="border-r border-sky-50 text-center px-4">${i[headersS2[S2_IDX.ONBOARD]]}</td><td class="border-r border-blue-50 text-center font-black ${g<0?'bg-rose-100 text-rose-900':''} text-2xl px-4">${g}</td><td class="text-center px-4">${njo}</td></tr>`;
             });
@@ -614,11 +617,15 @@
             document.querySelectorAll('.batch-card, .weekly-card, .lead-card, .pending-card').forEach(c => c.classList.remove('active'));
             let list = [];
             
-            const startL = getLocalDateFromInput(document.getElementById('leadStart')?.value), endL = getLocalDateFromInput(document.getElementById('leadEnd')?.value);
-            const startO = getLocalDateFromInput(document.getElementById('offerStart')?.value), endO = getLocalDateFromInput(document.getElementById('offerEnd')?.value);
-            const obS = getLocalDateFromInput(document.getElementById('obOfferStart')?.value), obE = getLocalDateFromInput(document.getElementById('obOfferEnd')?.value);
+            const startL = getLocalDateFromInput(document.getElementById('leadStart')?.value);
+            const endL = getLocalDateFromInput(document.getElementById('leadEnd')?.value);
+            const startO = getLocalDateFromInput(document.getElementById('offerStart')?.value);
+            const endO = getLocalDateFromInput(document.getElementById('offerEnd')?.value);
+            const obS = getLocalDateFromInput(document.getElementById('obOfferStart')?.value);
+            const obE = getLocalDateFromInput(document.getElementById('obOfferEnd')?.value);
             const useOb = document.getElementById('useObFilter')?.checked;
-            const startP = getLocalDateFromInput(document.getElementById('pendingStart')?.value), endP = getLocalDateFromInput(document.getElementById('pendingEnd')?.value);
+            const startP = getLocalDateFromInput(document.getElementById('pendingStart')?.value);
+            const endP = getLocalDateFromInput(document.getElementById('pendingEnd')?.value);
 
             if (mode === "BATCH") {
                 document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-indigo-500 rounded-full mr-3 text-left"></span> ${key} 批次名單`;
@@ -655,7 +662,7 @@
                 });
             } else {
                 const card = document.getElementById(`pending-${key}`); if(card) card.classList.add('active');
-                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-orange-500 rounded-full mr-3 text-left text-left"></span> ${key} 待定/拒絕 Offer 名單`;
+                document.getElementById('sharedDetailTitle').innerHTML = `<span class="w-3 h-3 bg-orange-500 rounded-full mr-3 text-left"></span> ${key} 待定/拒絕 Offer 名單`;
                 list = dataS1.filter(row => {
                     const bMatch = (row[headersS1[S1_IDX.BRAND]]||"").trim().toUpperCase() === key;
                     const od = parseDate(row[headersS1[S1_IDX.OFFER_DATE]]);
@@ -664,25 +671,32 @@
                     return bMatch && dMatch && stMatch;
                 });
             }
-            list.sort((a, b) => { const refA = ((a[headersS1[S1_IDX.STAFF_ID]] || "") + " " + (a[headersS1[S1_IDX.STAFF_NAME]] || "")).toUpperCase(), refB = ((b[headersS1[S1_IDX.STAFF_ID]] || "") + " " + (b[headersS1[S1_IDX.STAFF_NAME]] || "")).toUpperCase(); return refA.localeCompare(refB); });
+            list.sort((a, b) => { 
+                const brandA = (a[headersS1[S1_IDX.BRAND]] || "").trim().toUpperCase();
+                const brandB = (b[headersS1[S1_IDX.BRAND]] || "").trim().toUpperCase();
+                if (brandA !== brandB) return brandA.localeCompare(brandB);
+                const refA = ((a[headersS1[S1_IDX.STAFF_ID]] || "") + " " + (a[headersS1[S1_IDX.STAFF_NAME]] || "")).toUpperCase();
+                const refB = ((b[headersS1[S1_IDX.STAFF_ID]] || "") + " " + (b[headersS1[S1_IDX.STAFF_NAME]] || "")).toUpperCase();
+                return refA.localeCompare(refB);
+            });
             tbody.innerHTML = list.map(row => `<tr class="hover:bg-blue-50 transition font-bold text-center"><td class="text-left border-r border-blue-50 text-indigo-600 font-black text-sm px-6">${row[headersS1[S1_IDX.BRAND]]}</td><td class="text-center border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.LEAD_DATE]] || "-"}</td><td class="text-center border-r border-blue-50 text-slate-800 text-sm px-4">${row[headersS1[S1_IDX.OFFER_DATE]] || "-"}</td><td class="text-center border-r border-blue-50 text-slate-900 text-sm font-black px-4">${row[headersS1[S1_IDX.STATUS]] || "-"}</td><td class="text-center border-r border-blue-50 text-indigo-700 uppercase text-sm px-4 text-center">${row[headersS1[S1_IDX.RJNJ]]}</td><td class="text-left border-r border-blue-50 text-slate-900 font-black text-sm px-6">${row[headersS1[S1_IDX.NAME]]}</td><td class="text-left text-slate-600 font-medium text-xs px-6">${((row[headersS1[S1_IDX.STAFF_ID]]||"")+" "+(row[headersS1[S1_IDX.STAFF_NAME]]||"")).trim()}</td></tr>`).join('');
             area.classList.remove('hidden'); area.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         async function init() {
-            // 動態產生 4 個月的按鈕：若是 3 月則從 4 月開始算
+            // 動態產生當月及後續 4 個月的按鈕 (共 5 個按鈕)
             const today = new Date();
             const curM = today.getMonth() + 1; // 1-12
-            let startMonth = (curM === 3) ? 4 : curM;
-
+            
             availableMonths = [];
-            for(let i=0; i<4; i++) {
-                let m = startMonth + i;
+            for(let i=0; i<5; i++) {
+                let m = curM + i;
                 if(m > 12) m -= 12;
                 availableMonths.push(m);
             }
             
-            selectedBatchMonths = [startMonth];
+            // 預設選取當前月份 (加返 3 月)
+            selectedBatchMonths = [curM];
 
             const selector = document.getElementById('monthSelector');
             if(selector) {
